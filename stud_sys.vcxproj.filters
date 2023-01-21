@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7e795f7d-3bc8-4d31-98ba-4cefac3a4420}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{79c5e6c5-49fd-478f-b7c4-7a34dc550bcf}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{231b6c23-f282-4e41-980b-f630c0e483ba}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Admin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Budz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pacjent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pomiar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprawdz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sys_rap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Uruchom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Blank\Wewy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+</Project>
