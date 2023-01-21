@@ -5,6 +5,10 @@
 // miejsce dla opcjesys.h
 #include "../blank/moje.h"
 // koniec miejsca dla opcjesys.h
+
+
+#include "helper/helper.cpp"
+
 struct agenda *Agenda=NULL;
 int X_time=30, X_tyt=0, Liczba_opcji;
 // kolory pocz¹tkowe
@@ -75,6 +79,9 @@ int main(int argc, char *argv[])
 	char *uzytkownik = NULL, *haslo = NULL, Uzytkownik[DL_NAZWY_UZYT], Haslo[DL_NAZWY_HASLA];
 	char *graf_text[2] = { "Zmiana trybu na GRAFICZNY", "Zmiana trybu na TEKSTOWY " };
 	/* ---------------------------------------------------------------- */
+
+	printf("%d",add(1, 2));
+
 #ifdef _CVC_
 	//	SetConsoleCP(GetConsoleCP());
 	InitConsole();
