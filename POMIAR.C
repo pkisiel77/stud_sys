@@ -1,11 +1,11 @@
 #include <process.h>
 #include "time.h"
 #include "ramkaa.h"
-#include "../blank/moje.h"
-#include "../blank/sys_dekl.h"
+#include "blank/moje.h"
+#include "blank/sys_dekl.h"
 #include "pomiar.h"
-#include "../blank/wewybl.h"
-//#include "../blank/graph.c"
+#include "blank/wewybl.h"
+//#include "blank/graph.c"
 //#include "term_graf.h"
 
 void chk_time(void);

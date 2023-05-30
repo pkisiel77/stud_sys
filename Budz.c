@@ -1,4 +1,4 @@
-#include "../blank/moje.h"
+#include "blank/moje.h"
 #include "dek_budz.h"
 void chk_time(void);
 extern struct Service *Service;

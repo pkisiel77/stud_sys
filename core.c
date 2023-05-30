@@ -3,12 +3,9 @@
 #define _DEF_SYS_
 #define GRAF 
 // miejsce dla opcjesys.h
-#include "../blank/moje.h"
+#include "blank/moje.h"
 // koniec miejsca dla opcjesys.h
-
-
 // #include "helper/helper.cpp"
-
 struct agenda *Agenda=NULL;
 int X_time=30, X_tyt=0, Liczba_opcji;
 // kolory pocz¹tkowe
@@ -319,7 +316,7 @@ int open_sys(void)
 	}
 	*/
 	wewy_abort_off();   wpis_danych_bez_potwierdz();
-#include "../blank/hasla.c"
+#include "blank/hasla.c"
 	haslo_nieaktywne();
 	for(i=0; i<liczba_opcji;i++)
 	 {int kod_uslugi, rek0, rekf, kolor=0, ramka=1, max_l_data_blank=100;

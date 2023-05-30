@@ -4,7 +4,7 @@ Data:  18.11.2001
 Autor: gonzo77@poczta.fm
 ---------------------------------*/
 
-#include "../blank/moje.h"
+#include "blank/moje.h"
 #include "admin.h"
 #include <mmsystem.h>
 

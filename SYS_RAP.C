@@ -1,5 +1,5 @@
 /* #include <butil.h> */
-#include "../blank/moje.h"
+#include "blank/moje.h"
 #include "sys_rep.h"
 void chk_time(void);
 extern struct Service *Service;

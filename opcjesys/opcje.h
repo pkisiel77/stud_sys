@@ -1,0 +1,61 @@
+// to jest dla obu wersji TEXT & GRAF
+#include <windows.h>
+#define farmalloc malloc
+#define farfree free
+
+// koniec dla obu wersji
+#define _CVC_
+#ifndef _GLOBAL_OPCJESYS_
+#define _GLOBAL_OPCJESYS_
+//#define getch VCGetch
+#define EKRAN_X_MAX 80
+#define EKRAN_Y_MAX 25
+struct BUFOR_EKRANU
+{
+	char znak[EKRAN_X_MAX][EKRAN_Y_MAX];
+	unsigned int atrybut[EKRAN_X_MAX][EKRAN_Y_MAX];
+};
+//struct BUFOR_EKRANU be;
+//HANDLE hConsoleOutput, hConsoleInput;
+extern HWND handle_window_device;
+
+#ifdef _MAIN_MODUL_ // modu³u g³ównego czyli main
+ #include "../blank/konsola.c"
+#endif // koniec dla modu³u g³ównego
+#ifdef WEWY_MAIN // dla wewy_main
+ #include "../opcjesys/shintdef.h"
+#endif // koniec wewy_main
+#ifdef _MOJE_H_ // hedery dla moje.h
+ #include <stddef.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <conio.h>
+ #include <math.h>
+ #include <time.h>
+ #include <string.h>
+ #include <ctype.h>
+ #ifdef _DOS_ // dla DOS
+  #include <dos.h>
+  #include "alloc.h"
+  #include <process.h>
+  typedef  int shint;
+  typedef  int pid_t;
+  #include "../blank/wewybl.h"
+  #include "../opcjesys/scr_size.h"
+ #endif // koniec DOS
+#endif // koniec hedrów dla moje.h
+#ifdef _WEWYBL_H_INCLUDE // hedery dla wewybl.h
+ #include "../opcjesys/shintdef.h"
+ #include "../opcjesys/mystderr.h"
+#endif // koniec init. hederów dla wewybl.h
+#ifdef _WEWY1_H_INCLUDE
+# include "../opcjesys/scr_size.h"
+#endif
+#ifdef GRAF
+//extern HDC hdc;
+//extern HWND hwnd;
+//#define getch VCGetch
+//#define MAX_LICZBA_KOLOROW 25 // do kolorów systemowch w WEWYBL.H
+#endif // koniec dla win_graf
+#endif
+

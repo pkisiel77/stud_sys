@@ -1,5 +1,5 @@
-#include "../blank/moje.h"
-#include "../blank/sys_dekl.h"
+#include "blank/moje.h"
+#include "blank/sys_dekl.h"
 void chk_time(void);
 extern struct Service *Service;
 extern struct agenda *Agenda;

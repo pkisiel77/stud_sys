@@ -21,4 +21,4 @@ struct budzik
   shint wyprzedz;
  };
 
-void ustaw_czas_budzika(struct agenda *A, struct budzik *B);
+void ustaw_czas_budzika(struct agenda *A, struct budzik *B);
