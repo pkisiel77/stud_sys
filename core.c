@@ -8,7 +8,7 @@
 // #include "helper/helper.cpp"
 struct agenda *Agenda=NULL;
 int X_time=30, X_tyt=0, Liczba_opcji;
-// kolory pocz¹tkowe
+// kolory poczï¿½tkowe
 unsigned int attr=TERM_WHITE_BG|TERM_BLACK|TERM_FLUSH;
 unsigned int at_wpis=TERM_WHITE|MTERM_HILIGHT|TERM_BLUE_BG|TERM_FLUSH;
 unsigned int attr_time=TERM_WHITE|MTERM_HILIGHT|TERM_BLUE_BG|TERM_FLUSH;
@@ -21,8 +21,8 @@ struct agenda *SysQ[Q_SIZE];
 void **RepDataPtr[L_REP_MAX];
 int report_act[L_REP_MAX+2];
 int ag_rep, q_rep;
-#include "konfig.c"
-#include "randf.c"
+#include "KONFIG.C"
+#include "RANDF.C"
 /* ----------------------------------------------------------- */
 void logo(int yg, int xg, unsigned int attr_logo, char *imie, char *nazwisko, signed char mode);
 void naglowek(unsigned int attr_logo);
@@ -51,13 +51,13 @@ int if_graf=0, YZ_max_text, Yz_max_graf, Y_MAX_graf=34;
 extern int y_shift=0;
 /*extern unsigned _stklen=50000U; */
 /* ---------------------------------------------------------------- */
-int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
-				int kto, int r_pocz, int lrek, struct Service *S);
+int raporty(signed char Kod_uslugi, shint Nr_rekordu, shint npzl,
+				shint kto, shint r_pocz, shint lrek, struct Service *S);
 /* ---------------------------------------------------------------- */
-// dodatkowe funkcje dla logowania plus sta³e symboliczne
+// dodatkowe funkcje dla logowania plus staï¿½e symboliczne
 #define DL_NAZWY_UZYT 12
 #define DL_NAZWY_HASLA 12
-// ustawienie scie¿ek do katalogów pacjenta
+// ustawienie scieï¿½ek do katalogï¿½w pacjenta
 #define PATH_LOG   "c:\\pacjent\\log\\log.dat"
 #define PATH_HASLA "c:\\pacjent\\hasla\\hasla.dat"
 //
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	term_type(yg++,xg,text[3],strlen(text[3]),TERM_WHITE);
 	term_type(yg++,xg,text[4],strlen(text[4]),TERM_WHITE);
 	term_type(yg+=2,xg,text[5],strlen(text[5]),TERM_WHITE);
-	// start wpisów do systemu
+	// start wpisï¿½w do systemu
 	ret=ZapiszDoLog(PATH_LOG,"START");
 	// funkcje interaktywne
 	yg+=2;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	}
 	/*
 	#ifdef _CVC_
-	// sprawdzenie czy system zosta³ zamkniêty prawid³owo plik tmp.dat
+	// sprawdzenie czy system zostaï¿½ zamkniï¿½ty prawidï¿½owo plik tmp.dat
 	{ FILE *fp,*nfp;
 	fp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\tmp.dat","r");
 	if(fp==NULL) {nfp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\tmp.dat","a");
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	fclose(nfp);
 	}
 	else
-	{ MessageBox(NULL," System zosta³ Ÿle zmkniêty "," B³¹d zamykania systemu ",MB_OK);
+	{ MessageBox(NULL," System zostaï¿½ ï¿½le zmkniï¿½ty "," Bï¿½ï¿½d zamykania systemu ",MB_OK);
 	system(del *.*);
 	fclose(fp);
 	}
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 	term_fill(TERM_WHITE | TERM_BLACK_BG);
 	Endgraph();
 #ifdef _CVC_
-	// zapis koñca sesji w systemie
+	// zapis koï¿½ca sesji w systemie
 	ret = ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
 	MessageBox(NULL, "Good Byeee", "Koniec", MB_OK);
 #endif
@@ -920,7 +920,7 @@ int ZapiszDoLog(char *sciezka, char *tryb)
 {
 	FILE *fp;
 	fp = fopen(sciezka, "a");
-	if (fp == NULL) MessageBox(NULL, " B³¹d otwarcia pliku LOG.DAT", " B³¹d I/O ", MB_OK);
+	if (fp == NULL) MessageBox(NULL, " Bï¿½ï¿½d otwarcia pliku LOG.DAT", " Bï¿½ï¿½d I/O ", MB_OK);
 	else
 	{
 		// zapis data i time otwarcia systemu 
@@ -937,7 +937,7 @@ int ZapiszLog(char *uzytkownik, char *haslo)
 {
 	FILE *fp;
 	fp = fopen(PATH_LOG, "a");
-	if (fp == NULL) MessageBox(NULL, " B³¹d otwarcia pliku LOG.DAT", " B³¹d I/O ", MB_OK);
+	if (fp == NULL) MessageBox(NULL, " Bï¿½ï¿½d otwarcia pliku LOG.DAT", " Bï¿½ï¿½d I/O ", MB_OK);
 	else
 	{
 		fprintf(fp, "\n%s %s", uzytkownik, haslo);
@@ -970,5 +970,5 @@ int SprawdzLog(char *uzytkownik, char *haslo)
 }
 /*-------------------------------------------------------------*/
 
-#include "rap_bl.c"
+#include "RAP_BL.C"
 

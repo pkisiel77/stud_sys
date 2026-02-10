@@ -1,14 +1,14 @@
 /*-----------------------------------------------------
 
   Plik: konsola.c             
-  Opis: W pliku znajduj¹ siê:
+  Opis: W pliku znajdujï¿½ siï¿½:
         - deklaracje funkcji,
           dla systemu WEWY kompilowanego
-          w œrodowisku WINDOWS NT
+          w ï¿½rodowisku WINDOWS NT lub ncurses
         jako konsola.
   
-  Wersja: 1.0.4
-  Data:  20.02.2002
+  Wersja: 1.0.5
+  Data:  10.02.2026
 
   Kontakt: gonzo77@poczta.fm
 
@@ -17,6 +17,19 @@
 #ifndef _WIN_CONSOLE_C_
 #define _WIN_CONSOLE_C_
 
+#ifdef _NCURSES_
+/* ncurses implementation */
+#include "term_ncurses.h"
+#include <stdio.h>
+
+void InitConsole() {
+    /* ncurses initialization is handled in term_ncurses.c */
+    extern void InitConsole(void);
+    InitConsole();
+}
+
+#else
+/* Windows implementation */
 #include "konsola.h"
 #include <stdio.h>
 
@@ -30,11 +43,14 @@ HWND handle_window_device;
 void InitConsole() {
 
 }
+#endif  /* _NCURSES_ */
 
+#ifndef _NCURSES_
+/* Windows-specific functions */
 void sound(unsigned frequency)
 {
  BOOL ret;
- DWORD dwDuration = 1; // minimalna wartoœæ 1ms 
+ DWORD dwDuration = 1; // minimalna wartoï¿½ï¿½ 1ms 
 
  ret = Beep(frequency, dwDuration);
  SprawdzFunkcje(ret,"Beep");
@@ -54,20 +70,23 @@ void SprawdzFunkcje(BOOL ret, PSTR nazwa_funkcji)
   if(ret!=TRUE)
    {nr_bledu = GetLastError();
     sprintf(bufor,"%d",nr_bledu);
-//    MessageBox(NULL,TEXT("Numer b³êdu:\n")TEXT(bufor),"B³¹d procedury: " TEXT(nazwa_funkcji),MB_OK|MB_ICONERROR);
+//    MessageBox(NULL,TEXT("Numer bï¿½ï¿½du:\n")TEXT(bufor),"Bï¿½ï¿½d procedury: " TEXT(nazwa_funkcji),MB_OK|MB_ICONERROR);
    }
 }
-#endif
+#endif  /* _NCURSES_ */
+
+#endif  /* _WIN_CONSOLE_C_ */
 /*-----KONIEC----------*/
 /* to dopiero poczatek */
 
+#ifndef _NCURSES_
 /*---------------------------------- 
   Biblioteka DLL dla podsystemu BOSS
   wersja 0.0.1 - 24.08.2002
   wersja 0.0.2 - 25.08.2002
   wersja 0.0.3 - 26.08.2002
   autor: gonzo77@poczta.fm
-  opis: funkcja dla podsystemu BOSS w œrodowisku Windows 2000
+  opis: funkcja dla podsystemu BOSS w ï¿½rodowisku Windows 2000
         (plik term_dos.c)
 ----------------------------------*/
 
@@ -137,7 +156,7 @@ HWND term_console_create(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCm
      hwnd = CreateWindow (szAppName, TEXT ("Konsola dla podsystemu BOSS... wersja 0.0.3n 21-11-2002"),
                           WS_OVERLAPPEDWINDOW,
                           CW_USEDEFAULT, CW_USEDEFAULT,
-                          81*8,26*13, // !!! tak nie mo¿e byæ 
+                          81*8,26*13, // !!! tak nie moï¿½e byï¿½ 
                           NULL, NULL, hInstance, NULL) ;
      ShowWindow (hwnd, iCmdShow) ;
      UpdateWindow (hwnd) ;
@@ -183,7 +202,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 ReleaseDC(hwnd,hdc);
 		 
 	 case WM_SIZE:
-		 // pobie¿ rozmiar okna w pikselach
+		 // pobieï¿½ rozmiar okna w pikselach
 		 if(message==WM_SIZE)
 		 {
 			 cx_client=LOWORD(lParam);
@@ -194,7 +213,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 cx_buffer=max(1,cx_client/cx_char);
 		 cy_buffer=max(1,cy_client/cy_char);
 
-		 // przydziel pamiêæ na bufor i wykasuj j¹
+		 // przydziel pamiï¿½ï¿½ na bufor i wykasuj jï¿½
 		 
 		 if(ptr_buffer != NULL)
 			 free(ptr_buffer);
@@ -213,7 +232,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 // zapis obrazu
 		 return 0;
 	 case WM_KILLFOCUS:
-		 // odœwierzenie obrazu
+		 // odï¿½wierzenie obrazu
 		 return 0;
 
 /*
@@ -240,4 +259,5 @@ EXPORT int CALLBACK term_delete_console(void)
 /*
    KONIEC
 */
+#endif  /* _NCURSES_ */
 

@@ -1,10 +1,18 @@
-// to jest dla obu wersji TEXT & GRAF
+// Platform-specific includes
+#ifndef _NCURSES_
+// Windows version
 #include <windows.h>
 #define farmalloc malloc
 #define farfree free
-
-// koniec dla obu wersji
 #define _CVC_
+#else
+// ncurses version
+#define farmalloc malloc
+#define farfree free
+#define _CVC_
+#define HWND void*
+#endif
+
 #ifndef _GLOBAL_OPCJESYS_
 #define _GLOBAL_OPCJESYS_
 //#define getch VCGetch
@@ -17,11 +25,13 @@ struct BUFOR_EKRANU
 };
 //struct BUFOR_EKRANU be;
 //HANDLE hConsoleOutput, hConsoleInput;
+#ifndef _NCURSES_
 extern HWND handle_window_device;
+#endif
 
-#ifdef _MAIN_MODUL_ // modu³u g³ównego czyli main
+#ifdef _MAIN_MODUL_ // moduï¿½u gï¿½ï¿½wnego czyli main
  #include "../blank/konsola.c"
-#endif // koniec dla modu³u g³ównego
+#endif // koniec dla moduï¿½u gï¿½ï¿½wnego
 #ifdef WEWY_MAIN // dla wewy_main
  #include "../opcjesys/shintdef.h"
 #endif // koniec wewy_main
@@ -29,33 +39,41 @@ extern HWND handle_window_device;
  #include <stddef.h>
  #include <stdio.h>
  #include <stdlib.h>
+ #ifndef _NCURSES_
  #include <conio.h>
+ #endif
  #include <math.h>
  #include <time.h>
  #include <string.h>
  #include <ctype.h>
- #ifdef _DOS_ // dla DOS
+ #if defined(_DOS_) || defined(_NCURSES_) // dla DOS lub ncurses
+  #ifndef _NCURSES_
   #include <dos.h>
+  #endif
   #include "alloc.h"
+  #ifndef _NCURSES_
   #include <process.h>
   typedef  int shint;
   typedef  int pid_t;
+  #else
+  typedef  int pid_t;
+  #endif
   #include "../blank/wewybl.h"
-  #include "../opcjesys/scr_size.h"
- #endif // koniec DOS
-#endif // koniec hedrów dla moje.h
+  #include "../opcjesys/SCR_SIZE.H"
+ #endif // koniec DOS/ncurses
+#endif // koniec hedrï¿½w dla moje.h
 #ifdef _WEWYBL_H_INCLUDE // hedery dla wewybl.h
- #include "../opcjesys/shintdef.h"
- #include "../opcjesys/mystderr.h"
-#endif // koniec init. hederów dla wewybl.h
+ #include "../opcjesys/SHINTDEF.H"
+ #include "../opcjesys/MYSTDERR.H"
+#endif // koniec init. hederï¿½w dla wewybl.h
 #ifdef _WEWY1_H_INCLUDE
-# include "../opcjesys/scr_size.h"
+# include "../opcjesys/SCR_SIZE.H"
 #endif
 #ifdef GRAF
 //extern HDC hdc;
 //extern HWND hwnd;
 //#define getch VCGetch
-//#define MAX_LICZBA_KOLOROW 25 // do kolorów systemowch w WEWYBL.H
+//#define MAX_LICZBA_KOLOROW 25 // do kolorï¿½w systemowch w WEWYBL.H
 #endif // koniec dla win_graf
 #endif
 
