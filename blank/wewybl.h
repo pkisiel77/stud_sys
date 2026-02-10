@@ -9,10 +9,9 @@
 #define BAZA_SPOJNA 0
 #define BAZA_WEKTOR 1
 #define BAZA_LISTOW 2
-#ifdef _DOS_
+#if defined(_DOS_) || defined(_NCURSES_)
 shint Get_Char(void);
 shint Get_char(void);
-#ifdef _DOS_ 
 #define GETchar Get_char
 /*--------------------------KLAWIATURA--------------------------*/
 #define DOWN     80 
@@ -96,7 +95,7 @@ shint Get_char(void);
 #define BS			8	 
 #define SPEC		0
 #define TAB			9
-#define SHIFT_TAB	0// brak pomys³u
+#define SHIFT_TAB	0// brak pomysï¿½u
 #define FONT1		112  
 #define FONT2		113
 #define FONT3		114	
@@ -109,7 +108,7 @@ shint Get_char(void);
 #define FONT10 		121  
 #define FONT11 		122  
 #define FONT12  	123 
-#define CTRL_TAB    0 // brak pomys³u 
+#define CTRL_TAB    0 // brak pomysï¿½u 
 #endif
 */
 #define TERM_CLS_SCR        1
@@ -117,7 +116,7 @@ shint Get_char(void);
 /*--------------------------KOLORY-------------------------- 
 #define TERM_NORMAL         0x0000
 #define TERM_BLINK          0x0800//0x0080
-#define TERM_HILIGHT        BACKGROUND_RED|BACKGROUND_BLUE//0x0008//BACKGROUND_RED|BACKGROUND_BLUE -- coœ nie dzia³¹ poprawnie
+#define TERM_HILIGHT        BACKGROUND_RED|BACKGROUND_BLUE//0x0008//BACKGROUND_RED|BACKGROUND_BLUE -- coï¿½ nie dziaï¿½ï¿½ poprawnie
 #define TERM_INVERSE        0x0000
 #define TERM_FLUSH          0x0000
 #define TERM_BLACK          0x0000
@@ -181,6 +180,8 @@ shint Get_char(void);
  #define ATTR_A TERM_WHITE|HILIGHT|TERM_RED_BG //0x043f
  #define MTERM_HILIGHT TERM_HILIGHT /*0*/
 
+#ifndef _NCURSES_
+/* Function declarations - not needed for ncurses as they're in term_ncurses.h */
 shint term_printf(shint y, shint x, unsigned int attr, char *format,...);
 shint term_type(shint y, shint x, char *text, shint len, unsigned int attr);
 void term_cur(int y, int x);
@@ -189,6 +190,7 @@ void term_restore_image(int y0, int x0, char *bufor, int dlug);
 void term_flush(void);
 void term_clear(int co);
 void term_color(int attr);
+#endif
 #define TermColor(attr)\
  {shint textkol, bgkol, cc, l, i;\
 	textkol=attr&0x00ff;\

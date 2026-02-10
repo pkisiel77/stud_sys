@@ -21,16 +21,16 @@ struct Service          / * deklaracja w sys_dekl.h * /
  -------------------------------------------------------- */
 /* #include "...."
 	 ........ itd headery kolejnych podsystemow */
-#include "sprawdz.h"   /* plik zrodlowy sprawdz.c */
+#include "SPRAWDZ.H"   /* plik zrodlowy sprawdz.c */
 //#include "baza_stu.h"  /* plik zrodlowy stud_baz.c */
 //#include "dekl_obl.h"  /* plik zrodlowy oblicz.c */
-#include "dek_budz.h"  /* plik zrodlowy budz.c */
-#include "sys_rep.h"   /* plik zrodlowy sys_rap.c */
-#include "admin.h"     /* plik zrodlowy admin.c */
-#include "pomiar.h"    /* plik zrodlowy pomiar.c */ // pomiar ekg
-#include "uruchom.h"
+#include "DEK_BUDZ.H"  /* plik zrodlowy budz.c */
+#include "SYS_REP.H"   /* plik zrodlowy sys_rap.c */
+#include "ADMIN.H"     /* plik zrodlowy admin.c */
+#include "POMIAR.H"    /* plik zrodlowy pomiar.c */ // pomiar ekg
+#include "URUCHOM.H"
 // #include "pacjent.h"
-// #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjentów
+// #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjentï¿½w
 // #include "ustaw.h"    /* plik zrodlowy ustaw.c */  // ustawienia pomiaru
 
 #define L_SYS 5
