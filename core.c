@@ -51,8 +51,8 @@ int if_graf=0, YZ_max_text, Yz_max_graf, Y_MAX_graf=34;
 extern int y_shift=0;
 /*extern unsigned _stklen=50000U; */
 /* ---------------------------------------------------------------- */
-int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
-				int kto, int r_pocz, int lrek, struct Service *S);
+int raporty(signed char Kod_uslugi, shint Nr_rekordu, shint npzl,
+				shint kto, shint r_pocz, shint lrek, struct Service *S);
 /* ---------------------------------------------------------------- */
 // dodatkowe funkcje dla logowania plus sta�e symboliczne
 #define DL_NAZWY_UZYT 12
@@ -970,5 +970,5 @@ int SprawdzLog(char *uzytkownik, char *haslo)
 }
 /*-------------------------------------------------------------*/
 
-#include "rap_bl.c"
+#include "RAP_BL.C"
 

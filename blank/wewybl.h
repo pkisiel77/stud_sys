@@ -200,7 +200,8 @@ void term_color(int attr);
 	textcolor(textkol); textbackground(bgkol);\
  }
 void term_fill(int attr);
-#else
+/* Following block defines alternate key codes - only for non-DOS/non-ncurses platforms */
+#if !defined(_DOS_) && !defined(_NCURSES_)
 #define GETchar GET_char
 #define Malloc malloc
 #define DOWN     169
@@ -239,7 +240,7 @@ void term_fill(int attr);
 /*#define BLINK TERM_HILIGHT */
 #define ATTR_A TERM_WHITE|MTERM_HILIGHT|TERM_RED_BG|TERM_FLUSH
 #define MTERM_HILIGHT TERM_HILIGHT /*0*/
-#endif
+#endif /* End of alternate key codes block */
 #define _GRAFIKA_ 31234
 #define LHELP 26
 #define EOS 0
