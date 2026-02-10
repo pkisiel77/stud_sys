@@ -26,7 +26,7 @@ typedef short int shint;
 #endif // koniec DOS
 
 #include "../opcjesys/opcje.h"
-#include "../blank/sys_dekl.h"
+#include "../blank/SYS_DEKL.H"
 #define DEC_NEW    1
 #define DEC_RUN    2
 #define DEC_TYP_US 3
