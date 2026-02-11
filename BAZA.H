@@ -1,12 +1,12 @@
-#define DL_IMIE      25  // d³ugoœc imienia
-#define DL_NAZW      40  // d³ugoœæ nazwiska
-#define DL_NR_EW     11  // d³ugoœæ numeru ewidencyjnego
-#define DL_NAZW_MIEJ 25  // d³ugoœæ nazwy miejscowoœci
-#define DL_NAZW_WOJ  25  // d³ugoœæ nazwy województwa
+#define DL_IMIE      25  // dï¿½ugoï¿½c imienia
+#define DL_NAZW      40  // dï¿½ugoï¿½ï¿½ nazwiska
+#define DL_NR_EW     11  // dï¿½ugoï¿½ï¿½ numeru ewidencyjnego
+#define DL_NAZW_MIEJ 25  // dï¿½ugoï¿½ï¿½ nazwy miejscowoï¿½ci
+#define DL_NAZW_WOJ  25  // dï¿½ugoï¿½ï¿½ nazwy wojewï¿½dztwa
                          // ...pacjenta
 #define IL_PRZEDM 6
 struct kurs
- {shint nazwa_przedm;  /*numer wsk na pole w tablicy stringow z nazwami przedmiotow*/
+ {int nazwa_przedm;  /*numer wsk na pole w tablicy stringow z nazwami przedmiotow*/
  float ocena_egz;
  float ocena_cwi;
  float ocena_lab;
@@ -14,31 +14,31 @@ struct kurs
 
 struct pac_data_ur
 {
-	shint dzien;
-	shint miesiac;
-	shint rok;
+	int dzien;
+	int miesiac;
+	int rok;
 };
 
 struct student
- {shint imie_no;
-  shint nazw_no;
-  shint index_no;
-  shint dzien_u;
-  shint mies_u;
-  shint rok_u;
-  shint rok_stud;
-  shint miasto_no;
-  shint l_przedm_stu;
+ {int imie_no;
+  int nazw_no;
+  int index_no;
+  int dzien_u;
+  int mies_u;
+  int rok_u;
+  int rok_stud;
+  int miasto_no;
+  int l_przedm_stu;
   struct kurs *przedmioty[IL_PRZEDM];
  };
 
-shint baza_main(void *A);
-shint baza_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
+int baza_main(void *A);
+int baza_blankiet(int nr_rekordu, int ob_pocz,
+                    int ob_konc, int x_lewy_gorny,
+                    int y_lewy_gorny, int anim_pid,
                     char *D);
-char *dane_baza(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_baza(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_baza(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+char *dane_baza(int ob_pocz, int ob_konc, int *rozmiar_ob);
+void wpis_baza(int ob_pocz, int ob_konc,
+               char *D, int rozmiar_ob, char zapis[], char *Kod_op);
+int dec_baza(int decyzja, int kod_decyzji, int nr_dec,
+                      int kod_raportu, int np, int *nr_rekordu);

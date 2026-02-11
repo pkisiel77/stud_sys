@@ -1,42 +1,43 @@
-
-#define DL_IMIE      25  // d³ugoœc imienia
-#define DL_NAZW      40  // d³ugoœæ nazwiska
-#define DL_NR_EW     11  // d³ugoœæ numeru ewidencyjnego
-#define DL_NAZW_MIEJ 25  // d³ugoœæ nazwy miejscowoœci
-#define DL_NAZW_WOJ  25  // d³ugoœæ nazwy województwa
-                         // ...pacjenta
+#define DL_IMIE      25  // dï¿½ugoï¿½c imienia
+#define DL_NAZW      40  // dï¿½ugoï¿½ï¿½ nazwiska
+#define DL_NR_EW     11  // dï¿½ugoï¿½ï¿½ numeru ewidencyjnego
+#define DL_NAZW_MIEJ 25  // dï¿½ugoï¿½ï¿½ nazwy miejscowoï¿½ci
+#define DL_NAZW_WOJ  25  // dï¿½ugoï¿½ï¿½ nazwy wojewï¿½dztwa
+// ...pacjenta
 
 #define PATH_FIX "c:\\pacjent\\dane\\fix.dat"   // sciezka do fix'a
 #define PATH_BAZA "c:\\pacjent\\dane\\baza.dat" // sciezka do bazy
 
 
 #define IL_PRZEDM 6
+
 struct kurs
- {shint nazwa_przedm;  /*numer wsk na pole w tablicy stringow z nazwami przedmiotow*/
- float ocena_egz;
- float ocena_cwi;
- float ocena_lab;
- };
+{
+    int nazwa_przedm; /*numer wsk na pole w tablicy stringow z nazwami przedmiotow*/
+    float ocena_egz;
+    float ocena_cwi;
+    float ocena_lab;
+};
 
 
 struct pac_data_ur
 {
-	shint dzien;
-	shint miesiac;
-	shint rok;
+    int dzien;
+    int miesiac;
+    int rok;
 };
 
 /*
 struct student
- {shint imie_no;
-  shint nazw_no;
-  shint index_no;
-  shint dzien_u;
-  shint mies_u;
-  shint rok_u;
-  shint rok_stud;
-  shint miasto_no;
-  shint l_przedm_stu;
+ {int imie_no;
+  int nazw_no;
+  int index_no;
+  int dzien_u;
+  int mies_u;
+  int rok_u;
+  int rok_stud;
+  int miasto_no;
+  int l_przedm_stu;
   struct kurs *przedmioty[IL_PRZEDM];
  };
 */
@@ -47,28 +48,27 @@ struct student
 
 struct student
 {
-//	shint  pac_id;
-	shint  pac_imie;
-	shint  pac_nazwisko;
-	shint  pac_nr_ew;
-    shint  pac_ur_dzien;
-    shint  pac_ur_miesiac;
-    shint  pac_ur_rok;
-	shint  pac_nr_kasy;
-	shint  pac_miejsce_zam;
-//	shint  pac_woj;
-	shint l_przedm_stu;
-	struct kurs *przedmioty[IL_PRZEDM];
+    //	int  pac_id;
+    int pac_imie;
+    int pac_nazwisko;
+    int pac_nr_ew;
+    int pac_ur_dzien;
+    int pac_ur_miesiac;
+    int pac_ur_rok;
+    int pac_nr_kasy;
+    int pac_miejsce_zam;
+    //	int  pac_woj;
+    int l_przedm_stu;
+    struct kurs* przedmioty[IL_PRZEDM];
 };
 
-shint pacjent_main(void *A);
-shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
-                    char *D);
-char *dane_pacjent(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_pacjent(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_pacjent(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
-
+int pacjent_main(void* A);
+int pacjent_blankiet(int nr_rekordu, int ob_pocz,
+                     int ob_konc, int x_lewy_gorny,
+                     int y_lewy_gorny, int anim_pid,
+                     char* D);
+char* dane_pacjent(int ob_pocz, int ob_konc, int* rozmiar_ob);
+void wpis_pacjent(int ob_pocz, int ob_konc,
+                  char* D, int rozmiar_ob, char zapis[], char* Kod_op);
+int dec_pacjent(int decyzja, int kod_decyzji, int nr_dec,
+                int kod_raportu, int np, int* nr_rekordu);

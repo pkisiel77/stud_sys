@@ -1,31 +1,31 @@
 #define ROUND(liczba)\
 (int)(((float)liczba)+((liczba>0)?0.5:-0.5))
 
-shint pomiar_main(void *A);
-shint pomiar_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
-                    char *D);
-char *dane_pomiar(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_pomiar(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_pomiar(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+int pomiar_main(void* A);
+int pomiar_blankiet(int nr_rekordu, int ob_pocz,
+                    int ob_konc, int x_lewy_gorny,
+                    int y_lewy_gorny, int anim_pid,
+                    char* D);
+char* dane_pomiar(int ob_pocz, int ob_konc, int* rozmiar_ob);
+void wpis_pomiar(int ob_pocz, int ob_konc,
+                 char* D, int rozmiar_ob, char zapis[], char* Kod_op);
+int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
+               int kod_raportu, int np, int* nr_rekordu);
 
 #define L_OCEN 150
 #define IL_WYN 6
 #define IL_DAN 10
 
-// sta³e symboliczne dla blankietu POMIAR wa¿ne
+// staï¿½e symboliczne dla blankietu POMIAR waï¿½ne
 
-// sta³e okreœlaj¹ce cechy pomiaru
+// staï¿½e okreï¿½lajï¿½ce cechy pomiaru
 #define POMIAR_DYNAMICZNY 1 // pomiar z portu, karty plus zapis na dysk
 #define POMIAR_STATYCZNY  2 // odczyt danych z dysku
 
-// tablica przechowuj¹ca dane pomiarowe przyjeto czas pomiaru 1 minutkê == 60s
+// tablica przechowujï¿½ca dane pomiarowe przyjeto czas pomiaru 1 minutkï¿½ == 60s
 #define TAB_POM_X 1000 // amplituda
 #define TAB_POM_Y 2 // czas pomiaru
-// zmienna okreœlaj¹ca wybór pomiaru
+// zmienna okreï¿½lajï¿½ca wybï¿½r pomiaru
 #define POMIAR   0
 #define POMIAR_1 1
 #define POMIAR_2 2
@@ -35,29 +35,28 @@ shint dec_pomiar(shint decyzja, shint kod_decyzji, shint nr_dec,
 #define NAZWA_PLIKU 11
 
 struct pomiar
- {
-  shint nr_wzoru;
-  shint nazwa[80];
-  shint index_no;
-  float dana_f[IL_DAN];
-  float wynik_f[IL_WYN];
-  char odczyt;
-  char dzialanie;
-  char rys_i_licz;
-  char opcja;
-  char funkcja;
-  char komenda[60];
-  int beep;
-  
-  // nowe funkcje
-  shint x,y;
-  shint typ_pom;
-  float tablica_pomiarowa[TAB_POM_X];
-  shint usluga_pomiar;
-  shint czas_pomiaru;
+{
+    int nr_wzoru;
+    int nazwa[80];
+    int index_no;
+    float dana_f[IL_DAN];
+    float wynik_f[IL_WYN];
+    char odczyt;
+    char dzialanie;
+    char rys_i_licz;
+    char opcja;
+    char funkcja;
+    char komenda[60];
+    int beep;
 
-  char *zrodlo_danych;
-  char *nazwa_pliku;
-  char decyzja;
- };
+    // nowe funkcje
+    int x, y;
+    int typ_pom;
+    float tablica_pomiarowa[TAB_POM_X];
+    int usluga_pomiar;
+    int czas_pomiaru;
 
+    char* zrodlo_danych;
+    char* nazwa_pliku;
+    char decyzja;
+};

@@ -7,14 +7,14 @@
 #include <malloc.h>
 #else
 #ifdef _CVC_
-#include <malloc.h>
+#include <stdlib.h>
 #else
 #include <alloc.h>
 #endif
 #endif
 #else   /* dla QNX WC */
 #define _SYS_32B_
-#include <malloc.h>
+#include <stdlib.h>
 #define MULTSCR
 #endif
 #ifdef _SYS_32B_

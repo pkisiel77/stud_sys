@@ -16,25 +16,24 @@
 #define Malloc farmalloc
 #define Free farfree
 #define TERM_CLS_SCR 1
-typedef  int shint;
+typedef  int int;
 typedef  int pid_t;
 #else
 #include <malloc.h>
 #include <sys/qnxterm.h>
-typedef  short int shint;
+typedef  short int int;
 #endif
 #include "wewybl.h"
 #include "msor_bl.h"
-extern shint nr_wegla, nr_ukladu;
+extern int nr_wegla, nr_ukladu;
 extern struct nazwa_sorbatu NSOR[];
 extern struct dane_sorbatu DSOR[];
 /* ------------------------------------------------------------- */
 void term_clear(int co);
 extern unsigned short int NODE_NO;
-extern shint czy_z_dysku;
+extern int czy_z_dysku;
 extern signed char _TYP_KONSOLI_;
-extern shint lmall;
+extern int lmall;
 extern char nastawy, *pathd, *pathf;
 #endif
 extern char katalog[], *sorwm[2];
-

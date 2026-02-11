@@ -1,20 +1,20 @@
 struct sys_rep
  {char *nazwa;
-  shint status;
-  shint l_rek_max;
-  shint nr_ag;
-  shint del_min;
-  shint del_sek;
+  int status;
+  int l_rek_max;
+  int nr_ag;
+  int del_min;
+  int del_sek;
   struct agenda Ag;
  };
 
-shint sys_main(void *A);
-shint sys_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
+int sys_main(void *A);
+int sys_blankiet(int nr_rekordu, int ob_pocz,
+                    int ob_konc, int x_lewy_gorny,
+                    int y_lewy_gorny, int anim_pid,
                     char *D);
-char *dane_sys(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_sys(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_sys(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+char *dane_sys(int ob_pocz, int ob_konc, int *rozmiar_ob);
+void wpis_sys(int ob_pocz, int ob_konc,
+               char *D, int rozmiar_ob, char zapis[], char *Kod_op);
+int dec_sys(int decyzja, int kod_decyzji, int nr_dec,
+                      int kod_raportu, int np, int *nr_rekordu);

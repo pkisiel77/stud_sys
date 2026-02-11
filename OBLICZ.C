@@ -16,7 +16,7 @@ extern struct agenda *Agenda;
 extern unsigned int attr_title;
 extern unsigned int attr,at_wpis;
 extern unsigned int cursor, nocursor;
-extern shint X_time, X_tyt, lwmall;
+extern int X_time, X_tyt, lwmall;
 
 /* ********************************** */
 #define IL_WSP 6000
@@ -31,15 +31,15 @@ struct plot
 
 FILE *p_plik=NULL;
 int ilosc_wsp=0;
-shint i_index;
-shint z;
+int i_index;
+int z;
 float Wektor_X[IL_WSP];
 int Wektor_Y[IL_WSP];
 struct plot *Plots[L_PLOTS]={NULL};
 int nr_plots=0;
 
 /* ********************************** */
-shint l_algor=1;
+int l_algor=1;
 static struct agenda **SA;
 /* -------------------- kody decyzji w moje.h ------------
 #define DEC_NEW    1
@@ -56,15 +56,15 @@ static struct agenda **SA;
 #define DEC_LOAD   21
 #define DEC_NON    20
 
-shint dane_agendy(struct agenda *A, struct agenda *An, shint cykl_max);
-shint pobierz_rekord_uslugi(shint *nr_rekordu, shint kod_uslugi, shint ob_konc,
+int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
+int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
 									struct agenda **As, struct agenda *An,
 									struct agenda ***SA, char *adres_rek0_uslugi, char *nazwa);
-shint pokaz_listy_zlecen(struct agenda *Anew, shint kod_uslugi, char *tytul);
-shint decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
-                  shint *nr_rekordu, shint kod_uslugi, char *tytul);
-void ustaw_typ_uslugi(struct agenda *A, shint decyzja);
-extern shint lwmall;
+int pokaz_listy_zlecen(struct agenda *Anew, int kod_uslugi, char *tytul);
+int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
+                  int *nr_rekordu, int kod_uslugi, char *tytul);
+void ustaw_typ_uslugi(struct agenda *A, int decyzja);
+extern int lwmall;
 #define LFORM 6
 char *MenuObl[LFORM]={" ",
                       " Funkcje trygonometryczne",
@@ -75,14 +75,14 @@ char *MenuObl[LFORM]={" ",
 								     };
 /* ======================================================== */
 extern unsigned int attryb;
-shint obl_main(void *DA)
+int obl_main(void *DA)
  {struct agenda *A;
   struct oblicz *Ob;
 	A=(struct agenda *)DA;
 	Ob=(struct oblicz *)(A->data);
 
  	if(strlen(Ob->komenda)>0)
-	 {shint yp, xp, ret;
+	 {int yp, xp, ret;
 		char text[200];
 		yp=MY_MAX; xp=X_L0+1;
 		sprintf(text," Wykonac komende: %s <t/Esc> ?????? ",Ob->komenda);
@@ -92,7 +92,7 @@ shint obl_main(void *DA)
 
   if((Ob->rys_i_licz=='t')&&(Plots[0]!=NULL))
    {
-    shint yp, xp, ret;
+    int yp, xp, ret;
 		char text[200];
 		yp=MY_MAX; xp=X_L0+1;
 		sprintf(text," Wykonac drukowanie wykresu <t/Esc> ??? ");
@@ -106,12 +106,12 @@ shint obl_main(void *DA)
 	return A->state;
  };
 
-shint obl_blankiet(shint nr_rekordu, shint ob_pocz,
-										shint ob_konc, shint x_lewy_gorny,
-										shint y_lewy_gorny, shint kod_uslugi,
+int obl_blankiet(int nr_rekordu, int ob_pocz,
+										int ob_konc, int x_lewy_gorny,
+										int y_lewy_gorny, int kod_uslugi,
 										char *adres_rek0_uslugi)
- {shint ret, ochr=3, ochrf=-1, size, nr_rek, raport;
-	shint cykl_max=6000;
+ {int ret, ochr=3, ochrf=-1, size, nr_rek, raport;
+	int cykl_max=6000;
 	struct oblicz *Ob;
   struct agenda *A=NULL;
 /* sledzenie(); */
@@ -130,7 +130,7 @@ shint obl_blankiet(shint nr_rekordu, shint ob_pocz,
 	 {ret=dana_koment(-1,13,"+ Modyfikacja danych OBLICZEN juz zgloszonych ");}
 	else
 	 {ret=dana_koment(-1,15,"+ Wpis danych NOWEGO ZLECENIA OBLICZENIOWEGO ");}
-	{static shint nmin=0, nmax=LFORM-1;
+	{static int nmin=0, nmax=LFORM-1;
 	 if(Anew==NULL) ochr=-1; else ochr=4;
 		ret=dana_int_menu_dec(-1,-1,"+ Formula nr (%d-%d)  ?? ", &nmin, &nmax,
 								 &(Ob->nr_wzoru), size=1, ochr, raport=-1, LFORM, MenuObl,DEC_FORM);
@@ -239,7 +239,7 @@ shint obl_blankiet(shint nr_rekordu, shint ob_pocz,
        ret=dana_koment(-1,-1,"+ ");
        break;
 /*******************************************************************/
-/* TRàJMIAN KWADRATOWY */
+/* TRï¿½JMIAN KWADRATOWY */
 		 case 4:
        ret=dana_koment(-1,-1,"+ Obliczanie pierwiastkow trojmianu:   y = a*x^2 + b*x + c" );
        {static float wmin=-100,wmax=100;
@@ -255,7 +255,7 @@ shint obl_blankiet(shint nr_rekordu, shint ob_pocz,
         (Ob->funkcja)='f';
         (Ob->dzialanie)='t';
         if((Ob->dana_f[0])==0)
-         {ret=dana_koment(-1,-1,"+ Je˜li wspolczynnik \"a\" rowny jest zero - funkcja nie jest kwadratowa ");
+         {ret=dana_koment(-1,-1,"+ Jeï¿½li wspolczynnik \"a\" rowny jest zero - funkcja nie jest kwadratowa ");
           ret=dana_koment(-1,-1,"+ Miejsce przeciecia z osia x: %5.2f",(Ob->wynik_f[0]));
          }
         if((Ob->dana_f[0])!=0)
@@ -304,11 +304,11 @@ shint obl_blankiet(shint nr_rekordu, shint ob_pocz,
  }
 /* --------------------------------------------------------------------- */
 
-char *dane_obl(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
+char *dane_obl(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
 	static struct agenda AS, *A;
   struct oblicz OBL, *Ob;
-	shint x,y;
+	int x,y;
   Ob=&OBL; A=&AS; S=Service;
 	A=(struct agenda *)Malloc(sizeof(struct agenda)+l_algor*sizeof(struct oblicz));
   A->S=S; A->data=(A+1);
@@ -318,8 +318,8 @@ char *dane_obl(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
 	return (char *)A;
  }
 /****************************************************************/
-void wpis_obl(shint ob_pocz, shint ob_konc,
-					    char *D, shint rozmiar_ob, char zapis[], char *Kod_op)
+void wpis_obl(int ob_pocz, int ob_konc,
+					    char *D, int rozmiar_ob, char zapis[], char *Kod_op)
   {struct agenda **AG=(struct agenda **)D, *Ag;
    struct oblicz *Ob=NULL;
    FILE *wsk_plik=NULL;
@@ -359,12 +359,12 @@ void wpis_obl(shint ob_pocz, shint ob_konc,
    fclose(wsk_plik);
  }
 /********************************************************/
-shint dec_obl(shint decyzja, shint kod_decyzji, shint nr_dec,
-              shint kod_uslugi, shint np, shint *nr_rekordu)
+int dec_obl(int decyzja, int kod_decyzji, int nr_dec,
+              int kod_uslugi, int np, int *nr_rekordu)
  {struct agenda *A0, *A, **Ab;
 	struct oblicz *Ob;
-	shint sek, min, godz, minB, dmin, minp, min_sum;
-	shint ag_no, p_min, p_max, ret, nast=0;
+	int sek, min, godz, minB, dmin, minp, min_sum;
+	int ag_no, p_min, p_max, ret, nast=0;
 	 A0=(struct agenda *)czy_zdefiniowany(kod_uslugi, &p_min, &p_max, &ret);
 	 A=(struct agenda *)ustal_adres_rek(kod_uslugi,*nr_rekordu);
 	 Ob=(struct oblicz *)(A->data);
@@ -425,7 +425,7 @@ shint dec_obl(shint decyzja, shint kod_decyzji, shint nr_dec,
                 {(Ob->wynik_f[0])=(-(Ob->dana_f[2]))/(Ob->dana_f[1]);
                 }
                 if((Ob->dana_f[0])!=0)
-                 {(Ob->wynik_f[0])=(Ob->dana_f[1])*(Ob->dana_f[1])-(4*(Ob->dana_f[0])*(Ob->dana_f[2]));           ret=dana_koment(-1,-1,"+ Delta tr¢jmianu wynosi: %5.1f ", (Ob->wynik_f[0]));
+                 {(Ob->wynik_f[0])=(Ob->dana_f[1])*(Ob->dana_f[1])-(4*(Ob->dana_f[0])*(Ob->dana_f[2]));           ret=dana_koment(-1,-1,"+ Delta trï¿½jmianu wynosi: %5.1f ", (Ob->wynik_f[0]));
                   if((Ob->wynik_f[0])<0)
                   {(Ob->wynik_f[1])=( -(Ob->dana_f[1]))/(2*(Ob->dana_f[0]));
                    (Ob->wynik_f[2])=(sqrt(-(Ob->wynik_f[0])))/(2*(Ob->dana_f[0]));
@@ -478,7 +478,7 @@ shint dec_obl(shint decyzja, shint kod_decyzji, shint nr_dec,
         fclose(p_plik);
        }
       else
-      {shint yp, xp, ret;
+      {int yp, xp, ret;
 		   char text[200];
        yp=MY_MAX; xp=X_L0+1;
 	 	   sprintf(text," Proba odczytu nieudana !!! ");
@@ -493,7 +493,7 @@ shint dec_obl(shint decyzja, shint kod_decyzji, shint nr_dec,
 	 return kod_uslugi;
   }
 /*########################################################################*/
-extern shint if_graf, YZ_max_text, Yz_max_graf;
+extern int if_graf, YZ_max_text, Yz_max_graf;
 
 int Oblicz_wartosci(char typ,float a,float b,float c,float *wektor_x,int *wektor_y)
 {float x;
@@ -602,20 +602,20 @@ void init_plot(int px,int py, struct plot *plt)
     setfillstyle(SOLID_FILL,KOL_TLA);
     bar(px+1,py,px+MAX_X,py+MAX_Y);
 	  setcolor(WHITE);
-	  rectangle(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+KON_RAM_Y); /* wymiary ramki biaˆej - cieä */
+	  rectangle(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+KON_RAM_Y); /* wymiary ramki biaï¿½ej - cieï¿½ */
 	  setcolor(BLACK);
-	  line(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+TAB_R); /* cieä obramowania czarny x */
-	  line(px+TAB_R,py+TAB_R,px+TAB_R,py+KON_RAM_Y); /* cieä obramowania czarny y */
+	  line(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+TAB_R); /* cieï¿½ obramowania czarny x */
+	  line(px+TAB_R,py+TAB_R,px+TAB_R,py+KON_RAM_Y); /* cieï¿½ obramowania czarny y */
 	  setcolor(BLACK);
 
 	  line(px+OS_POCZ,py+Y_HALF,px+OS_X_KON,py+Y_HALF);  /* rysowanie osi x */
-	  line(px+GROT_X,py+GROT_XG,px+OS_X_KON,py+Y_HALF);  /* rysowanie strzaˆki x */
+	  line(px+GROT_X,py+GROT_XG,px+OS_X_KON,py+Y_HALF);  /* rysowanie strzaï¿½ki x */
 	  line(px+GROT_X,py+GROT_XD,px+OS_X_KON,py+Y_HALF);
 	  line(px+X_HALF,py+OS_POCZ,px+X_HALF,py+OS_Y_KON);  /* rysowanie osi y */
-	  line(px+GROT_YL,py+GROT_Y,px+X_HALF,py+OS_POCZ);   /* rysowanie strzaˆki y */
+	  line(px+GROT_YL,py+GROT_Y,px+X_HALF,py+OS_POCZ);   /* rysowanie strzaï¿½ki y */
 	  line(px+GROT_YP,py+GROT_Y,px+X_HALF,py+OS_POCZ);
 
-	  for(x=OS_POCZ;x<X_SKAL;x+=SKOK_X)   /* podziaˆka */
+	  for(x=OS_POCZ;x<X_SKAL;x+=SKOK_X)   /* podziaï¿½ka */
 		{
 		  line(px+x,py+Y_HALF-PODZ,px+x,py+Y_HALF+PODZ);
 		}

@@ -10,15 +10,15 @@
 #include <string.h>
 #include <math.h>
 #ifdef _MSOR_
-typedef int shint;
+typedef int int;
 #define GET_char getch
-shint term_printf(shint y, shint x, unsigned int attr, char *format,...);
+int term_printf(int y, int x, unsigned int attr, char *format,...);
 #ifdef _DOS_
 #define ATTR_A 0x043f
 #define MY_MAX 25
 #define X_L0 1
 #else
-typedef short int shint;
+typedef short int int;
 #define ATTR_A 0x043f
 #define MY_MAX 24
 #define X_L0 0

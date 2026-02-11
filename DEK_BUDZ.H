@@ -1,24 +1,24 @@
 
-shint budz_main(void *A);
-shint budz_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
+int budz_main(void *A);
+int budz_blankiet(int nr_rekordu, int ob_pocz,
+                    int ob_konc, int x_lewy_gorny,
+                    int y_lewy_gorny, int anim_pid,
                     char *D);
-char *dane_budz(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_budz(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_budz(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob);
+void wpis_budz(int ob_pocz, int ob_konc,
+               char *D, int rozmiar_ob, char zapis[], char *Kod_op);
+int dec_budz(int decyzja, int kod_decyzji, int nr_dec,
+                      int kod_raportu, int np, int *nr_rekordu);
 struct budzik
  {char nazwa[78];
-  shint godz;
-  shint min;
-  shint poprz_godz_budz;
-  shint poprz_min_budz;
+  int godz;
+  int min;
+  int poprz_godz_budz;
+  int poprz_min_budz;
   char mod_time;
-  shint sek;
-  shint co_ile;
-  shint wyprzedz;
+  int sek;
+  int co_ile;
+  int wyprzedz;
  };
 
 void ustaw_czas_budzika(struct agenda *A, struct budzik *B);

@@ -6,8 +6,8 @@ extern struct agenda *Agenda;
 extern unsigned int attr_title;
 extern unsigned int attr,at_wpis;
 extern unsigned int cursor, nocursor;
-extern shint X_time, X_tyt, lwmall;
-//shint l_algor=1;
+extern int X_time, X_tyt, lwmall;
+//int l_algor=1;
 static struct agenda **SA;
 /* -------------------- kody decyzji w moje.h ------------
 #define DEC_NEW    1
@@ -18,18 +18,18 @@ static struct agenda **SA;
 #define DEC_COMP   11
 #define LFORM 4
 
-shint dane_agendy(struct agenda *A, struct agenda *An, shint cykl_max);
-shint pobierz_rekord_uslugi(shint *nr_rekordu, shint kod_uslugi, shint ob_konc,
+int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
+int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
 									struct agenda **As, struct agenda *An,
 									struct agenda ***SA, char *adres_rek0_uslugi, char *nazwa);
-shint pokaz_listy_zlecen(struct agenda *Anew, shint kod_uslugi, char *tytul);
-shint decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
-                  shint *nr_rekordu, shint kod_uslugi, char *tytul);
-void ustaw_typ_uslugi(struct agenda *A, shint decyzja);
-extern shint lwmall;
+int pokaz_listy_zlecen(struct agenda *Anew, int kod_uslugi, char *tytul);
+int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
+                  int *nr_rekordu, int kod_uslugi, char *tytul);
+void ustaw_typ_uslugi(struct agenda *A, int decyzja);
+extern int lwmall;
 /* ======================================================== */
 extern unsigned int attryb;
-shint ustaw_main(void *DA)
+int ustaw_main(void *DA)
  {
 /*	
 	struct agenda *A;
@@ -37,7 +37,7 @@ shint ustaw_main(void *DA)
 	A=(struct agenda *)DA;
 	Ob=(struct oblicz *)(A->data);
 	if(strlen(Ob->komenda)>0)
-	 {shint yp, xp, ret;
+	 {int yp, xp, ret;
 		char text[200];
 		yp=MY_MAX; xp=X_L0+1;
 		sprintf(text," Wykonac komende: %s <t/Esc> ?????? ",Ob->komenda);
@@ -50,14 +50,14 @@ shint ustaw_main(void *DA)
 	return 0;
  };
 
-shint ustaw_blankiet(shint nr_rekordu, shint ob_pocz,
-										shint ob_konc, shint x_lewy_gorny,
-										shint y_lewy_gorny, shint kod_uslugi,
+int ustaw_blankiet(int nr_rekordu, int ob_pocz,
+										int ob_konc, int x_lewy_gorny,
+										int y_lewy_gorny, int kod_uslugi,
 										char *adres_rek0_uslugi)
  {
 	/*
-	shint ret, ochr, ochrf=-1, size, nr_rek, raport;
-	shint cykl_max=6000;
+	int ret, ochr, ochrf=-1, size, nr_rek, raport;
+	int cykl_max=6000;
 	struct oblicz *Ob;
 	struct agenda *A=NULL;
     sledzenie(); 
@@ -76,7 +76,7 @@ shint ustaw_blankiet(shint nr_rekordu, shint ob_pocz,
 	 {ret=dana_koment(-1,13,"+ Modyfikacja danych OBLICZEN juz zgloszonych ");}
 	else
 	 {ret=dana_koment(-1,15,"+ Wpis danych NOWEGO ZLECENIA OBLICZENIOWEGO ");}
-	{static shint nmin=0, nmax=LFORM-1;
+	{static int nmin=0, nmax=LFORM-1;
 	 if(Anew==NULL) ochr=-1; else ochr=4;
 		ret=dana_int_menu_dec(-1,-1,"+ Formula nr (%d-%d)  ?? ", &nmin, &nmax,
 								 &(Ob->nr_wzoru), size=1, ochr, raport=-1, LFORM, MenuObl,DEC_FORM);
@@ -98,13 +98,13 @@ shint ustaw_blankiet(shint nr_rekordu, shint ob_pocz,
 	return 0;
  }
 
-char *dane_ustaw(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
+char *dane_ustaw(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {
 	/*
 	static struct Service *S;
 	static struct agenda AS, *A;
   struct oblicz OBL, *Ob;
-	shint x,y;
+	int x,y;
 	Ob=&OBL; A=&AS; S=Service;
 	A=(struct agenda *)Malloc(sizeof(struct agenda)+l_algor*sizeof(struct oblicz));
   A->S=S; A->data=(A+1);
@@ -117,14 +117,14 @@ char *dane_ustaw(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
 
  }
 
-void wpis_ustaw(shint ob_pocz, shint ob_konc, char *D, shint rozmiar_ob, char zapis[], char *Kod_op) {;}
-shint dec_ustaw(shint decyzja, shint kod_decyzji, shint nr_dec, shint kod_uslugi, shint np, shint *nr_rekordu)
+void wpis_ustaw(int ob_pocz, int ob_konc, char *D, int rozmiar_ob, char zapis[], char *Kod_op) {;}
+int dec_ustaw(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, int *nr_rekordu)
  {
 	/*
 	struct agenda *A0, *A;
 	struct oblicz *Ob;
-	shint sek, min, godz, minB, dmin, minp, min_sum;
-	shint ag_no, p_min, p_max, ret, nast=0;
+	int sek, min, godz, minB, dmin, minp, min_sum;
+	int ag_no, p_min, p_max, ret, nast=0;
 /*	 A0=(struct agenda *)czy_zdefiniowany(kod_uslugi, &p_min, &p_max, &ret);
 	 A=(struct agenda *)ustal_adres_rek(kod_uslugi,*nr_rekordu);
 	 Ob=(struct oblicz *)(A->data);  */

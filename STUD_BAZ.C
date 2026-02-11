@@ -1,8 +1,8 @@
 #include "../blank/moje.h"
 #include "../blank/sys_dekl.h"
 void chk_time(void);
-void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr);
-void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr);
+void WpiszPacjenta(int nr_rekordu,int ret,int size,int ochr);
+void edyt_stud(int nr_rekordu,int ret,int size,int ochr);
 int PobierzFix(char *sciezka);
 int ZapiszFix(char *sciezka, int dana);
 
@@ -11,12 +11,12 @@ extern struct agenda *Agenda;
 extern struct _dane_pacjenta_ dane_pacjenta;
 
 extern unsigned int attr_title;
-extern shint X_time, X_tyt;
+extern int X_time, X_tyt;
 extern unsigned int cursor, nocursor;
-shint l_stud=1;
+int l_stud=1;
 unsigned int attr_baz=TERM_WHITE_BG|TERM_BLACK|TERM_FLUSH;
 unsigned int attr0_baz=TERM_WHITE|MTERM_HILIGHT|TERM_BLUE_BG|TERM_FLUSH;
-shint nr_opcji=-1;
+int nr_opcji=-1;
 char *opcje_bazy[2]={"Dodaj pacjenta","Szukaj pacjenta"};
 unsigned char l_opcji_stud=2;
 char *tytul={" Pacjent"};
@@ -56,13 +56,13 @@ char *tytul={" Pacjent"};
 #define MIESIACL 30
 #define DZIENL 50
 #define LDZIEN 50
-shint nr_ewidencyjny,nr_kasy_chorych,dat_dzie,data_mie,data_rok;
-void zapis_baz(shint ret,char plik[DLNAZW],struct student **tb);
-void otworz_baz(shint ret,char plik[DLNAZW]);
+int nr_ewidencyjny,nr_kasy_chorych,dat_dzie,data_mie,data_rok;
+void zapis_baz(int ret,char plik[DLNAZW],struct student **tb);
+void otworz_baz(int ret,char plik[DLNAZW]);
 char txt_nazw[DLN+1], txt_imie[DLIM+1], txt_miast[DLIM+1]={0},txt_przedm[IL_PRZEDM][DLPRZ+1],tmp_przedm[IL_PRZEDM][DLPRZ+1];
 char txt_dzi[DZIENL+1],txt_mie[MIESIACL+1],txt_rok[ROKL+1];
-shint l_nazw=0, l_imion=0, l_miast=0,l_przedm=0,l_prz_tab=0;
-shint stary_rekord=-1,test=-1,*tb;
+int l_nazw=0, l_imion=0, l_miast=0,l_przedm=0,l_prz_tab=0;
+int stary_rekord=-1,test=-1,*tb;
 char plik[DLNAZW];
 #define MAX 50
 struct student *studenci[MAX]={NULL};
@@ -72,18 +72,18 @@ struct student **dPrzedmioty;
 #define TYSIAC 100
 char *Nazwiska[LNAZW], *Imiona[LIMION], *Miasta[LMIAST], *Przedm[LPRZEDM];
 char *pDzien[LDZIEN],*pMiesiac[LDZIEN],*pRok[LDZIEN];
-shint i,in,ii,im,l_mall,tempor=-1;
-shint wpisz(void);
-shint wypisz(void);
+int i,in,ii,im,l_mall,tempor=-1;
+int wpisz(void);
+int wypisz(void);
 #include "szukaj.c"
 /* ================================================================ */
-shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,	shint ob_konc,
-										shint x_lewy_gorny,	shint y_lewy_gorny,
-										shint anim_pid, char *D)
- {shint ret, ochr=0, ochrf=-1, size=0, nr_rek;
-  shint pomiar=0; // je¿eli pomiar = 1 to skok do blankietu nr ... do pomiaru
+int pacjent_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
+										int x_lewy_gorny,	int y_lewy_gorny,
+										int anim_pid, char *D)
+ {int ret, ochr=0, ochrf=-1, size=0, nr_rek;
+  int pomiar=0; // jeï¿½eli pomiar = 1 to skok do blankietu nr ... do pomiaru
   struct student *d0, *dp, *d;
-  shint licznik;
+  int licznik;
   static tbw[MAX]={-1,0};
   setcursor(cursor);
   /*sledzenie(); */
@@ -96,7 +96,7 @@ shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,	shint ob_konc,
 	 GET_char();  return -1;
 	}
    rekord_danych_do_naglowka(nr_rek);
-   // automatyczne ³adowanie bazy danych pacjenta
+   // automatyczne ï¿½adowanie bazy danych pacjenta
    ret=dana_koment(-1,-1,"+ ");
    otworz_baz(ret,PATH_BAZA);
    // ...dalej
@@ -143,7 +143,7 @@ shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,	shint ob_konc,
 			}
             if(Sz.liczby)
 			{static char *how[3]={"> wieksze","< mniejsze","= rowne"};
-             static shint wmin=0, wmax=32767;
+             static int wmin=0, wmax=32767;
              ret=dana_znak(-1, -1,"   ??",">/</=", how, 3, &Sz.znak,ochr=0);
              ret=dana_int_dec(-1, -1," Wzor  ??", &wmin, &wmax, &(Sz.wzor_l), 5,ochr=1,-1,DEC_WZOR_L);
              if(tempor>=0)
@@ -195,11 +195,11 @@ shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,	shint ob_konc,
    return ret;
  }
 
-char *dane_pacjent(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
+char *dane_pacjent(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
   static struct agenda *A;
   struct student *St,*st;
-  shint x,y;
+  int x,y;
    Sz.text=1;
    Sz.liczby=0;
    Sz.pole='n';
@@ -234,8 +234,8 @@ char *dane_pacjent(shint ob_pocz, shint ob_konc, shint *rozmiar_ob)
   return (char *)St;
  }
 
-void wpis_pacjent(shint ob_pocz, shint ob_konc,
-					 char *D, shint rozmiar_ob, char zapis[], char *Kod_op)
+void wpis_pacjent(int ob_pocz, int ob_konc,
+					 char *D, int rozmiar_ob, char zapis[], char *Kod_op)
  {nr_opcji=-1;
   l_przedm=0;
   test=-1;
@@ -243,8 +243,8 @@ void wpis_pacjent(shint ob_pocz, shint ob_konc,
 #include <string.h>
 #include <ctype.h>
 
-shint popraw_text(char text[])
- {shint d_str, nz, kz, r_zn;
+int popraw_text(char text[])
+ {int d_str, nz, kz, r_zn;
   d_str=strlen(text);
   for(nz=0, kz=0; kz<d_str; kz++)
    {if(isalpha(text[kz])) {text[nz]=text[kz]; nz++;}
@@ -258,8 +258,8 @@ shint popraw_text(char text[])
   d_str=nz; text[nz]=0;
   return d_str;
  }
-int szukaj_tekstu(char *baza[], char txt[], shint l_rek, shint max)
- {shint wynik, i;
+int szukaj_tekstu(char *baza[], char txt[], int l_rek, int max)
+ {int wynik, i;
   if((strlen(txt))!=0)
    {i=popraw_text(txt); if(i<=0) return -1;
     for(i=0;i<l_rek;i++)
@@ -272,8 +272,8 @@ int szukaj_tekstu(char *baza[], char txt[], shint l_rek, shint max)
   return l_rek;
  }
 
-void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
-{shint licznik,temp;
+void WpiszPacjenta(int nr_rekordu,int ret,int size,int ochr)
+{int licznik,temp;
  struct _dane_pacjenta_ dane_pacjenta;
   if(test)
   {test=0;
@@ -304,7 +304,7 @@ void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
   stary_rekord=nr_rekordu;
   // pola blankietu
  {
-  // odczytywany z fix'a i na koñcu zwiekszany o jeden
+  // odczytywany z fix'a i na koï¿½cu zwiekszany o jeden
   nr_ewidencyjny=PobierzFix(PATH_FIX);
    if(nr_ewidencyjny < 0) return ret;
   nr_ewidencyjny+=1;
@@ -319,7 +319,7 @@ void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
   ret=dana_text_dec(-1,-2," Miejsce zamieszkania  ??", txt_miast, size=DLIM, Miasta, l_miast, ochr=1, DEC_MIASTO);
   ret=dana_koment(-1,-1,"+ ");
   
-  {static shint wmin=0,wmax=13;
+  {static int wmin=0,wmax=13;
    static char *dec_opcje="0/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16";
    static char *dec_obj[17]={"",
 	                         "Kasa dolnoslaska",
@@ -342,9 +342,9 @@ void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
    ret=dana_int_menu(-1,-1,"+ Numer kasy chorych ",&wmin,&wmax,&nr_kasy_chorych,2,ochr,-1,14,dec_obj);
    dStud->pac_nr_kasy=nr_kasy_chorych;
   }
-  {static shint dmin=1,dmax=31;     
-   static shint mmin=1,mmax=12;     
-   static shint rmin=1900,rmax=2100; 
+  {static int dmin=1,dmax=31;     
+   static int mmin=1,mmax=12;     
+   static int rmin=1900,rmax=2100; 
     ret=dana_int_dec(-1,-1," Data urodzenia: dzien ",&dmin,&dmax,&dat_dzie,2,1,1,DEC_DATAD);
     ret=dana_int_dec(-1,-1,"  miesiac ",&mmin,&mmax,&data_mie,2,1,1,DEC_DATAM);
     ret=dana_int_dec(-1,-1,"  rok ",&rmin,&rmax,&data_rok,4,1,1,DEC_DATAR);
@@ -361,11 +361,11 @@ void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
 		 int zwrot=-1;
 		 char buf[128];
 		 ret=dana_koment(-1,-1,"+ Katalog ../pacjent/dane/%d",nr_ewidencyjny);
-		 // zapis do fix'a nr nastêpnego pacjenta
+		 // zapis do fix'a nr nastï¿½pnego pacjenta
 		 zwrot=ZapiszFix(PATH_FIX,nr_ewidencyjny);
-		 if(zwrot!=nr_ewidencyjny) {MessageBox(NULL,TEXT(" B³¹d zapisu do pliku fix.dat \n")
-			                                        TEXT(" Skontaktuj siê z administratorem "),
-													"Powa¿ny b³¹d",MB_OK|MB_ICONERROR);return ret;}
+		 if(zwrot!=nr_ewidencyjny) {MessageBox(NULL,TEXT(" Bï¿½ï¿½d zapisu do pliku fix.dat \n")
+			                                        TEXT(" Skontaktuj siï¿½ z administratorem "),
+													"Powaï¿½ny bï¿½ï¿½d",MB_OK|MB_ICONERROR);return ret;}
 		  else {;}
          // zapis do bazy
 		 zapis_baz(ret,PATH_BAZA,studenci);
@@ -390,8 +390,8 @@ void WpiszPacjenta(shint nr_rekordu,shint ret,shint size,shint ochr)
   }
 }
 
-void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr)
-{shint licznik,temp,i=0;
+void edyt_stud(int nr_rekordu,int ret,int size,int ochr)
+{int licznik,temp,i=0;
  struct _dane_pacjenta_ dane_pacjenta;
 
 {przepisz(txt_nazw,Nazwiska[dStud->pac_nazwisko],strlen(Nazwiska[dStud->pac_nazwisko])+1);
@@ -404,7 +404,7 @@ void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr)
 }
  stary_rekord=nr_rekordu;
  ret=dana_koment(-1,-1,"+ ");
- {static shint wmin=0,wmax=3200;
+ {static int wmin=0,wmax=3200;
   ret=dana_int_dec(-1,-1,"+ Numer ewidencyjny ", &wmin, &wmax,&(dStud->pac_nr_ew),4, 1,1,DEC_INDEX);
  }
  ret=dana_text_dec(-1, -1," Nazwisko  ?? ", txt_nazw, size=DLN, Nazwiska, l_nazw, ochr=1,DEC_NAZW);
@@ -413,12 +413,12 @@ void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr)
  ret=dana_text_dec(-1,-2," Miejsce zamieszkania ", txt_miast, size=SIZE, Miasta, l_miast, ochr=1, DEC_MIASTO);
  ret=dana_koment(-1,-1,"+ ");
  
- {static shint wmin=0,wmax=10;
+ {static int wmin=0,wmax=10;
   ret=dana_int_dec(-1,-1,"+ Numer kasy chorych ", &wmin, &wmax,&(dStud->pac_nr_kasy),2, 1,1,DEC_ROK_ST);
  }
- {static shint dmin=1,dmax=31;          /* dzien*/
-  static shint mmin=1,mmax=12;        /*miesiac*/
-  static shint rmin=1900,rmax=2100;   /*rok*/
+ {static int dmin=1,dmax=31;          /* dzien*/
+  static int mmin=1,mmax=12;        /*miesiac*/
+  static int rmin=1900,rmax=2100;   /*rok*/
    ret=dana_int_dec(-1,-1," Data urodzenia: dzien ",&dmin,&dmax,&(dStud->pac_ur_dzien),2,1,1,DEC_DATAD);
    ret=dana_int_dec(-1,-1,"  miesiac: ",&mmin,&mmax,&(dStud->pac_ur_miesiac),2,1,1,DEC_DATAM);
    ret=dana_int_dec(-1,-1,"  rok: ",&rmin,&rmax,&(dStud->pac_ur_rok),4,1,1,DEC_DATAR);
@@ -428,9 +428,9 @@ void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr)
  {l_przedm=(dStud->l_przedm_stu);
   ret=dana_koment(-1,-1,"+  Przedmiot:      Egzamin-ocena    Cwiczenia-ocena  Laboratorium-ocena");
   for(temp=0;temp<l_przedm;temp++)
-  { static shint gemin=0,gemax=100;
-    static shint gcmin=0,gcmax=100;
-    static shint glmin=0,glmax=100;
+  { static int gemin=0,gemax=100;
+    static int gcmin=0,gcmax=100;
+    static int glmin=0,glmax=100;
     static float oemin=1.0,oemax=6.1;
     static float ocmin=1.0,ocmax=6.1;
     static float olmin=1.0,olmax=6.1;
@@ -460,7 +460,7 @@ void edyt_stud(shint nr_rekordu,shint ret,shint size,shint ochr)
 }
 
 /***************************************************************/
-void zapis_baz(shint ret,char plik[DLNAZW],struct student **tb)
+void zapis_baz(int ret,char plik[DLNAZW],struct student **tb)
 {FILE *plikstud=NULL;
  char c,d;
  int licz=0,licz2,i;
@@ -510,7 +510,7 @@ void zapis_baz(shint ret,char plik[DLNAZW],struct student **tb)
   }
 }
 /******************************************************************/
-void otworz_baz(shint ret,char plik[DLNAZW])
+void otworz_baz(int ret,char plik[DLNAZW])
 {FILE *plikstud=NULL;
  char temp[DLPRZ];
  int licz=0,licz2,licz3,i,poczatek;
@@ -520,8 +520,8 @@ void otworz_baz(shint ret,char plik[DLNAZW])
 #ifndef _CVC_	  
 	  ret=dana_koment(-1,-1,"blad przy otwieraniu pliku docelowego");
 #else
-	  MessageBox(NULL,TEXT("Otworzenie bazy jest nie mo¿liwe <brak pliku>\n")
-		              TEXT("Zostanie utowrzony pusty plik baza.dat"),"B³¹d I/O",
+	  MessageBox(NULL,TEXT("Otworzenie bazy jest nie moï¿½liwe <brak pliku>\n")
+		              TEXT("Zostanie utowrzony pusty plik baza.dat"),"Bï¿½ï¿½d I/O",
                       MB_ICONWARNING|MB_OK);
 #endif
   }
@@ -578,8 +578,8 @@ void otworz_baz(shint ret,char plik[DLNAZW])
   }
 }
 /*********************************************************************/
-shint dec_pacjent(shint decyzja, shint kod_decyzji, shint nr_dec,shint kod_raportu, shint np, shint *nr_rekordu)
- {shint pozycja,temp;
+int dec_pacjent(int decyzja, int kod_decyzji, int nr_dec,int kod_raportu, int np, int *nr_rekordu)
+ {int pozycja,temp;
    switch(kod_decyzji)
    {case DEC_NAZW:pozycja=szukaj_tekstu(Nazwiska, txt_nazw, l_nazw, LNAZW);
                    dStud->pac_nazwisko=pozycja;
@@ -666,7 +666,7 @@ int PobierzFix(char *sciezka)
 	int dana=-1;
 	FILE *fp;
 	fp=fopen(sciezka,"r");
-	if(fp==NULL) MessageBox(NULL,"Brak pliku fix.dat","B³¹d I/O",MB_OK);
+	if(fp==NULL) MessageBox(NULL,"Brak pliku fix.dat","Bï¿½ï¿½d I/O",MB_OK);
 	 else
 	 { fscanf(fp,"%d",&dana);
 	   fclose(fp);
@@ -678,7 +678,7 @@ int ZapiszFix(char *sciezka, int dana)
 {
 	FILE *fp;
 	fp=fopen(sciezka,"w");
-	if(fp==NULL) MessageBox(NULL,"Fix!!!!","B³¹d",MB_OK);
+	if(fp==NULL) MessageBox(NULL,"Fix!!!!","Bï¿½ï¿½d",MB_OK);
 	 else
 	 { fprintf(fp,"%d",dana);
 	   fclose(fp);

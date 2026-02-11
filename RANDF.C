@@ -93,4 +93,3 @@ float Zakloc_Z(float t, float A[], float om[], float FI[], int Lsin)
   return(v);
  } /* end of Z() */
 /*-------------------------------------------------------------------------*/
-

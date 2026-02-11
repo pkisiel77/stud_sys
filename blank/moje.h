@@ -10,7 +10,7 @@
 
 #ifdef _NCURSES_ // ncurses (Linux/Unix)
 #include "term_ncurses.h"
-typedef short int shint;
+typedef short int;
 #define _CVC_  /* Enable console mode */
 #endif // koniec NCURSES
 
@@ -18,11 +18,11 @@ typedef short int shint;
 #include <sys/qnxterm.h>
 #include <malloc.h>
 FILE *fin, *fout, *ferr;
-typedef short int shint;
+typedef short int int;
 #endif // koniec QNX
 
 #ifdef _DOS_ // Windows/DOS
-#include <windows.h>
+//#include <windows.h>
 #endif // koniec DOS
 
 #include "../opcjesys/opcje.h"

@@ -1,8 +1,8 @@
 struct szuk
  {char znak;
   char pole;
-  shint text;
-  shint liczby;
+  int text;
+  int liczby;
   char wzor_t[DLN-1];
   int wzor_l;
  }Sz;
@@ -20,13 +20,13 @@ int sprawdz_text(char *wzor,char *text); /*sprawdza czy wzor == text
     }\
   }
 
-shint *przeszukaj_t(char co,char *wzor)
+int *przeszukaj_t(char co,char *wzor)
  {
 	
-	shint *tb;
-  shint i=0,j=0;
+	int *tb;
+  int i=0,j=0;
 
-  tb=malloc(MAX*sizeof(shint));
+  tb=malloc(MAX*sizeof(int));
 
   switch(co)
    {
@@ -53,13 +53,13 @@ shint *przeszukaj_t(char co,char *wzor)
   }
 
 
-shint *przeszukaj_l(char co,char jak,double wzor)
+int *przeszukaj_l(char co,char jak,double wzor)
  {
 
-	shint *tb;
-  shint i=0,j=0;
+	int *tb;
+  int i=0,j=0;
 
-  tb=malloc(MAX*sizeof(shint));
+  tb=malloc(MAX*sizeof(int));
 
   switch(co)
    {
@@ -133,9 +133,9 @@ int sprawdz_text(char *wzor,char *text)
 
 /******************/
 
-shint show(shint *tb)
+int show(int *tb)
  {
-  shint i,opcja=0;
+  int i,opcja=0;
   char *texty[MAX],*temp;
   char *t_show=" Nazwisko:       Imie:           Nr ewidencyjny:";
 

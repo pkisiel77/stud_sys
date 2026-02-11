@@ -3,13 +3,13 @@
    data:04.01.2002
 */
 
-/* B³êdy:
+/* Bï¿½ï¿½dy:
    1. W sesji jeden raz do trybu graficznego
    2. Kolory
 */
 #include "graph.h"
 
-COLORREF kolor_wypelnienia; // ta zmienna powinna byc na ka¿dym etapie prowadzenia
+COLORREF kolor_wypelnienia; // ta zmienna powinna byc na kaï¿½dym etapie prowadzenia
 HWND hwnd;
 HDC hdc;
 
@@ -106,7 +106,7 @@ void outtextxy(int x, int y, char *textstring)
 
 // funkcja dla _CVC_
 // FOREGRAUND
-COLORREF F2F(shint liczba)
+COLORREF F2F(int liczba)
 {
    double cal=0.0,resz=0.0,ret=0.0;
    int i=0,tab[24],x;
@@ -132,7 +132,7 @@ void setcolor(int color)
 
 void setfillstyle(int pattern, int color)
 {
-    // ustala kolor wype³nienia dla funkcji bar
+    // ustala kolor wypeï¿½nienia dla funkcji bar
 	COLORREF retu;
 	retu=F2F(color);
 	kolor_wypelnienia = retu;

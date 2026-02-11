@@ -10,17 +10,17 @@ struct admin
  {
 	char Imie[A_IMIE];
     char Nazwisko[A_NAZWISKO];
-	shint Mode;
+	int Mode;
  };
 
-shint admin_main(void *A);
-shint admin_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
+int admin_main(void *A);
+int admin_blankiet(int nr_rekordu, int ob_pocz,
+                    int ob_konc, int x_lewy_gorny,
+                    int y_lewy_gorny, int anim_pid,
                     char *D);
-char *dane_admin(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_admin(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_admin(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+char *dane_admin(int ob_pocz, int ob_konc, int *rozmiar_ob);
+void wpis_admin(int ob_pocz, int ob_konc,
+               char *D, int rozmiar_ob, char zapis[], char *Kod_op);
+int dec_admin(int decyzja, int kod_decyzji, int nr_dec,
+                      int kod_raportu, int np, int *nr_rekordu);
 

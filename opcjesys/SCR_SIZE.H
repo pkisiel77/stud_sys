@@ -1,7 +1,7 @@
 /*
 ==========================================================
   Plik: ../opcjesys/scr_size.h
-  Ustawienia granic ekranu dla systemów:
+  Ustawienia granic ekranu dla systemï¿½w:
   - QNX,
   - DOS,
   - WINDOWS.
@@ -16,37 +16,37 @@
 #endif
 #ifndef WEW_EXT
 #ifdef _QNX_  
-shint MY_MAX=24;
-shint MYR_MAX=23;
-shint MX_MAX= 80;
-shint MXR_MAX=79;
-shint X_L0=0;
-shint Y_G0=0;
+int MY_MAX=24;
+int MYR_MAX=23;
+int MX_MAX= 80;
+int MXR_MAX=79;
+int X_L0=0;
+int Y_G0=0;
 #endif  // koniec dla QNX
 #ifdef _DOS_
 #ifndef _CVC_
-shint MYR_MAX=24;
-shint MY_MAX=25;
-shint MX_MAX=80;
-shint MXR_MAX=79;
-shint X_L0=1;
-shint Y_G0=1;
+int MYR_MAX=24;
+int MY_MAX=25;
+int MX_MAX=80;
+int MXR_MAX=79;
+int X_L0=1;
+int Y_G0=1;
 #endif
 #endif  // koniec dla DOS
 #ifdef _CVC_
-shint MYR_MAX=24;
-shint MY_MAX=25;
-shint MX_MAX=80;
-shint MXR_MAX=79;
-shint X_L0=0;
-shint Y_G0=0;
+int MYR_MAX=24;
+int MY_MAX=25;
+int MX_MAX=80;
+int MXR_MAX=79;
+int X_L0=0;
+int Y_G0=0;
 #endif
 #else           /* else dla ifdef WEW_EXT */
-WEW_EXT shint MY_MAX;
-WEW_EXT shint MYR_MAX;
-WEW_EXT shint MX_MAX;
-WEW_EXT shint MXR_MAX;
-WEW_EXT shint X_L0;
-WEW_EXT shint Y_G0;
+WEW_EXT int MY_MAX;
+WEW_EXT int MYR_MAX;
+WEW_EXT int MX_MAX;
+WEW_EXT int MXR_MAX;
+WEW_EXT int X_L0;
+WEW_EXT int Y_G0;
 #endif           /* koniec dla ifdef WEW_EXT */
 #endif           /* koniec dla ifdef _SCR_SIZE_H_ */

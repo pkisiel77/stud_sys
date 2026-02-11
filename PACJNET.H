@@ -6,35 +6,35 @@
 
 #define L_KASY_CHORYCH 13
 
-// struktura g³owna blankietu
+// struktura gï¿½owna blankietu
 struct pacjnet
- {
-  shint pac_id;
-  shint pac_imie;
-  shint pac_nazwisko;
-  shint nr_ewidencyjny;
+{
+    int pac_id;
+    int pac_imie;
+    int pac_nazwisko;
+    int nr_ewidencyjny;
 
-  shint ur_dzien;// dzieñ urodzin
-  shint ur_miesiac;// miesi¹c urodzin
-  shint ur_rok;// rok urodzin
+    int ur_dzien; // dzieï¿½ urodzin
+    int ur_miesiac; // miesiï¿½c urodzin
+    int ur_rok; // rok urodzin
 
-  shint ur_miasto;// miasto urodzin
-  shint wojewodztwo;
+    int ur_miasto; // miasto urodzin
+    int wojewodztwo;
 
-  shint nr_kasy_chorych[L_KASY_CHORYCH];
- };
+    int nr_kasy_chorych[L_KASY_CHORYCH];
+};
+
 //
 
 // funkcje blankietu
-shint pacjent_main(void *A);
-shint pacjent_blankiet(shint nr_rekordu, shint ob_pocz,
-                    shint ob_konc, shint x_lewy_gorny,
-                    shint y_lewy_gorny, shint anim_pid,
-                    char *D);
-char *dane_pacjent(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
-void wpis_pacjent(shint ob_pocz, shint ob_konc,
-               char *D, shint rozmiar_ob, char zapis[], char *Kod_op);
-shint dec_pacjent(shint decyzja, shint kod_decyzji, shint nr_dec,
-                      shint kod_raportu, shint np, shint *nr_rekordu);
+int pacjent_main(void* A);
+int pacjent_blankiet(int nr_rekordu, int ob_pocz,
+                     int ob_konc, int x_lewy_gorny,
+                     int y_lewy_gorny, int anim_pid,
+                     char* D);
+char* dane_pacjent(int ob_pocz, int ob_konc, int* rozmiar_ob);
+void wpis_pacjent(int ob_pocz, int ob_konc,
+                  char* D, int rozmiar_ob, char zapis[], char* Kod_op);
+int dec_pacjent(int decyzja, int kod_decyzji, int nr_dec,
+                int kod_raportu, int np, int* nr_rekordu);
 //
-
