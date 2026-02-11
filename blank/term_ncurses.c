@@ -75,13 +75,44 @@ int map_attr_to_color_pair(unsigned int attr)
     return COLOR_PAIR(pair_idx) | hilight | blink | inverse;
 }
 
+void InitConsoleV1(void)
+{
+    initscr(); /* Initialize ncurses */
+    cbreak(); /* Disable line buffering */
+    noecho(); /* Don't echo input characters */
+    keypad(stdscr, TRUE); /* Enable function keys */
+    /* Nie rozrywaj sekwencji klawiszy (strzałki to ESC+[+litera) */
+    timeout(50);
+
+#ifdef NCURSES_VERSION
+    /* Szybciej rozpoznawaj ESC vs sekwencje ESC[...] */
+    set_escdelay(25);
+#endif
+    curs_set(1); /* Show cursor by default */
+
+    init_ncurses_colors();
+
+    /* Get screen dimensions */
+    getmaxyx(stdscr, y_max, x_max);
+    y_max--; /* Adjust for 0-based indexing */
+    x_max--;
+    x_maxOkna = x_max;
+    y_maxOkna = y_max;
+
+    refresh();
+}
+
 void InitConsole(void)
 {
     initscr(); /* Initialize ncurses */
     cbreak(); /* Disable line buffering */
     noecho(); /* Don't echo input characters */
     keypad(stdscr, TRUE); /* Enable function keys */
-    nodelay(stdscr, TRUE); /* Non-blocking getch() */
+
+    /* Zamiast nodelay(TRUE) ustaw mały timeout:
+       getch() będzie czekał max N ms, potem zwróci ERR. */
+    timeout(50);
+
     curs_set(1); /* Show cursor by default */
 
     init_ncurses_colors();
@@ -237,7 +268,7 @@ void m_gotoxy(int x, int y)
     refresh();
 }
 
-int GET_char(void)
+int GET_charV1(void)
 {
     int ch;
 
@@ -285,6 +316,85 @@ int GET_char(void)
     case '\t': return 9; /* Tab */
     default: return ch;
     }
+}
+
+int GET_char(void)
+{
+    int ch = getch();
+    if (ch == ERR)
+    {
+        return -1;
+    }
+
+    /* Fallback: jeśli terminal wysyła surowe ESC-sekwencje zamiast KEY_UP... */
+    if (ch == 27)
+    {
+        int ch2, ch3;
+
+        /* Doczytaj bez czekania (tylko jeśli już przyszło) */
+        timeout(0);
+        ch2 = getch();
+        ch3 = getch();
+        timeout(50);
+
+        if (ch2 == '[')
+        {
+            switch (ch3)
+            {
+            case 'A': return 72; /* UP */
+            case 'B': return 80; /* DOWN */
+            case 'C': return 77; /* RIGHT */
+            case 'D': return 75; /* LEFT */
+            default: break;
+            }
+        }
+
+        /* Jeśli to nie była sekwencja strzałki, traktuj jako Esc */
+        return 27;
+    }
+
+    switch (ch)
+    {
+    case KEY_DOWN:  return 80;
+    case KEY_UP:    return 72;
+    case KEY_LEFT:  return 75;
+    case KEY_RIGHT: return 77;
+    case KEY_PPAGE: return 73;
+    case KEY_NPAGE: return 81;
+    case KEY_HOME:  return 71;
+    case KEY_END:   return 79;
+    case KEY_IC:    return 82;
+    case KEY_DC:    return 83;
+    case KEY_F(1):  return 59;
+    case KEY_F(2):  return 60;
+    case KEY_F(3):  return 61;
+    case KEY_F(4):  return 62;
+    case KEY_F(5):  return 63;
+    case KEY_F(6):  return 64;
+    case KEY_F(7):  return 65;
+    case KEY_F(8):  return 66;
+    case KEY_F(9):  return 67;
+    case KEY_F(10): return 68;
+    case KEY_F(11): return 69;
+    case KEY_F(12): return 70;
+    case '\n':
+    case '\r':      return 13;
+    case KEY_BACKSPACE:
+    case 127:
+    case '\b':      return 8;
+    case '\t':      return 9;
+    default:        return ch;
+    }
+}
+
+int Get_char(void)
+{
+    return GET_char();
+}
+
+int Get_Char(void)
+{
+    return GET_char();
 }
 
 void term_cur(int y, int x)
