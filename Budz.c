@@ -1,5 +1,5 @@
 #include "blank/moje.h"
-#include "dek_budz.h"
+#include "DEK_BUDZ.H"
 void chk_time(void);
 extern struct Service *Service;
 /* extern struct agenda *Agenda; */

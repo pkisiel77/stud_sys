@@ -5,8 +5,10 @@ Autor: gonzo77@poczta.fm
 ---------------------------------*/
 
 #include "blank/moje.h"
-#include "admin.h"
+#include "ADMIN.H"
+#ifndef _NCURSES_
 #include <mmsystem.h>
+#endif
 
 void chk_time(void);
 void PrzegladajLog(void);//char *buffor[20]);
@@ -65,7 +67,7 @@ char *dane_admin(int ob_pocz, int ob_konc, int *rozmiar_ob)
 	int x,y;
     S=Service;
 	*rozmiar_ob=S->str_size;
-	St=Malloc(S->l_rek_max*(*rozmiar_ob));
+	St=(struct admin *)Malloc(S->l_rek_max*(*rozmiar_ob));
 	x=m_wherex(); y=m_wherey(); setcursor(nocursor);
 	term_printf(Y_G0,X_tyt,attr_title,"%s",S->name);
 	term_cur(y,x); setcursor(cursor);
@@ -115,19 +117,27 @@ void PrzegladajLog(void)
 /*-------------------------
   informacje o systemie
   ...podstawowe informacjie 
-  o systemie na kórym 
+  o systemie na kï¿½rym 
   pracuje podsystem
 -------------------------*/
 
 int InfoSystem(int ret)
 {
+#ifdef _NCURSES_
+	// NCURSES stub - display basic system info
+	ret=dana_koment(-1,20,"+ Informacje o systemie");
+	ret=dana_koment(-1,-1,"+ ");
+	ret=dana_koment(-1,-1,"+ System: Linux/Unix (ncurses)");
+	ret=dana_koment(-1,-1,"+ ");
+	return ret;
+#else
 	char *text;
 	char buffor[128];
 	int zwrot,retu;
 	// struktury 
 	OSVERSIONINFO vi;
 	SYSTEM_INFO   si;
-    // pocz¹tek
+    // poczï¿½tek
     ret=dana_koment(-1,20,"+ Informacje o systemie");
     ret=dana_koment(-1,-1,"+ ");
     ret=dana_koment(-1,-1,"+ System:");
@@ -164,4 +174,5 @@ int InfoSystem(int ret)
 	// koniec
 	retu=ret;
 	return retu;
+#endif  // _NCURSES_
 }

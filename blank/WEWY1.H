@@ -1,8 +1,8 @@
 #ifndef _WEWY1_H_INCLUDE
 #define _WEWY1_H_INCLUDE
-#include "../opcjesys/scr_size.h"
+#include "../opcjesys/SCR_SIZE.H"
 extern signed char _TYP_KONSOLI_;
-#ifndef _DOS_
+#ifdef _TERM_QNX_
 #include <sys/types.h>
 #include <sys/mouse.h>
 #include <sys/dev.h>

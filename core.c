@@ -2,7 +2,7 @@
 #define _WEWY_TERM_
 #define _DEF_SYS_
 // #define GRAF
-#define _NCURSES_
+// #define _NCURSES_  // Defined in Makefile with -D_NCURSES_
 // miejsce dla opcjesys.h
 #include "blank/moje.h"
 // koniec miejsca dla opcjesys.h
@@ -49,7 +49,7 @@ extern int lwmall;
 char Dec = 'p', typ_raportu = ' ';
 time_t sek_akt;
 int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
-extern int y_shift = 0;
+int y_shift = 0;
 /*extern unsigned _stklen=50000U; */
 /* ---------------------------------------------------------------- */
 int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,

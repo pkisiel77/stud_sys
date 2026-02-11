@@ -1,6 +1,6 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
-#include "sprawdz.h"
+#include "SPRAWDZ.H"
 void chk_time(void);
 extern struct Service *Service;
 /* extern struct agenda *Agenda, *SysA[]; */

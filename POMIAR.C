@@ -1,9 +1,11 @@
+#ifndef _NCURSES_
 #include <process.h>
+#endif
 #include "time.h"
-#include "ramkaa.h"
+#include "RAMKAA.H"
 #include "blank/moje.h"
-#include "blank/sys_dekl.h"
-#include "pomiar.h"
+#include "blank/SYS_DEKL.H"
+#include "POMIAR.H"
 #include "blank/wewybl.h"
 //#include "blank/graph.c"
 //#include "term_graf.h"
@@ -11,7 +13,6 @@
 void chk_time(void);
 
 int OOblicz_wartosci(char typ,float a,float b,float c,float *wektor_x,int *wektor_y);
-void iinit_plot(int px,int py, struct plot *plt);
 int CzasPobraniaDanych(int dec);
 
 extern struct Service *Service;
@@ -36,6 +37,8 @@ struct plot
  float *Wek_X;
  int *Wek_Y;
 } *pp=NULL;
+
+void iinit_plot(int px,int py, struct plot *plt);  // Moved after struct definition
 
 
 FILE *p_plikk=NULL;
@@ -70,7 +73,7 @@ static struct agenda **SA;
 #define DEC_CZAS      25
 #define DEC_ALARM     26
 
-// Funkcje i procedury dziêki którym dzia³ poprawnie us³uga POMIAR
+// Funkcje i procedury dziï¿½ki ktï¿½rym dziaï¿½ poprawnie usï¿½uga POMIAR
 int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
 int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
 									struct agenda **As, struct agenda *An,
@@ -110,25 +113,29 @@ int pomiar_main(void *DA)
 	{
 		//odczyt danych z tablicy pomiarowej wgranej w blankiecie
 		krok++;
-		if(P->usluga_pomiar==POMIAR) // wyœwietlanie danych A[V] i t[s]
+		if(P->usluga_pomiar==POMIAR) // wyï¿½wietlanie danych A[V] i t[s]
 		{ if(krok>=P->czas_pomiaru) krok=0;// koniec pomiaru
 		   else
 		   { A->dana=(float)P->tablica_pomiarowa[krok];
 		     A->czas+=1.0;
 			 if(A->dana<=A->wart_min) A->wart_min=A->dana;
              if(A->dana>=A->wart_max) A->wart_max=A->dana;
-			 // obsluga b³êdów
+			 // obsluga bï¿½ï¿½dï¿½w
 			 // zapis do pliku ../tmp/raport.dat
-			 // nr próbki i wartoœæ i nr pacjenta
+			 // nr prï¿½bki i wartoï¿½ï¿½ i nr pacjenta
 			 // i Beep
 			 // przekroczony zakres
 			 if((A->dana>=ekg_max) || (A->dana<=ekg_min))
 			 {
 				 A->alarm=2;
-				 Beep(100,100);
+#ifdef _NCURSES_
+				 beep();  // ncurses beep
+#else
+				 Beep(100,100);  // Windows Beep
+#endif
 			 }
 			 else
-				 A->alarm=0;//powrót do normalnoœci
+				 A->alarm=0;//powrï¿½t do normalnoï¿½ci
 			 
 		   }
 		}
@@ -136,12 +143,12 @@ int pomiar_main(void *DA)
 		{
 			//if init_graf
 			//if(igraf!=0){;}
-			//else{;} // nie jesteœ w trybie graficznym
+			//else{;} // nie jesteï¿½ w trybie graficznym
 		}
 		if(P->usluga_pomiar==POMIAR_2) // ... wykres poza blankietem
 		{
 			//if(igraf!=0){;}
-			//else{;} // nie jesteœ w trybie graficznym
+			//else{;} // nie jesteï¿½ w trybie graficznym
 		}
 	}
 	// czas_zegarowy(&tab[0][0],&tab[1][0],&tab[2][0]);
@@ -174,7 +181,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
     struct _dane_pacjenta_ dane_pacjenta;
 	static int dysk=0;
 	
-// zmienne które powinne byc przekazywane do blankietu
+// zmienne ktï¿½re powinne byc przekazywane do blankietu
 	int pacjent_nr=1;//dane_pacjenta.pac_nr_ew;
 	char *pacjent_imie="Jan";//dane_pacjenta.pac_imie;
 	char *pacjent_nazwisko="Kowalski";//dane_pacjenta.pac_nazwisko;
@@ -222,14 +229,15 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 	{
       	// to co dotyczy wszystkie opcje
 		ret=dana_koment(-1,-1,"+ -------------------------------------------------------------------------");      
-		// 1. Ÿród³o danych
+		// 1. ï¿½rï¿½dï¿½o danych
 		{static char *menu_text[3]={"b brak","d dysk","k karta dzwiekowa"};
-		 static char *zrodlo_danych='b';
-         ret=dana_decyzyjna(-1,-1,"+ Zrodlo danych  <%s> ??", "b/d/k",menu_text, 3, &(zrodlo_danych),ochr, DEC_DANE);
-		 P->zrodlo_danych=zrodlo_danych; 
+		 static char zrodlo_danych_buf[2]="b";  // Buffer for string
+         ret=dana_decyzyjna(-1,-1,"+ Zrodlo danych  <%s> ??", "b/d/k",menu_text, 3, zrodlo_danych_buf,ochr, DEC_DANE);
+		 P->zrodlo_danych=zrodlo_danych_buf; 
 		// 2. nazwa pliku do zapisu lub odczytu
 		// dane statyczne czyli odczyt z pliku danego pacjenta
- 	    if((P->zrodlo_danych=='d') && (dysk!=1))
+#ifndef _NCURSES_
+ 	    if((P->zrodlo_danych[0]=='d') && (dysk!=1))
 		{ 
           static char *nazw_plik[100],*temp;
 		  int opcje,i=0;
@@ -237,9 +245,9 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		  BOOL n_opcje;
 		  // uruchomienie okna wykresu
 		  if(P->nr_wzoru==2) WinExec("c:\\MenuDemo.exe",SW_SHOW);
-     	  // ³adowanie plików z katalogu 22 do nazw_plik
+     	  // ï¿½adowanie plikï¿½w z katalogu 22 do nazw_plik
 		  opcje=FindFirstFile("c:\\pacjent\\dane\\1\\*.dat",&nazwa);
-		  if(opcje==-1) MessageBox(NULL,"B³¹d znajdowania plików","B³¹d",MB_OK);
+		  if(opcje==-1) MessageBox(NULL,"Bï¿½ï¿½d znajdowania plikï¿½w","Bï¿½ï¿½d",MB_OK);
 		   else
 		   {   temp=(char*)malloc(15);
 		       sprintf(temp,"%s",nazwa.cFileName);
@@ -285,12 +293,13 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		   }
 		   dysk=1;
         } 
-        if(P->zrodlo_danych=='k') 
+#endif  // _NCURSES_
+        if(P->zrodlo_danych[0]=='k')  // Fixed: compare first char
 		{ static char **help=NULL;
 		  static char *MenuText[2]={"t tak","n nie"}; 
 		  int i;
 		  ret=dana_koment(-1,-1,"Pomiar dynamiczny");
-		  MessageBox(NULL,"Brak karty dŸwiêkowej","B³¹d I/0",MB_ICONWARNING|MB_OK);
+		  MessageBox(NULL,"Brak karty dï¿½wiï¿½kowej","Bï¿½ï¿½d I/0",MB_ICONWARNING|MB_OK);
 		  //ret=dana_text(-1,-1,"+ Zapis do pliku:  ??",P->nazwa_pliku,11,help,0,ochr);
 		}
 		}
@@ -301,7 +310,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		{case 0: break;
 /*********************************************************/
 /* POMIAR */
-/* Pobrane dane s¹ przedstawiane jako wartoœæ (A)mplituda i (c)zas*/
+/* Pobrane dane sï¿½ przedstawiane jako wartoï¿½ï¿½ (A)mplituda i (c)zas*/
 /* Pola: Amplituda[]; czas[]; */
 		 case 1:
 		 case 2:
@@ -431,7 +440,7 @@ int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
    P=(struct pomiar*)(A->data);
 
 	 if(kod_decyzji==DEC_DANE)
-	 {P->zrodlo_danych='d';}
+	 {static char d_buf[2]="d"; P->zrodlo_danych=d_buf;}
 
 	 if(kod_decyzji==DEC_NON)
 		{/*if(strlen(P->komenda)>0)
@@ -465,7 +474,7 @@ int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
                 {(P->wynik_f[0])=(-(P->dana_f[2]))/(P->dana_f[1]);
                 }
                 if((P->dana_f[0])!=0)
-                 {(P->wynik_f[0])=(P->dana_f[1])*(P->dana_f[1])-(4*(P->dana_f[0])*(P->dana_f[2]));           ret=dana_koment(-1,-1,"+ Delta tr¢jmianu wynosi: %5.1f ", (P->wynik_f[0]));
+                 {(P->wynik_f[0])=(P->dana_f[1])*(P->dana_f[1])-(4*(P->dana_f[0])*(P->dana_f[2]));           ret=dana_koment(-1,-1,"+ Delta trï¿½jmianu wynosi: %5.1f ", (P->wynik_f[0]));
                   if((P->wynik_f[0])<0)
                   {(P->wynik_f[1])=( -(P->dana_f[1]))/(2*(P->dana_f[0]));
                    (P->wynik_f[2])=(sqrt(-(P->wynik_f[0])))/(2*(P->dana_f[0]));
@@ -627,20 +636,20 @@ void iinit_plot(int px,int py, struct plot *plt)
     setfillstyle(SOLID_FILL,KOL_TLA);
     bar(px+1,py,px+MAX_X,py+MAX_Y);
 	  setcolor(TERM_WHITE);
-	  rectangle(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+KON_RAM_Y); /* wymiary ramki biaˆej - cieä */
+	  rectangle(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+KON_RAM_Y); /* wymiary ramki biaï¿½ej - cieï¿½ */
 	  setcolor(TERM_BLACK);
-	  line(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+TAB_R); /* cieä obramowania czarny x */
-	  line(px+TAB_R,py+TAB_R,px+TAB_R,py+KON_RAM_Y); /* cieä obramowania czarny y */
+	  line(px+TAB_R,py+TAB_R,px+KON_RAM_X,py+TAB_R); /* cieï¿½ obramowania czarny x */
+	  line(px+TAB_R,py+TAB_R,px+TAB_R,py+KON_RAM_Y); /* cieï¿½ obramowania czarny y */
 	  setcolor(TERM_BLACK);
 
 	  line(px+OS_POCZ,py+Y_HALF,px+OS_X_KON,py+Y_HALF);  /* rysowanie osi x */
-	  line(px+GROT_X,py+GROT_XG,px+OS_X_KON,py+Y_HALF);  /* rysowanie strzaˆki x */
+	  line(px+GROT_X,py+GROT_XG,px+OS_X_KON,py+Y_HALF);  /* rysowanie strzaï¿½ki x */
 	  line(px+GROT_X,py+GROT_XD,px+OS_X_KON,py+Y_HALF);
 	  line(px+X_HALF,py+OS_POCZ,px+X_HALF,py+OS_Y_KON);  /* rysowanie osi y */
-	  line(px+GROT_YL,py+GROT_Y,px+X_HALF,py+OS_POCZ);   /* rysowanie strzaˆki y */
+	  line(px+GROT_YL,py+GROT_Y,px+X_HALF,py+OS_POCZ);   /* rysowanie strzaï¿½ki y */
 	  line(px+GROT_YP,py+GROT_Y,px+X_HALF,py+OS_POCZ);
 
-	  for(x=OS_POCZ;x<X_SKAL;x+=SKOK_X)   /* podziaˆka */
+	  for(x=OS_POCZ;x<X_SKAL;x+=SKOK_X)   /* podziaï¿½ka */
 		{
 		  line(px+x,py+Y_HALF-PODZ,px+x,py+Y_HALF+PODZ);
 		}
@@ -669,7 +678,7 @@ int PobierzFix(char *sciezka)
 	int dana=-1;
 	FILE *fp;
 	fp=fopen(sciezka,"r");
-	if(fp==NULL) MessageBox(NULL,"Fix!!!!","B³¹d",MB_OK);
+	if(fp==NULL) MessageBox(NULL,"Fix!!!!","Bï¿½ï¿½d",MB_OK);
 	 else
 	 { fscanf(fp,"%d",&dana);
 	   fclose(fp);

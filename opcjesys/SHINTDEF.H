@@ -12,6 +12,15 @@
 #include <alloc.h>
 #endif
 #endif
+#elif defined(_NCURSES_)   /* for NCURSES */
+#include <stdlib.h>
+#define MULTSCR
+/* For NCURSES, use int for shint to match term_ncurses.c expectations */
+typedef int shint;
+typedef unsigned int Uint;
+typedef unsigned int Ushint;
+#define Free free
+#define Malloc malloc
 #else   /* dla QNX WC */
 #define _SYS_32B_
 #include <stdlib.h>
@@ -24,9 +33,11 @@ typedef unsigned short int Ushint;
 #define Free free
 #define Malloc malloc
 #else
+#ifndef _NCURSES_
 typedef int shint;
 typedef unsigned int Uint;
 typedef unsigned int Ushint;
+#endif
 #ifdef _CVC_
 #define Free free
 #define Malloc malloc

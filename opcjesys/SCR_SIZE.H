@@ -22,8 +22,7 @@ int MX_MAX= 80;
 int MXR_MAX=79;
 int X_L0=0;
 int Y_G0=0;
-#endif  // koniec dla QNX
-#ifdef _DOS_
+#elif defined(_DOS_)  // Changed to elif
 #ifndef _CVC_
 int MYR_MAX=24;
 int MY_MAX=25;
@@ -32,8 +31,14 @@ int MXR_MAX=79;
 int X_L0=1;
 int Y_G0=1;
 #endif
-#endif  // koniec dla DOS
-#ifdef _CVC_
+#elif defined(_NCURSES_)  // Changed to elif
+int MYR_MAX=24;
+int MY_MAX=25;
+int MX_MAX=80;
+int MXR_MAX=79;
+int X_L0=0;
+int Y_G0=0;
+#elif defined(_CVC_)  // Changed to elif
 int MYR_MAX=24;
 int MY_MAX=25;
 int MX_MAX=80;

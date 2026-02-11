@@ -22,11 +22,7 @@
 #include "term_ncurses.h"
 #include <stdio.h>
 
-void InitConsole() {
-    /* ncurses initialization is handled in term_ncurses.c */
-    extern void InitConsole(void);
-    InitConsole();
-}
+/* InitConsole is implemented in term_ncurses.c */
 
 #else
 /* Windows implementation */

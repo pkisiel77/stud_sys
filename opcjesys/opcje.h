@@ -33,7 +33,7 @@ extern HWND handle_window_device;
  #include "../blank/konsola.c"
 #endif // koniec dla modu�u g��wnego
 #ifdef WEWY_MAIN // dla wewy_main
- #include "../opcjesys/shintdef.h"
+ #include "../opcjesys/SHINTDEF.H"
 #endif // koniec wewy_main
 #ifdef _MOJE_H_ // hedery dla moje.h
  #include <stddef.h>
