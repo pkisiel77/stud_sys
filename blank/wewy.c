@@ -59,16 +59,31 @@ char real_time;
 
 #include "moje.h"
 
-unsigned int cursor = 0x0A0C, nocursor = 0x2000;
+// extern unsigned int cursor = 0x0A0C, nocursor = 0x2000;
 
 #ifndef CLK_TCK
 #define CLK_TCK CLOCKS_PER_SEC
 #endif
 static time_t lticks_min, Ltickm = 0.2 * CLK_TCK, kbtickm = 0.02 * CLK_TCK; /* klawisz co 0.2sek */
 
+/*
+extern int xg_akt, yg_akt;
+extern char alarmclock;
+// extern unsigned int cursor, nocursor;
 
-int xg_akt = 0, yg_akt = 0;
-char alarmclock = 0;
+extern int x_akt, y_akt;
+extern int x_akt0, y_akt0;
+extern int x_maxOkna, y_maxOkna;
+extern int x_min, y_min;
+extern int x_max, y_max;
+*/
+
+
+
+extern int x_akt0, y_akt0;
+
+extern int x_min, y_min;
+
 //static time_t lticks_min, Ltickm = 0.2 * CLK_TCK, kbtickm = 0.02 * CLK_TCK; /* klawisz co 0.2sek */
 void backspace(char* c);
 int GETchar(void);
@@ -5986,7 +6001,7 @@ void ustaw_rek_max_raportu(int (*def_blank)(int nr_ob, int ob_pocz,
     }
 }
 
-char* ustal_adres_rek(kod_raportu, rek_no)
+char* ustal_adres_rek(int kod_raportu, int rek_no)
 {
     int i;
     struct reports* R;

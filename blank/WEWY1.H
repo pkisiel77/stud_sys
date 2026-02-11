@@ -93,8 +93,10 @@ struct Blok_anim *blok_anim=&BA; /*NULL; */
 									dla WATCOM C beda od (0,0 - 24,79)                 */
 /* #ifndef _DOS_ */
 shint X_0=0, Y_0=0, X_maxBlank, Y_maxBlank;
-shint x_maxOkna=0, y_maxOkna=0, x_akt=0, y_akt=0, x_akt0=0, y_akt0=0;
-shint x_min=0, y_min=0, dana_poczatkowa=0;
+// int x_maxOkna=0, y_maxOkna=0;
+// int x_akt=0, y_akt=0, x_akt0=0, y_akt0=0;
+// int x_min=0, y_min=0;
+int dana_poczatkowa=0;
 /* ----------------------------------------------------------------- */
 unsigned int attryb=TERM_WHITE|TERM_BLUE_BG|TERM_FLUSH /*, opcje*/;
 shint INSERT=-1, HELP=0, ZAPIS=0, BEZ_HASLA=0, SLEDZIC=0;
