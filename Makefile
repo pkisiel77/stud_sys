@@ -17,10 +17,13 @@ SRCS = core.c \
        Budz.c \
        ADMIN.C \
        POMIAR.C \
-       SYS_RAP.C
+       SYS_RAP.C \
+       SPRAWDZ.C \
+       URUCHOM.C
 
 # Object files
-OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
+OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) \
+       $(patsubst %.C,$(OBJDIR)/%.o,$(filter %.C,$(SRCS)))
 
 # Create object directories
 $(shell mkdir -p $(OBJDIR)/blank $(OBJDIR)/opcjesys)
@@ -40,7 +43,7 @@ $(OBJDIR)/%.o: %.c
 
 $(OBJDIR)/%.o: %.C
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -x c -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET)

@@ -27,6 +27,7 @@ extern HWND handle_window_device;
 /* -------------------- Headery QNX'a ---------------------------- */
 #ifndef _DOS_
 #define Get_char GET_char
+#define Get_Char GET_char  /* Also define Get_Char for compatibility */
 #ifdef _NCURSES_
 char real_time = 0;  /* Definition for NCURSES */
 #else

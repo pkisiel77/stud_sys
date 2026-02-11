@@ -1,5 +1,15 @@
 #include "blank/moje.h"
-#include "blank/sys_dekl.h"
+#include "blank/SYS_DEKL.H"
+#ifdef _NCURSES_
+// Define Windows drive type constants for ncurses
+#define DRIVE_UNKNOWN 0
+#define DRIVE_NO_ROOT_DIR 1
+#define DRIVE_REMOVABLE 2
+#define DRIVE_FIXED 3
+#define DRIVE_REMOTE 4
+#define DRIVE_CDROM 5
+#define DRIVE_RAMDISK 6
+#endif
 void chk_time(void);
 extern struct Service *Service;
 extern struct agenda *Agenda;
@@ -8,7 +18,7 @@ extern int X_time, X_tyt;
 extern unsigned int cursor, nocursor;
 extern unsigned int attr,at_wpis;
 //int l_stud=1;
-#include "uruchom.h"
+#include "URUCHOM.H"
 #define DEC_USUN 1
 //char **Nazwiska=NULL, **Imiona, **Miasta, **Kod;
 char **Sciezka, **Roz;
@@ -90,7 +100,11 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 		
 		ret=dana_text_dec(-1, -1,"+ Wpisz litere dysku", dysk_txt, DL_DYSK, Dysk, ldysk,OCHR_POMIAR,DEC_DYSK);
          sprintf(buf,"%s:\\",dysk_txt);
+#ifdef _NCURSES_
+		wynik = 3;  // Assume DRIVE_FIXED for ncurses
+#else
 		wynik=GetDriveType(buf);
+#endif
 		switch(wynik)
 		{ case DRIVE_UNKNOWN:ret=dana_koment(-1,-1,"+ <DRIVE_UNKNOWN>");break;
           case DRIVE_NO_ROOT_DIR:ret=dana_koment(-1,-1,"+ <DRIVE_NO_ROOT_DIR>");break;
@@ -115,6 +129,7 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 
      if(decy=='t')
      {
+#ifndef _NCURSES_
 		 static char *nazw_plik[100],*temp;
 		 int opcje, i=0;
 		 WIN32_FIND_DATA nazwa;
@@ -125,7 +140,7 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 		 char buff[128];
 		 sprintf(buff,"%s*.*",buf);
 		  opcje=FindFirstFile(buff,&nazwa);
-		  if(opcje==-1) MessageBox(NULL,"B³¹d znajdowania plików","B³¹d",MB_OK);
+		  if(opcje==-1) MessageBox(NULL,"Bï¿½ï¿½d znajdowania plikï¿½w","Bï¿½ï¿½d",MB_OK);
 		   else
 		   {   temp=(char*)malloc(15);
 		       sprintf(temp,"%s",nazwa.cFileName);
@@ -145,6 +160,7 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 		  if(opcje!=-1) {sprintf(buff,"%s\\%s",buf,nazw_plik[opcje]);WinExec(buff,SW_SHOW);}
 		  decy='n';
 		 }
+#endif // _NCURSES_
         
 	 }
  
@@ -211,7 +227,7 @@ char *dane_uruchom(int ob_pocz, int ob_konc, int *rozmiar_ob)
   
 	S=Service;
 	*rozmiar_ob=S->str_size;
-	St=Malloc(S->l_rek_max*(*rozmiar_ob));
+	St=(struct uruchom *)Malloc(S->l_rek_max*(*rozmiar_ob));
 	x=m_wherex(); y=m_wherey(); setcursor(nocursor);
 	term_printf(Y_G0,X_tyt,attr_title,"%s",S->name);
 	term_cur(y,x); setcursor(cursor);

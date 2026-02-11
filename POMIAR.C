@@ -2,9 +2,9 @@
 #include <process.h>
 #endif
 #include "time.h"
-#include "ramkaa.h"
+#include "RAMKAA.H"
 #include "blank/moje.h"
-#include "blank/sys_dekl.h"
+#include "blank/SYS_DEKL.H"
 #include "POMIAR.H"
 #include "blank/wewybl.h"
 //#include "blank/graph.c"
@@ -13,7 +13,6 @@
 void chk_time(void);
 
 int OOblicz_wartosci(char typ,float a,float b,float c,float *wektor_x,int *wektor_y);
-void iinit_plot(int px,int py, struct plot *plt);
 int CzasPobraniaDanych(int dec);
 
 extern struct Service *Service;
@@ -38,6 +37,8 @@ struct plot
  float *Wek_X;
  int *Wek_Y;
 } *pp=NULL;
+
+void iinit_plot(int px,int py, struct plot *plt);  // Moved after struct definition
 
 
 FILE *p_plikk=NULL;
@@ -127,7 +128,11 @@ int pomiar_main(void *DA)
 			 if((A->dana>=ekg_max) || (A->dana<=ekg_min))
 			 {
 				 A->alarm=2;
-				 Beep(100,100);
+#ifdef _NCURSES_
+				 beep();  // ncurses beep
+#else
+				 Beep(100,100);  // Windows Beep
+#endif
 			 }
 			 else
 				 A->alarm=0;//powr�t do normalno�ci
@@ -226,12 +231,13 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		ret=dana_koment(-1,-1,"+ -------------------------------------------------------------------------");      
 		// 1. �r�d�o danych
 		{static char *menu_text[3]={"b brak","d dysk","k karta dzwiekowa"};
-		 static char *zrodlo_danych='b';
-         ret=dana_decyzyjna(-1,-1,"+ Zrodlo danych  <%s> ??", "b/d/k",menu_text, 3, &(zrodlo_danych),ochr, DEC_DANE);
-		 P->zrodlo_danych=zrodlo_danych; 
+		 static char zrodlo_danych_buf[2]="b";  // Buffer for string
+         ret=dana_decyzyjna(-1,-1,"+ Zrodlo danych  <%s> ??", "b/d/k",menu_text, 3, zrodlo_danych_buf,ochr, DEC_DANE);
+		 P->zrodlo_danych=zrodlo_danych_buf; 
 		// 2. nazwa pliku do zapisu lub odczytu
 		// dane statyczne czyli odczyt z pliku danego pacjenta
- 	    if((P->zrodlo_danych=='d') && (dysk!=1))
+#ifndef _NCURSES_
+ 	    if((P->zrodlo_danych[0]=='d') && (dysk!=1))
 		{ 
           static char *nazw_plik[100],*temp;
 		  int opcje,i=0;
@@ -287,7 +293,8 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		   }
 		   dysk=1;
         } 
-        if(P->zrodlo_danych=='k') 
+#endif  // _NCURSES_
+        if(P->zrodlo_danych[0]=='k')  // Fixed: compare first char
 		{ static char **help=NULL;
 		  static char *MenuText[2]={"t tak","n nie"}; 
 		  int i;
@@ -433,7 +440,7 @@ int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
    P=(struct pomiar*)(A->data);
 
 	 if(kod_decyzji==DEC_DANE)
-	 {P->zrodlo_danych='d';}
+	 {static char d_buf[2]="d"; P->zrodlo_danych=d_buf;}
 
 	 if(kod_decyzji==DEC_NON)
 		{/*if(strlen(P->komenda)>0)
