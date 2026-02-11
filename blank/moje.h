@@ -10,7 +10,7 @@
 
 #ifdef _NCURSES_ // ncurses (Linux/Unix)
 #include "term_ncurses.h"
-typedef short int;
+/* typedef short int; */  /* Invalid typedef - removed */
 #define _CVC_  /* Enable console mode */
 #endif // koniec NCURSES
 

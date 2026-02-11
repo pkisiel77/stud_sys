@@ -14,9 +14,10 @@ SRCS = core.c \
        blank/term_ncurses.c \
        blank/konsola.c \
        blank/wewy.c \
-       KONFIG.C \
-       RANDF.C \
-       RAP_BL.C
+       Budz.c \
+       ADMIN.C \
+       POMIAR.C \
+       SYS_RAP.C
 
 # Object files
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)

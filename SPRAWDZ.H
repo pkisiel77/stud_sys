@@ -1,3 +1,5 @@
+struct agenda;  /* Forward declaration */
+
 struct sprawdz
  {char *nazwa;
 	int status;
@@ -5,7 +7,7 @@ struct sprawdz
 	int nr_ag;
 	int del_min;
 	int del_sek;
-	struct agenda Ag;
+	struct agenda *Ag;  /* Changed to pointer */
  };
 
 int sprawdz(void *A);

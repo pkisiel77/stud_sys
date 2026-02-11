@@ -6,6 +6,9 @@
 #undef _DOS_
 #undef _DOS_WC
 #undef GRAF
+#elif defined(_NCURSES_)
+#undef _DOS_
+#undef GRAF
 #else
 #undef _TERM_QNX_
 #endif
@@ -24,7 +27,11 @@ extern HWND handle_window_device;
 /* -------------------- Headery QNX'a ---------------------------- */
 #ifndef _DOS_
 #define Get_char GET_char
-extern char real_time;
+#ifdef _NCURSES_
+char real_time = 0;  /* Definition for NCURSES */
+#else
+extern char real_time;  /* Declaration for QNX */
+#endif
 /*#include <malloc.h>
 #include <sys/dev.h>
 #include <sys/qnxterm.h>
@@ -89,13 +96,13 @@ int igraf = 0;
 #define L_SEP 8
 #include "wewybl.h"
 char separator[L_SEP] = {' ', ',', '!', ':', ';', '?', EOS, '.'};
-#include "wewy1.h"
+#include "WEWY1.H"
 
 int (*odbior_komunik)(void* b, pid_t a) = NULL;
 #undef buttons
 /* ---------------------- struktura dla obslugi grafiki ------------ */
 #define _TYLKO_RYS_
-#ifndef _DOS_
+#if defined(_TERM_QNX_) && !defined(_DOS_)
 #include "../aj/graf.h"
 #endif
 #define MAX_GRAFS 20
@@ -1474,7 +1481,7 @@ void xplus(void)
 
 
 /*  ======================== Procedury dla DOS'a ========================*/
-#ifndef _TERM_QNX_
+#if !defined(_TERM_QNX_) && !defined(_NCURSES_)
 #include "../blank/term_dos.c"
 
 #ifndef _CVC_
@@ -1496,7 +1503,7 @@ int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
 }
 
 
-#else
+#elif defined(_TERM_QNX_)
 void clear_cur(char znak) { ; }
 void setcursor(unsigned int cursor) { ; }
 /* int GETchar(void){return getchar();} */
@@ -1700,6 +1707,7 @@ int GET_char(void) /* ======= odczyt znaku z myszki lub klawiatury === */
             };
     */
 }
+#ifndef _NCURSES_
 int m_wherex(void) { return term_state.col; }
 int m_wherey(void) { return term_state.row; }
 void set_attr(unsigned int attr) { attryb = attr; }
@@ -1715,6 +1723,9 @@ void m_gotoxy(int x, int y)
     term_cur(y_akt, x_akt); /* term_flush(); */
     return;
 }
+#else
+void set_attr(unsigned int attr) { attryb = attr; }
+#endif
 
 
 /*  ------------------------------------------------------------------
@@ -1836,6 +1847,23 @@ void zamknij_grafiki(int report)
         BGR.Grafiki[0] = NULL;
     }
     return;
+}
+
+#elif defined(_NCURSES_)
+/* NCURSES implementations - most functions are in term_ncurses.c */
+void zamknij_grafiki(int a)
+{
+};
+
+int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
+                                                char* pdane, char* Text, void*(*Dane_Wykr)(void* Rd), void* R))
+{
+    return 0;
+}
+
+int zamknij_jeden_wykres(void* R, pid_t pid)
+{
+    return 0;
 }
 
 #endif
@@ -2486,7 +2514,7 @@ int otworz_raporty(char nr_op)
         BUF_com_size = 0;
         if (real_time == 0) odbior_komunik = NULL;
     }
-#ifndef _DOS_
+#ifdef _TERM_QNX_
 	else
     {
         if (Mouse_ctrl != NULL) mouse_read(Mouse_ctrl, BUF_com, 0, Mproxy, NULL);
@@ -2988,7 +3016,7 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
 #endif
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "wewy1.h"
+#include "WEWY1.H"
 extern int (*odbior_komunik)(void* b, pid_t a);
 extern int BUF_com_size, nr_komunik;
 extern void* BUF_com;
@@ -4897,7 +4925,7 @@ WPIS:
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "wewy1.h"
+#include "WEWY1.H"
 #endif
 /* ====================================================================== */
 int okno_text(signed char wpis, int y, int x0, int size,
@@ -5830,7 +5858,7 @@ int zamkniecie_raportow(char kontr_spojnosci)
     bez_potwierdzania = 0;
     Klucz = -1;
     blokada_potwierdzania = 0;
-#ifndef _DOS_
+#ifdef _TERM_QNX_
     if (mouse_free > 0)
     {
         if (kproxy > 0) qnx_proxy_detach(kproxy);
@@ -5895,7 +5923,7 @@ void* alloc_list(void* (*L), long int size)
     }
     next = Malloc(size);
     if (next == NULL) return next;
-    (void*)(*(void**)l) = next;
+    *(void**)l = next;
     lwmall++;
     *(void**)next = NULL;
     return next;
@@ -6720,7 +6748,7 @@ void dane_helpu(char* hformat, char* help[], char** parinfo);
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "wewy1.h"
+#include "WEWY1.H"
 #endif
 /* ========================================================== */
 int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
@@ -8046,7 +8074,7 @@ void* get_plot_data(int nr_danej, int kod, int* ind_min,
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "wewy1.h"
+#include "WEWY1.H"
 #endif
 
 /*   ================================================================ */
@@ -9563,7 +9591,7 @@ void Kolory(signed char kolor, unsigned int* attr, unsigned int* tlo,
 
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "wewy1.h"
+#include "WEWY1.H"
 #endif
 /* =================================================================== */
 int dana_float_dec(int y, int x, char* monit, float* w_min,

@@ -5,8 +5,10 @@ Autor: gonzo77@poczta.fm
 ---------------------------------*/
 
 #include "blank/moje.h"
-#include "admin.h"
+#include "ADMIN.H"
+#ifndef _NCURSES_
 #include <mmsystem.h>
+#endif
 
 void chk_time(void);
 void PrzegladajLog(void);//char *buffor[20]);
@@ -115,7 +117,7 @@ void PrzegladajLog(void)
 /*-------------------------
   informacje o systemie
   ...podstawowe informacjie 
-  o systemie na kórym 
+  o systemie na kï¿½rym 
   pracuje podsystem
 -------------------------*/
 
@@ -127,7 +129,7 @@ int InfoSystem(int ret)
 	// struktury 
 	OSVERSIONINFO vi;
 	SYSTEM_INFO   si;
-    // pocz¹tek
+    // poczï¿½tek
     ret=dana_koment(-1,20,"+ Informacje o systemie");
     ret=dana_koment(-1,-1,"+ ");
     ret=dana_koment(-1,-1,"+ System:");

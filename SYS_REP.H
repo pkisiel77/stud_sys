@@ -1,3 +1,5 @@
+struct agenda;  /* Forward declaration */
+
 struct sys_rep
  {char *nazwa;
   int status;
@@ -5,7 +7,7 @@ struct sys_rep
   int nr_ag;
   int del_min;
   int del_sek;
-  struct agenda Ag;
+  struct agenda *Ag;  /* Changed to pointer */
  };
 
 int sys_main(void *A);
