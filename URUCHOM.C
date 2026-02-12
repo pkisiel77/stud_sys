@@ -15,7 +15,7 @@ extern struct Service* Service;
 extern struct agenda* Agenda;
 extern unsigned int attr_title;
 extern int X_time, X_tyt;
-extern unsigned int cursor, nocursor;
+// extern unsigned int cursor, nocursor;
 extern unsigned int attr, at_wpis;
 //int l_stud=1;
 #include "URUCHOM.H"
@@ -82,7 +82,7 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
         GET_char();
         return -1;
     }
-    rekord_danych_do_naglowka(nr_rek);
+    rekord_danych_do_naglowka(nr_rekordu);
 
 #define OCHR_WIZYTA 5
 #define OCHR_POMIAR 5
@@ -94,37 +94,40 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 
 #define DL_SCIEZKI 20
 #define DL_ROZ 3
-#define DL_DYSK 1
-
+#define DL_DYSK_CHARS 1
+#define DL_DYSK_STR (DL_DYSK_CHARS + 1)
 
     {
-        static char dysk_txt[DL_DYSK];
+        static char dysk_txt[DL_DYSK_STR] = "C";
+        static char* dysk_menu[] = { "C", "D" };
+        const int dysk_menu_count = (int)(sizeof(dysk_menu) / sizeof(dysk_menu[0]));
         int wynik;
 
+        ret = dana_text_dec(-1, -1, "+ Wpisz litere dysku", dysk_txt, DL_DYSK_CHARS,
+                            dysk_menu, dysk_menu_count, OCHR_POMIAR, DEC_DYSK);
 
-        ret = dana_text_dec(-1, -1, "+ Wpisz litere dysku", dysk_txt, DL_DYSK, Dysk, ldysk,OCHR_POMIAR,DEC_DYSK);
-        sprintf(buf, "%s:\\", dysk_txt);
+        if (dysk_txt[0] == EOS)
+        {
+            ret = dana_koment(-1, -1, "+ Nie podano litery dysku");
+            return ret;
+        }
+
+        snprintf(buf, sizeof(buf), "%c:\\", dysk_txt[0]);
+
 #ifdef _NCURSES_
-        wynik = 3; // Assume DRIVE_FIXED for ncurses
+        wynik = DRIVE_FIXED; // Assume DRIVE_FIXED for ncurses
 #else
         wynik = GetDriveType(buf);
 #endif
         switch (wynik)
         {
-        case DRIVE_UNKNOWN: ret = dana_koment(-1, -1, "+ <DRIVE_UNKNOWN>");
-            break;
-        case DRIVE_NO_ROOT_DIR: ret = dana_koment(-1, -1, "+ <DRIVE_NO_ROOT_DIR>");
-            break;
-        case DRIVE_REMOVABLE: ret = dana_koment(-1, -1, "+ <DRIVE_REMOVABLE>");
-            break;
-        case DRIVE_FIXED: ret = dana_koment(-1, -1, "+ <DRIVE_FIXED>");
-            break;
-        case DRIVE_REMOTE: ret = dana_koment(-1, -1, "+ <DRIVE_REMOTE>");
-            break;
-        case DRIVE_CDROM: ret = dana_koment(-1, -1, "+ <DRIVE_CDROM>");
-            break;
-        case DRIVE_RAMDISK: ret = dana_koment(-1, -1, "+ <DRIVE_RAMDISK>");
-            break;
+        case DRIVE_UNKNOWN:     ret = dana_koment(-1, -1, "+ <DRIVE_UNKNOWN>"); break;
+        case DRIVE_NO_ROOT_DIR: ret = dana_koment(-1, -1, "+ <DRIVE_NO_ROOT_DIR>"); break;
+        case DRIVE_REMOVABLE:   ret = dana_koment(-1, -1, "+ <DRIVE_REMOVABLE>"); break;
+        case DRIVE_FIXED:       ret = dana_koment(-1, -1, "+ <DRIVE_FIXED>"); break;
+        case DRIVE_REMOTE:      ret = dana_koment(-1, -1, "+ <DRIVE_REMOTE>"); break;
+        case DRIVE_CDROM:       ret = dana_koment(-1, -1, "+ <DRIVE_CDROM>"); break;
+        case DRIVE_RAMDISK:     ret = dana_koment(-1, -1, "+ <DRIVE_RAMDISK>"); break;
         default: break;
         }
     }

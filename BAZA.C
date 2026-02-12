@@ -83,7 +83,7 @@ int baza_blankiet(int nr_rekordu, int ob_pocz,
 		 case 1: break;
 		 case 2: break;
 		 case 3:
-			 {static char *MenuComp[3]={"copy oblicz.c a:\\zbior.c", "Visual C", "WATCOM C"};
+			 {static char *MenuComp[3]={"copy oblicz.c c:\\zbior.c", "Visual C", "WATCOM C"};
         ret=dana_text_dec(-1,-1,"+ Wpisz komende:  ?? ", Ob->komenda, size=40,
 													 MenuComp, 3, ochr=1, DEC_COMP);
 			 }
