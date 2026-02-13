@@ -21,6 +21,11 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <time.h>
+#if defined(__APPLE__)
+#include <malloc/malloc.h>
+#elif defined(__linux__)
+#include <malloc.h>
+#endif
 /* extern char wait_for_synch_trig; */
 #include "../opcjesys/opcje.h"
 extern HWND handle_window_device;
@@ -6031,7 +6036,8 @@ char* ustal_adres_rek(int kod_raportu, int rek_no)
         {
             if (R->typ_bazy == BAZA_WEKTOR) /* adresy rekordow sa w tablicy */
             {
-                char **baza, k;
+                char **baza;
+                int k;
                 baza = (char**)(R->D);
                 k = rek_no;
                 /*       for(k=rek_no; k<=R->ob_konc; k++) {if(baza[k]!=NULL) break;}
@@ -8510,7 +8516,37 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
         }
         R->d_oryg[nr_rekordu - R->ob_pocz] = d_or;
         lwmall++;
-        przepisz(d_or, *d_rek, R->rozmiar_ob);
+        {
+            int copy_size = R->rozmiar_ob;
+            struct agenda* Arek = (struct agenda*)(*d_rek);
+
+            /* Bound the raw copy to the real record size to avoid overread when
+               report metadata and in-memory record size diverge. */
+            if (Arek != NULL && Arek->S != NULL && Arek->S->str_size > 0 &&
+                Arek->S->str_size < copy_size)
+            {
+                copy_size = Arek->S->str_size;
+            }
+
+            {
+                size_t alloc_size = 0;
+#if defined(__APPLE__)
+                alloc_size = malloc_size(*d_rek);
+#elif defined(__linux__)
+                alloc_size = malloc_usable_size(*d_rek);
+#endif
+                if (alloc_size > 0 && (size_t)copy_size > alloc_size)
+                {
+                    copy_size = (int)alloc_size;
+                }
+            }
+
+            przepisz(d_or, *d_rek, copy_size);
+            if (copy_size < R->rozmiar_ob)
+            {
+                memset(d_or + copy_size, 0, (size_t)(R->rozmiar_ob - copy_size));
+            }
+        }
     }
     *rozmiar = R->rozmiar_ob;
     return d_or;
@@ -9409,7 +9445,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
         "4 operator glowny",
         "5 oper.glowny i term.gl."
     };
-    char znak, *zakres = "0-4";
+    char znak, zakres[] = "0-4";
     for (i = 0; i < LRAP_BL; i++)
     {
         if (RAP[i] == NULL)
