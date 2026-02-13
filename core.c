@@ -22,8 +22,15 @@ struct agenda* SysQ[Q_SIZE];
 void** RepDataPtr[L_REP_MAX];
 int report_act[L_REP_MAX + 2];
 int ag_rep, q_rep;
-#include "KONFIG.C"
-#include "RANDF.C"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcomment"
+#endif
+#include "konfig.c"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#include "randf.c"
 /* ----------------------------------------------------------- */
 void logo(int yg, int xg, unsigned int attr_logo, char* imie, char* nazwisko, signed char mode);
 void naglowek(unsigned int attr_logo);
@@ -71,10 +78,7 @@ int SprawdzLog(char* uzytkownik, char* haslo);
 
 int main(int argc, char* argv[])
 {
-    int ret, Ret, l_poz_menu, y_logo = 3, nd;
-    int x_logo = 15, mode;
-    unsigned int attr_logo = TERM_BLUE | TERM_GREEN_BG;
-    char *uzytkownik = NULL, *haslo = NULL, Uzytkownik[DL_NAZWY_UZYT], Haslo[DL_NAZWY_HASLA];
+    int ret, Ret, l_poz_menu, y_logo = 3;
     char* graf_text[2] = {"Zmiana trybu na GRAFICZNY", "Zmiana trybu na TEKSTOWY "};
     /* ---------------------------------------------------------------- */
 
@@ -125,7 +129,7 @@ int main(int argc, char* argv[])
     return 0;}
     }while(sprawdz!=1);
     }
-    /*
+    //
     #ifdef _CVC_
     // sprawdzenie czy system zosta� zamkni�ty prawid�owo plik tmp.dat
     { FILE *fp,*nfp;
@@ -166,21 +170,12 @@ int main(int argc, char* argv[])
     Menu[L_SYS + 1] = graf_text[0];
     l_poz_menu = Liczba_opcji + 1;
     Yz_max_graf = Y_MAX_graf;
-    if (if_graf != 0) if_graf = otworz_graf_blank(0, 0.4, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
+    if (if_graf != 0) if_graf = otworz_graf_blank(0, 0, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
     do
     {
         term_fill(TERM_WHITE | TERM_BLUE_BG);
         setcursor(nocursor);
         // logo(y_logo,x_logo,attr_logo, imie , nazwisko, mode);
-        {
-            float xr;
-            static float suma = 0;
-            static int liczba = 0;
-            // xr=RNDM();
-            // suma+=xr;
-            // liczba++;
-            // term_printf(25, 0 ,ATTR_A,"Liczba losowa xr=%5.3f srednia=%5.3f",xr,suma/liczba);
-        }
         setcursor(nocursor);
         {
             int y_menu;
@@ -211,7 +206,7 @@ int main(int argc, char* argv[])
                     //y_shift=12;
                     // okno w trybie graficznym spada o 12 jednostek
                     setcursor(nocursor);
-                    if_graf = otworz_graf_blank(0, 0.4, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
+                    if_graf = otworz_graf_blank(0, 0, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
                 }
                 Menu[L_SYS + 1] = graf_text[if_graf];
                 continue;
@@ -221,7 +216,7 @@ int main(int argc, char* argv[])
         Service = Serv[Ret];
         Agenda = NULL;
         {
-            int Nr_rekordu = 0, npzl = 0, kto = 0, r_pocz = 0, lrek = 0;
+            int Nr_rekordu = 0, npzl = 0, kto = 0, r_pocz = 0;
             ret = raporty(Serv[Ret]->kod_uslugi, Nr_rekordu, npzl, kto, r_pocz, Serv[Ret]->l_rek_max, Serv[Ret]);
         }
     }
@@ -234,6 +229,7 @@ int main(int argc, char* argv[])
     ret = ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
     MessageBox(NULL, "Good Byeee", "Koniec", MB_OK);
 #endif
+    (void)ret;
     /*	if(mystderr!=NULL) fclose(mystderr); */
     return 0;
 }
@@ -272,14 +268,12 @@ int open_sys(void)
     /* ------------------- Ustawiamy zlecenie sprawdzania ---------- */
     {
         int rozmiar, zl = 0;
-        struct sprawdz* D;
         AgendaMax = 0;
         rozmiar = Serv[zl]->str_size;
         A = (struct agenda*)Malloc(rozmiar);
         A->S = Serv[zl];
         A->data = (A + 1);
         A->mode = 'p';
-        D = A->data;
         A->number_of_calls = -1;
         A->Interval = 1;
         A->prior = 200;
@@ -318,7 +312,7 @@ int open_sys(void)
              A->prior=100-i;
              nr=insert_to_agenda(A);
              Free(A); lwmall--;
-    //		 SysA[i]=A; /*(struct agenda *)Malloc(Serv[L_SYS]->str_size);
+    //		 SysA[i]=A; //(struct agenda *)Malloc(Serv[L_SYS]->str_size);
     //								 A=SysA[0]; A->S=Serv[L_SYS];
             }
          free_service(SysA[4]);
@@ -330,11 +324,10 @@ int open_sys(void)
     haslo_nieaktywne();
     for (i = 0; i < liczba_opcji; i++)
     {
-        int kod_uslugi, rek0, rekf, kolor = 0, ramka = 1, max_l_data_blank = 100;
+        int kod_uslugi, rek0, kolor = 0, ramka = 1, max_l_data_blank = 100;
         int rap_idx;
         kod_uslugi = Serv[i]->kod_uslugi;
         rek0 = 0;
-        rekf = 0;
         rap_idx = def_Report(kod_uslugi, -1, rek0, rek0 + Serv[i]->l_rek_max - 1, Serv[i]->str_size,
                              Serv[i]->name, kolor, ramka, Serv[i]->D, max_l_data_blank, Serv[i]->typ_bazy,
                              Serv[i]->def_blankiet, Serv[i]->dane_rap_bl, Serv[i]->wpis_rap_bl);
@@ -609,7 +602,7 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
 
 void mod_prior(struct agenda* Q)
 {
-    Q = Q;
+    (void)Q;
 }
 
 void cancel_serv(struct agenda* A, int i)
@@ -858,7 +851,7 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
                           struct agenda*** SA, char* adres_rek0_uslugi, char* nazwa)
 {
     struct agenda *A = NULL, *A0 = NULL, **Ab = NULL;
-    int lsys = 100, nr, i, nrR, lzl, nr_rek, ret = 0, ochr;
+    int nr, i, nrR, lzl, nr_rek, ret = 0, ochr;
     A0 = (struct agenda*)adres_rek0_uslugi;
     nr_rek = *nr_rekordu;
     *SA = getAgendaPtr(&lzl);
@@ -914,7 +907,6 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     int ret, ochr, size, raport, l_opcji;
     char* typ_form = NULL;
     static char* opcje = NULL;
-    struct pomiar* P = NULL;
 
     strcpy(typ_form, "* Typ uslugi <%s> ");
 
@@ -1078,7 +1070,7 @@ void ustaw_typ_uslugi(struct agenda* A, int decyzja)
 
 int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* nr_rekordu, int kod_uslugi, char* tytul)
 {
-    int ret, i, nr, yp, xp, ramka, lbm;
+    int ret = 0, i;
     switch (decyzja)
     {
     case 'n': (*nr_rekordu)++;
@@ -1163,21 +1155,22 @@ int ZapiszLog(char* uzytkownik, char* haslo)
 
 int SprawdzLog(char* uzytkownik, char* haslo)
 {
-    char *Uzytkownik[DL_NAZWY_UZYT], *Haslo[DL_NAZWY_HASLA];
+    char Uzytkownik[DL_NAZWY_UZYT], Haslo[DL_NAZWY_HASLA];
     int ret;
     FILE* fp;
     fp = fopen(PATH_HASLA, "r");
     if (fp == NULL)
     {
-        okno_menu("Blad otwarcia pliku", 1, 0, attr, at_wpis, 10, 25, -1, " BLAD", 1);
+        char* menu_blad[] = {"Blad otwarcia pliku"};
+        okno_menu(menu_blad, 1, 0, attr, at_wpis, 10, 25, -1, " BLAD", 1);
         return -1;
     }
     else
     {
         do
         {
-            ret = fscanf(fp, "%s %s", &Uzytkownik, &Haslo);
-            if (strlen(uzytkownik) == strlen(Uzytkownik))
+            ret = fscanf(fp, "%11s %11s", Uzytkownik, Haslo);
+            if (ret == 2 && strcmp(uzytkownik, Uzytkownik) == 0 && strcmp(haslo, Haslo) == 0)
             {
                 fclose(fp);
                 return 1;
@@ -1192,4 +1185,13 @@ int SprawdzLog(char* uzytkownik, char* haslo)
 
 /*-------------------------------------------------------------*/
 
-#include "RAP_BL.C"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#pragma clang diagnostic ignored "-Wself-assign"
+#endif
+#include "rap_bl.c"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif

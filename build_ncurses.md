@@ -51,11 +51,11 @@ gcc -D_NCURSES_ -I. -Iblank -Iopcjesys \
     blank/konsola.c \
     blank/wewy.c \
     Budz.c \
-    ADMIN.C \
-    POMIAR.C \
-    SYS_RAP.C \
-    SPRAWDZ.C \
-    URUCHOM.C \
+    admin.c \
+    pomiar.c \
+    sys_rap.c \
+    sprawdz.c \
+    uruchom.c \
     -lncurses -lm
 ```
 
@@ -136,7 +136,7 @@ When `-D_NCURSES_` is passed to the compiler, it overrides the default DOS selec
 
 **Error**: `fatal error: shintdef.h: No such file or directory`
 
-**Solution**: All includes have been fixed to use correct case (SHINTDEF.H). If you encounter new ones, check the actual filename case with `ls -la`.
+**Solution**: All includes have been fixed to use correct case (shintdef.h). If you encounter new ones, check the actual filename case with `ls -la`.
 
 ## Running the Application
 

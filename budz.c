@@ -1,5 +1,5 @@
 #include "blank/moje.h"
-#include "DEK_BUDZ.H"
+#include "dek_budz.h"
 void chk_time(void);
 extern struct Service *Service;
 /* extern struct agenda *Agenda; */
@@ -34,7 +34,7 @@ void ustaw_typ_uslugi(struct agenda *A, int decyzja);
 int budz_main(void *DA)
  {struct agenda *A;
 	struct budzik *B;
-	int x, y, i, ret;
+	int ret;
 	char tytul[75], *M[3],text[75],text1[75];
 	A=(struct agenda *)DA;
 	B=(struct budzik *)(A->data);
@@ -42,11 +42,8 @@ int budz_main(void *DA)
 	sprintf(tytul," BUDZIK: <Ent> - wylaczenie sygnalu; <Esc> - usuniecie monitu ");
 	sprintf(text,"     Zgloszono na godz.%02d.%02d",B->godz,B->min);
 	sprintf(text1,"     Najblizszy monit za %dmin.%02dsek.", (int)A->Interval/60,(int)A->Interval%60);
-	{int *buf_var;
-//	 buf_var=(int*)Malloc(save_var(NULL));
-//	 save_var(buf_var); 
+	{
 	 setcursor(nocursor);
-	 x=m_wherex(); y=m_wherey();
 	 M[0]=B->nazwa;
 	 M[1]=text; M[2]=text1;
 	 do
@@ -81,9 +78,9 @@ struct budzik
 	int wyprzedz;
  }; ------------------------------------------------------ */
 int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
-										int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
-										char *adres_rek0_uslugi)
- {int ret, ochr, ochrf=-1, size, raport, nr_rek;
+											int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
+											char *adres_rek0_uslugi)
+ {int ret, ochr, size, raport, nr_rek;
 	struct budzik *B;
 	struct agenda *A;
 /*sledzenie(); */
@@ -136,10 +133,10 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 extern time_t sek_akt;
 char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
-	static struct agenda *A;
+		static struct agenda *A;
 	struct budzik *Bu;
 	int x,y, i;
-	int min, sek, godz, min_doby;
+	int min, sek, godz;
 	S=Service;
 	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct budzik);
 	A=(struct agenda *)Malloc(*rozmiar_ob);
@@ -160,9 +157,8 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
 void wpis_budz(int ob_pocz, int ob_konc,
 					 char *D, int rozmiar_ob, char zapis[], char *Kod_op)
  {struct agenda *A;
-	struct budzik *B;
 	 A=(struct agenda *)D;
-	 B=(struct budzik *)(A->data);
+	 (void)A;
  }
 
 void ustaw_czas_budzika(struct agenda *A, struct budzik *B);
@@ -272,10 +268,10 @@ void ustaw_delay_budzika(struct agenda *A, struct budzik *B)
 
 int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, int *nr_rekordu)
 {
-	struct agenda *A0, *A;
+	struct agenda *A;
 	struct budzik *B;
 	int sek, min, godz;
-	int p_min, p_max, ret, nast = 0;
+	int ret;
 	if (kod_decyzji == DEC_NEW && decyzja == 't')
 	{
 		if (Anew == NULL) Anew = service_default(dec_budz);
@@ -319,4 +315,3 @@ int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, i
 	}
 	return kod_uslugi;
 }
-

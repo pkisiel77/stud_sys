@@ -33,7 +33,7 @@ extern HWND handle_window_device;
  #include "../blank/konsola.c"
 #endif // koniec dla modu�u g��wnego
 #ifdef WEWY_MAIN // dla wewy_main
- #include "../opcjesys/SHINTDEF.H"
+ #include "../opcjesys/shintdef.h"
 #endif // koniec wewy_main
 #ifdef _MOJE_H_ // hedery dla moje.h
  #include <stddef.h>
@@ -59,15 +59,15 @@ extern HWND handle_window_device;
   typedef  int pid_t;
   #endif
   #include "../blank/wewybl.h"
-  #include "../opcjesys/SCR_SIZE.H"
+  #include "../opcjesys/scr_size.h"
  #endif // koniec DOS/ncurses
 #endif // koniec hedr�w dla moje.h
 #ifdef _WEWYBL_H_INCLUDE // hedery dla wewybl.h
- #include "../opcjesys/SHINTDEF.H"
- #include "../opcjesys/MYSTDERR.H"
+ #include "../opcjesys/shintdef.h"
+ #include "../opcjesys/mystderr.h"
 #endif // koniec init. heder�w dla wewybl.h
 #ifdef _WEWY1_H_INCLUDE
-# include "../opcjesys/SCR_SIZE.H"
+# include "../opcjesys/scr_size.h"
 #endif
 #ifdef GRAF
 //extern HDC hdc;

@@ -24,6 +24,14 @@
 /* extern char wait_for_synch_trig; */
 #include "../opcjesys/opcje.h"
 extern HWND handle_window_device;
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcomment"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#pragma clang diagnostic ignored "-Wchar-subscripts"
+#endif
 /* -------------------- Headery QNX'a ---------------------------- */
 #ifndef _DOS_
 #define Get_char GET_char
@@ -96,7 +104,9 @@ void przepisz(char* do_ob, char* z_ob, int ile);
 void open_konsole_mouse(int fd_in);
 int BUF_com_size = 0, nr_komunik = -1;
 void* BUF_com = NULL;
+#if defined(_TERM_QNX_)
 static char wait_for_synch_trig = 0;
+#endif
 int igraf = 0;
 /* ================Procedura czytania danych i slow z klawiatury=========*/
 /*      Dane wejsciowe:  monit - komentarz do tekstu pisanego na monitor
@@ -112,7 +122,7 @@ int igraf = 0;
 #define L_SEP 8
 #include "wewybl.h"
 char separator[L_SEP] = {' ', ',', '!', ':', ';', '?', EOS, '.'};
-#include "WEWY1.H"
+#include "wewy1.h"
 
 int (*odbior_komunik)(void* b, pid_t a) = NULL;
 #undef buttons
@@ -196,7 +206,7 @@ int slowa(char* monit, char text[], int liczba_znakow, char* slowo[],
 /*     MSCANF(stos) - procedura czytania dowolnej ilosci danych
                       (opisanych monitem) wprowadzanych z klawiatury       */
 /*
-/* postac stosu - znak :# - jesli wystepuje - dane musza byc wpisane
+postac stosu - znak :# - jesli wystepuje - dane musza byc wpisane
                           - jesli brak # - brak danych oznacza przyjecie
                                            wartosci wczesniej podstawionych
                   znak :+ - jesli wystepuje - zmiana linii po wczytaniu danych
@@ -3032,7 +3042,7 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
 #endif
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "WEWY1.H"
+#include "wewy1.h"
 extern int (*odbior_komunik)(void* b, pid_t a);
 extern int BUF_com_size, nr_komunik;
 extern void* BUF_com;
@@ -4233,7 +4243,7 @@ WP:
 
 char sprawdz_znak(char zn, char opcje[], int dlopt, char* sukces, int* iopt)
 {
-    char znk, znp, znf, nznak;
+    char znk, znp, znf, nznak = EOS;
     int i;
     *sukces = 0;
     for (i = 0; i < dlopt; i += 2)
@@ -4268,7 +4278,8 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
     long int skok, shift;
     int dnrz = 0, nrz;
     char *format, *dana, *form, *fm, znak, text[80], *fdanej, kod, **menu;
-    char *brak[1] = {" !? "}, *zn, f_bledu[10], lenth, wzor;
+    char *brak[1] = {" !? "}, *zn, f_bledu[10], wzor;
+    int lenth;
     unsigned long int Dana;
     format = (char*)help[0];
     max_x++;
@@ -4941,7 +4952,7 @@ WPIS:
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "WEWY1.H"
+#include "wewy1.h"
 #endif
 /* ====================================================================== */
 int okno_text(signed char wpis, int y, int x0, int size,
@@ -4959,9 +4970,9 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
                    char** help, int l_opcji, int skok)
 {
     int ret, pznak;
-    char *bufor, *format = NULL, text[80], *form = NULL, ms;
+    char *bufor, *format = NULL, text[80], *form = NULL;
     char textn[80], *buffer, *taknie = "<t/n>? ";
-    int xmax, xp, ins, i, k, im = 0, x_konc, zn, txl, dltn = 0, dlstr;
+    int xmax, xp, ins, i, k, im = 0, x_konc, zn, txl, dltn = 0, dlstr, ms;
     char blok = 0;
     void* Rh = NULL; /*, *Rh=NULL; / * ???? */
     if (wpis < -2)
@@ -5040,7 +5051,7 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
     sprintf(format, " -%ds", size);
     format[0] = '%';
     textn[0] = EOS;
-    if (monit[0] != '#' && monit[1] != '#' || wpis == 2)
+    if (((monit[0] != '#') && (monit[1] != '#')) || wpis == 2)
         przepisz(bufor, string, dlstr + 1); /* bylo sprintf(bufor,format,string);*/
     Okno(y, x0, y, xmax, attr);
     x_konc = xmax + txl;
@@ -5103,9 +5114,12 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
                     Free(buf);
                     lwmall--;
                 }
-                ret = okno_help(y + 1, xmax - size, xmax_h, attrtx, attr, 'g', w_min = 0, w_max,
-                                w_min = 0, w_max, NULL /*&index_helpu*/, size_helpu = 0,
-                                sizh = 0, skok, R, NULL, help, 0, NULL, 0, NULL, NULL, NULL); /* tu powinno byc R */
+                w_min = 0;
+                size_helpu = 0;
+                sizh = 0;
+                ret = okno_help(y + 1, xmax - size, xmax_h, attrtx, attr, 'g', w_min, w_max,
+                                w_min, w_max, NULL /*&index_helpu*/, size_helpu,
+                                sizh, skok, R, NULL, help, 0, NULL, 0, NULL, NULL, NULL); /* tu powinno byc R */
             }
             if (blok == 1) ret = -1;
             if (ret >= 0)
@@ -6764,7 +6778,7 @@ void dane_helpu(char* hformat, char* help[], char** parinfo);
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "WEWY1.H"
+#include "wewy1.h"
 #endif
 /* ========================================================== */
 int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
@@ -8090,7 +8104,7 @@ void* get_plot_data(int nr_danej, int kod, int* ind_min,
 #include <stdarg.h>
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "WEWY1.H"
+#include "wewy1.h"
 #endif
 
 /*   ================================================================ */
@@ -8680,10 +8694,10 @@ void wyjscie(struct okno* Ok, int liczba)
 /* ------------------------------------------------------------ */
 void wysylka(int dana, int kod, float wartosc, int proxy)
 {
-    dana = dana;
-    kod = kod;
-    wartosc = wartosc;
-    proxy = proxy;
+    (void)dana;
+    (void)kod;
+    (void)wartosc;
+    (void)proxy;
 };
 /* =================================================================== */
 int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[],
@@ -9088,7 +9102,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             ok = Ok + nowa;
                             /*fprintf(mystderr," nowa=%d stara=%d",nowa,stara); */
                         }
-                        while ((ok->ochrona > Uprawn && ok->blok_wpisu == 0 || ok->yo == yo) && nowa != stara);
+                        while ((((ok->ochrona > Uprawn) && (ok->blok_wpisu == 0)) || (ok->yo == yo)) && (nowa != stara));
                         if (stara == nowa) break;
                         yo = ok->yo;
                         x = abs(ok->xo - xo);
@@ -9131,7 +9145,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             ok = Ok + nowa;
                             /*fprintf(mystderr," nowa=%d stara=%d",nowa,stara); */
                         }
-                        while ((ok->ochrona > Uprawn && ok->blok_wpisu == 0 || ok->yo == yo) && nowa != stara);
+                        while ((((ok->ochrona > Uprawn) && (ok->blok_wpisu == 0)) || (ok->yo == yo)) && (nowa != stara));
                         if (stara == nowa) break;
                         yo = ok->yo;
                         x = abs(ok->xo - xo);
@@ -9607,7 +9621,7 @@ void Kolory(signed char kolor, unsigned int* attr, unsigned int* tlo,
 
 #include "wewybl.h"
 #define WEW_EXT extern
-#include "WEWY1.H"
+#include "wewy1.h"
 #endif
 /* =================================================================== */
 int dana_float_dec(int y, int x, char* monit, float* w_min,
@@ -10101,7 +10115,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
     /*   if(help!=0 && skok>0)
         {if(wpis==0 && wartn>skok) {wartn=skok-1; *wart=wartn;}}
     */
-    if (iobl == 0 || wpis == 2 && size > 0)
+    if ((iobl == 0) || ((wpis == 2) && (size > 0)))
         sprintf(bufor, format, wartn);
     xp_ind = xp;
     if (ind_size > 0)
@@ -11136,4 +11150,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
 }
 
 void begin_scroll(int dana_nr) { SCROLL = dana_nr; }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #endif // dla WEWY0_INCL

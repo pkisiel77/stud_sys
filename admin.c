@@ -5,7 +5,7 @@ Autor: gonzo77@poczta.fm
 ---------------------------------*/
 
 #include "blank/moje.h"
-#include "ADMIN.H"
+#include "admin.h"
 #ifndef _NCURSES_
 #include <mmsystem.h>
 #endif
@@ -26,11 +26,8 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
 									   int x_lewy_gorny,	int y_lewy_gorny,
 									   int anim_pid, char *D)
 {
-	int ret=-1, ochr=5, ochrf=-1, size, nr_rek;
+	int ret=-1, nr_rek;
 	struct admin *d0, *dp, *d;
-  // kolory menu administratora 
-  unsigned int attr=TERM_WHITE_BG|TERM_BLACK|TERM_FLUSH;
-  unsigned int at_wpis=TERM_WHITE|MTERM_HILIGHT|TERM_BLUE_BG|TERM_FLUSH;
 
   setcursor(cursor);
   d0=(struct admin *)D;
@@ -62,7 +59,6 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
 char *dane_admin(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {
 	static struct Service *S;
-	static struct agenda *A;
     struct admin *St;
 	int x,y;
     S=Service;
@@ -80,11 +76,6 @@ void wpis_admin(int ob_pocz, int ob_konc, char *D, int rozmiar_ob, char zapis[],
 
 int dec_admin(int decyzja, int kod_decyzji, int nr_dec, int kod_raportu, int np, int *nr_rekordu)
 {
-    struct admin *ad;
-	int ret,i;
-	int suma=0;
-	char buf[128];
-
 	switch(kod_decyzji)
 	 {case DEC_GEN_KOD:
 	 	 switch(decyzja)
@@ -101,7 +92,6 @@ int dec_admin(int decyzja, int kod_decyzji, int nr_dec, int kod_raportu, int np,
 void PrzegladajLog(void)
 {
 	FILE *fp;
-	char buf[20];
 	char znak;
     fp=fopen("c:\\pacjent\\log\\log.dat","r");
 	if(fp==NULL) dana_koment(MY_MAX,X_L0,"Blad otawrcia pliku LOG.DAT");

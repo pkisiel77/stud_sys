@@ -1,6 +1,6 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
-#include "SYS_REP.H"
+#include "sys_rep.h"
 void chk_time(void);
 extern struct Service *Service;
 extern struct agenda *Agenda;
@@ -9,9 +9,7 @@ extern unsigned int attr_title;
 struct agenda **SA;
 int sys_main(void *DA)
  {struct agenda *A;
-	struct sys_rep *Sr;
 	A=(struct agenda *)DA;
-	Sr=(struct sys_rep *)(A->data);
 	A->state=0;
 	return A->state;
  };
@@ -24,8 +22,7 @@ static int nr_ag=0;
 int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 						int x_lewy_gorny, int y_lewy_gorny, int anim_pid, char *D)
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
- {static struct Service *S;
-	struct agenda *A, *A0, *nA, **SA;
+ {struct agenda *A, *A0, **SA;
 	int ls, nr_rek, size, ochr, ochrf=-3, raport, ret;
 	static int z_min=0, z_max;
 	int i, lsa;
@@ -124,10 +121,10 @@ struct agenda
  } ----------------------------------------------------------------- */
 int dec_sys(int decyzja, int kod_decyzji, int nr_dec,
 											int kod_raportu, int np, int *nr_rekordu)
- {struct agenda *A0, *A, **SA;
+ {struct agenda *A;
 /*  struct Service *S; */
-	int ns, p_min, p_max, ret;
-	A0=(struct agenda *)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
+	int p_min, p_max, ret;
+	(void)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
   A=(struct agenda *)ustal_adres_rek(kod_raportu,*nr_rekordu);
 	switch(kod_decyzji)
 	 {case DEC_USUN:

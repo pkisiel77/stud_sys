@@ -15,7 +15,7 @@
 - **blank/wewybl.h** - Extended TERM_* color/keyboard definitions to work with ncurses
 - **opcjesys/opcje.h** - Made windows.h include conditional, added ncurses support
 - **core.c** - Fixed case-sensitive includes (Linux filesystem compatibility)
-- **KONFIG.C** - Fixed case-sensitive includes
+- **konfig.c** - Fixed case-sensitive includes
 
 ### 3. ncurses Terminal Functions Implemented
 
@@ -83,7 +83,7 @@ The main remaining issue is int/shint type mismatches between function declarati
 
 1. **Warning**: Unused variables in various functions (non-critical)
 2. **Warning**: Some type mismatches in function calls (okno_menu, strlen, dana_int)
-3. **File issue**: RANDF.C contains a stray character (line 96) that needs removal
+3. **File issue**: randf.c contains a stray character (line 96) that needs removal
 
 ### Build Process
 

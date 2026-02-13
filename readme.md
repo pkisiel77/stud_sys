@@ -46,7 +46,7 @@ make
 Or manually:
 ```bash
 gcc -D_NCURSES_ -o stud_sys core.c blank/term_ncurses.c blank/konsola.c \
-    blank/wewy.c KONFIG.C RANDF.C RAP_BL.C -lncurses -lm
+    blank/wewy.c konfig.c randf.c rap_bl.c -lncurses -lm
 ```
 
 #### Windows version:

@@ -26,7 +26,7 @@ typedef short int int;
 #endif // koniec DOS
 
 #include "../opcjesys/opcje.h"
-#include "../blank/SYS_DEKL.H"
+#include "../blank/sys_dekl.h"
 #define DEC_NEW    1
 #define DEC_RUN    2
 #define DEC_TYP_US 3

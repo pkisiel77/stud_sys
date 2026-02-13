@@ -1,6 +1,6 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
-#include "SPRAWDZ.H"
+#include "sprawdz.h"
 void chk_time(void);
 extern struct Service* Service;
 /* extern struct agenda *Agenda, *SysA[]; */
@@ -15,13 +15,11 @@ extern struct agenda* SysA[];
 int sprawdz(void* DA)
 {
     struct agenda* A;
-    struct sprawdz* Sr;
     unsigned int old_attr;
     struct tm* Time;
     time_t tsek1970;
     int i, xkursora, ykursora;
     A = (struct agenda*)DA;
-    Sr = (struct sprawdz*)(A->data);
     A->state = 0;
     tsek1970 = time(NULL);
     Time = localtime(&tsek1970);
@@ -95,8 +93,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                      int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi, char* DaneUslugi)
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
 {
-    static struct Service* S;
-    struct agenda *A, *A0, *nA, **SA;
+    struct agenda *A, *A0;
     int ls, nr_rek, size, ochr, ochrf = -3, raport, ret;
     A0 = (struct agenda*)DaneUslugi;
     nr_rek = nr_rekordu;
@@ -133,13 +130,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                         &(A->mode), ochr = -1);
     }
     {
-        static int nmin = 1, nmax = 3000;
-        if (A->mode == 'p')
-        {
-            ochr = -1;
-            nmin = 0;
-            nmax = 0;
-        }
+        if (A->mode == 'p') ochr = -1;
         else ochr = 2;
         ret = dana_koment(-1, -1, "+   Zlecenie stale nieusuwlne !!!! ");
     }
@@ -203,11 +194,9 @@ struct agenda
 int dec_sprawdz(int decyzja, int kod_decyzji, int nr_dec,
                 int kod_raportu, int np, int* nr_rekordu)
 {
-    struct agenda *A0, *A, **SA;
-    /*  struct Service *S; */
-    int ns, p_min, p_max, ret;
-    A0 = (struct agenda*)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
-    A = (struct agenda*)ustal_adres_rek(kod_raportu, *nr_rekordu);
+    int p_min, p_max, ret;
+    (void)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
+    (void)ustal_adres_rek(kod_raportu, *nr_rekordu);
     switch (kod_decyzji)
     {
     case DEC_DALEJ:

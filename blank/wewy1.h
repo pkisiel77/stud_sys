@@ -1,6 +1,6 @@
 #ifndef _WEWY1_H_INCLUDE
 #define _WEWY1_H_INCLUDE
-#include "../opcjesys/SCR_SIZE.H"
+#include "../opcjesys/scr_size.h"
 extern signed char _TYP_KONSOLI_;
 #ifdef _TERM_QNX_
 #include <sys/types.h>

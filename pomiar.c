@@ -2,10 +2,10 @@
 #include <process.h>
 #endif
 #include "time.h"
-#include "RAMKAA.H"
+#include "ramkaa.h"
 #include "blank/moje.h"
-#include "blank/SYS_DEKL.H"
-#include "POMIAR.H"
+#include "blank/sys_dekl.h"
+#include "pomiar.h"
 #include "blank/wewybl.h"
 //#include "blank/graph.c"
 //#include "term_graf.h"
@@ -100,9 +100,8 @@ int pomiar_main(void *DA)
   struct pomiar*P;
   
   // zmienne pomocnicze
-  int ret, ekg_max=10, ekg_min=-10;
+  int ekg_max=10, ekg_min=-10;
   static int krok=-1;
-  static float i=0.0;
 
 	A=(struct agenda *)DA;
 	P=(struct pomiar *)(A->data);
@@ -171,15 +170,16 @@ int pomiar_main(void *DA)
 /* POMIAR BLANKIET */
 
 int pomiar_blankiet(int nr_rekordu, int ob_pocz,
-										int ob_konc, int x_lewy_gorny,
-										int y_lewy_gorny, int kod_uslugi,
-										char *adres_rek0_uslugi)
- {int ret, ochr=3, ochrf=-1, size, nr_rek, raport;
+											int ob_konc, int x_lewy_gorny,
+											int y_lewy_gorny, int kod_uslugi,
+											char *adres_rek0_uslugi)
+ {int ret, ochr=3, size, nr_rek, raport;
 	int cykl_max=6000;
 	struct pomiar*P;
     struct agenda *A=NULL;
-    struct _dane_pacjenta_ dane_pacjenta;
+#ifndef _NCURSES_
 	static int dysk=0;
+#endif
 	
 // zmienne kt�re powinne byc przekazywane do blankietu
 	int pacjent_nr=1;//dane_pacjenta.pac_nr_ew;
@@ -293,11 +293,9 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		   }
 		   dysk=1;
         } 
-#endif  // _NCURSES_
+	#endif  // _NCURSES_
         if(P->zrodlo_danych[0]=='k')  // Fixed: compare first char
-		{ static char **help=NULL;
-		  static char *MenuText[2]={"t tak","n nie"}; 
-		  int i;
+		{
 		  ret=dana_koment(-1,-1,"Pomiar dynamiczny");
 		  MessageBox(NULL,"Brak karty d�wi�kowej","B��d I/0",MB_ICONWARNING|MB_OK);
 		  //ret=dana_text(-1,-1,"+ Zapis do pliku:  ??",P->nazwa_pliku,11,help,0,ochr);
@@ -307,18 +305,17 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 	 
 	}	
     switch(P->nr_wzoru)
-		{case 0: break;
+			{case 0: break;
 /*********************************************************/
 /* POMIAR */
 /* Pobrane dane s� przedstawiane jako warto�� (A)mplituda i (c)zas*/
 /* Pola: Amplituda[]; czas[]; */
 		 case 1:
 		 case 2:
-      {static float wmin=0.0,wmax=5.0;// 0-5[V]
-	   static float wart_min=0.0, wart_max=0.0;
-	  	A->dana=0.0;
-		A->wart_max=0.0;
-		A->wart_min=wmax;
+	      {static float wmin=0.0,wmax=5.0;// 0-5[V]
+		  	A->dana=0.0;
+			A->wart_max=0.0;
+			A->wart_min=wmax;
         ret=dana_float_dec(-1,-1," Amplituda <%.1f-%.1f> :", &wmin, &wmax, &(A->dana), 5, 3, ochr,0,DEC_AMPLITUDA);
 		ret=dana_koment(-1,-1,"+  [V]");
 		// max.
@@ -348,10 +345,9 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 /* --------------------------------------------------------------------- */
 char *dane_pomiar(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
-	static struct agenda AS, *A;
-    struct pomiar POM, *P;
-	int x,y;
-  P=&POM; A=&AS; S=Service;
+		static struct agenda AS, *A;
+		int x,y;
+  A=&AS; S=Service;
 	A=(struct agenda *)Malloc(sizeof(struct agenda)+l_algory*sizeof(struct pomiar));
   A->S=S; A->data=(A+1);
   x=m_wherex(); y=m_wherey(); setcursor(nocursor);
@@ -405,11 +401,11 @@ void wpis_pomiar(int ob_pocz, int ob_konc,
 /********************************************************/
 int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
               int kod_uslugi, int np, int *nr_rekordu)
- {struct agenda *A0, *A, **Ab;
+ {struct agenda *A;
 	struct pomiar*P;
-	int sek, min, godz, minB, dmin, minp, min_sum;
-	int ag_no, p_min, p_max, ret, nast=0;
-	 A0=(struct agenda *)czy_zdefiniowany(kod_uslugi, &p_min, &p_max, &ret);
+	int sek, min, godz;
+	int p_min, p_max, ret;
+	 (void)czy_zdefiniowany(kod_uslugi, &p_min, &p_max, &ret);
 	 A=(struct agenda *)ustal_adres_rek(kod_uslugi,*nr_rekordu);
 	 P=(struct pomiar*)(A->data);
 	 if(kod_decyzji==DEC_NEW && decyzja=='t')
@@ -509,11 +505,11 @@ int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
         fclose(p_plikk);
        }
       else
-      {int yp, xp, ret;
+      {int yp, xp;
 		   char text[200];
        yp=MY_MAX; xp=X_L0+1;
-	 	   sprintf(text," Proba odczytu nieudana !!! ");
-		   ret=monit_textowy(yp, xp, ATTR_A, text);
+ 		   sprintf(text," Proba odczytu nieudana !!! ");
+		   (void)monit_textowy(yp, xp, ATTR_A, text);
       }
      }
     (P->odczyt)='n';
@@ -621,18 +617,19 @@ return ilosc_wspol;
 /*#######################################################################*/
 
 void iinit_plot(int px,int py, struct plot *plt)
-{float x;
- int y, old_graf=0, j;
+{int old_graf=0;
 
   old_graf=if_graf;
   if(if_graf==0)
    {
     MY_MAX=Yz_max_graf; MYR_MAX=MY_MAX-1;
-		if_graf=otworz_graf_blank(0,0.4,-1,-1,Yz_max_graf,TERM_WHITE|TERM_BLACK_BG);
+		if_graf=otworz_graf_blank(0,0,-1,-1,Yz_max_graf,TERM_WHITE|TERM_BLACK_BG);
 	 }
 /* rysowanie ramki i osi wykresu */
 
 #ifdef EEEE
+	  float x;
+	  int y, j;
     setfillstyle(SOLID_FILL,KOL_TLA);
     bar(px+1,py,px+MAX_X,py+MAX_Y);
 	  setcolor(TERM_WHITE);

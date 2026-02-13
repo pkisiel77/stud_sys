@@ -1,5 +1,5 @@
 #include "blank/moje.h"
-#include "blank/SYS_DEKL.H"
+#include "blank/sys_dekl.h"
 #ifdef _NCURSES_
 #include <dirent.h>
 #include <errno.h>
@@ -25,7 +25,7 @@ extern int X_time, X_tyt;
 // extern unsigned int cursor, nocursor;
 extern unsigned int attr, at_wpis;
 //int l_stud=1;
-#include "URUCHOM.H"
+#include "uruchom.h"
 #define DEC_USUN 1
 //char **Nazwiska=NULL, **Imiona, **Miasta, **Kod;
 char **Sciezka, **Roz;

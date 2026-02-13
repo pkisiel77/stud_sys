@@ -14,12 +14,12 @@ SRCS = core.c \
        blank/term_ncurses.c \
        blank/konsola.c \
        blank/wewy.c \
-       Budz.c \
-       ADMIN.C \
-       POMIAR.C \
-       SYS_RAP.C \
-       SPRAWDZ.C \
-       URUCHOM.C
+       budz.c \
+       admin.c \
+       pomiar.c \
+       sys_rap.c \
+       sprawdz.c \
+       uruchom.c
 
 # Object files
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) \
