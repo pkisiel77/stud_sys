@@ -320,18 +320,30 @@ int GET_charV1(void)
 
 int GET_char(void)
 {
-    int ch = getch();
+    static int pending_scan_code = -1;
+    int ch;
+    int mapped = -1;
+
+    /* Emulate DOS two-byte keys: first SPEC(0), then scan code. */
+    if (pending_scan_code >= 0)
+    {
+        ch = pending_scan_code;
+        pending_scan_code = -1;
+        return ch;
+    }
+
+    ch = getch();
     if (ch == ERR)
     {
         return -1;
     }
 
-    /* Fallback: jeśli terminal wysyła surowe ESC-sekwencje zamiast KEY_UP... */
+    /* Fallback for raw ESC sequences sent by some terminals. */
     if (ch == 27)
     {
-        int ch2, ch3;
+        int ch2;
+        int ch3;
 
-        /* Doczytaj bez czekania (tylko jeśli już przyszło) */
         timeout(0);
         ch2 = getch();
         ch3 = getch();
@@ -341,42 +353,45 @@ int GET_char(void)
         {
             switch (ch3)
             {
-            case 'A': return 72; /* UP */
-            case 'B': return 80; /* DOWN */
-            case 'C': return 77; /* RIGHT */
-            case 'D': return 75; /* LEFT */
+            case 'A': mapped = 72; break; /* UP */
+            case 'B': mapped = 80; break; /* DOWN */
+            case 'C': mapped = 77; break; /* RIGHT */
+            case 'D': mapped = 75; break; /* LEFT */
             default: break;
             }
+            if (mapped >= 0)
+            {
+                pending_scan_code = mapped;
+                return 0;
+            }
         }
-
-        /* Jeśli to nie była sekwencja strzałki, traktuj jako Esc */
         return 27;
     }
 
     switch (ch)
     {
-    case KEY_DOWN:  return 80;
-    case KEY_UP:    return 72;
-    case KEY_LEFT:  return 75;
-    case KEY_RIGHT: return 77;
-    case KEY_PPAGE: return 73;
-    case KEY_NPAGE: return 81;
-    case KEY_HOME:  return 71;
-    case KEY_END:   return 79;
-    case KEY_IC:    return 82;
-    case KEY_DC:    return 83;
-    case KEY_F(1):  return 59;
-    case KEY_F(2):  return 60;
-    case KEY_F(3):  return 61;
-    case KEY_F(4):  return 62;
-    case KEY_F(5):  return 63;
-    case KEY_F(6):  return 64;
-    case KEY_F(7):  return 65;
-    case KEY_F(8):  return 66;
-    case KEY_F(9):  return 67;
-    case KEY_F(10): return 68;
-    case KEY_F(11): return 69;
-    case KEY_F(12): return 70;
+    case KEY_DOWN:  mapped = 80; break;
+    case KEY_UP:    mapped = 72; break;
+    case KEY_LEFT:  mapped = 75; break;
+    case KEY_RIGHT: mapped = 77; break;
+    case KEY_PPAGE: mapped = 73; break;
+    case KEY_NPAGE: mapped = 81; break;
+    case KEY_HOME:  mapped = 71; break;
+    case KEY_END:   mapped = 79; break;
+    case KEY_IC:    mapped = 82; break;
+    case KEY_DC:    mapped = 83; break;
+    case KEY_F(1):  mapped = 59; break;
+    case KEY_F(2):  mapped = 60; break;
+    case KEY_F(3):  mapped = 61; break;
+    case KEY_F(4):  mapped = 62; break;
+    case KEY_F(5):  mapped = 63; break;
+    case KEY_F(6):  mapped = 64; break;
+    case KEY_F(7):  mapped = 65; break;
+    case KEY_F(8):  mapped = 66; break;
+    case KEY_F(9):  mapped = 67; break;
+    case KEY_F(10): mapped = 68; break;
+    case KEY_F(11): mapped = 69; break;
+    case KEY_F(12): mapped = 70; break;
     case '\n':
     case '\r':      return 13;
     case KEY_BACKSPACE:
@@ -385,6 +400,9 @@ int GET_char(void)
     case '\t':      return 9;
     default:        return ch;
     }
+
+    pending_scan_code = mapped;
+    return 0;
 }
 
 int Get_char(void)

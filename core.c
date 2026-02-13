@@ -331,12 +331,19 @@ int open_sys(void)
     for (i = 0; i < liczba_opcji; i++)
     {
         int kod_uslugi, rek0, rekf, kolor = 0, ramka = 1, max_l_data_blank = 100;
+        int rap_idx;
         kod_uslugi = Serv[i]->kod_uslugi;
         rek0 = 0;
         rekf = 0;
-        def_Report(kod_uslugi, -1, rek0, rek0 + Serv[i]->l_rek_max - 1, Serv[i]->str_size,
-                   Serv[i]->name, kolor, ramka, Serv[i]->D, max_l_data_blank, Serv[i]->typ_bazy,
-                   Serv[i]->def_blankiet, Serv[i]->dane_rap_bl, Serv[i]->wpis_rap_bl);
+        rap_idx = def_Report(kod_uslugi, -1, rek0, rek0 + Serv[i]->l_rek_max - 1, Serv[i]->str_size,
+                             Serv[i]->name, kolor, ramka, Serv[i]->D, max_l_data_blank, Serv[i]->typ_bazy,
+                             Serv[i]->def_blankiet, Serv[i]->dane_rap_bl, Serv[i]->wpis_rap_bl);
+        if (rap_idx < 0)
+        {
+            komunikat(MY_MAX, X_L0, ATTR_A, " Blad def_Report dla uslugi %d (%s). <Ent> ",
+                      kod_uslugi, Serv[i]->name);
+            GET_char();
+        }
     }
     term_clear(TERM_CLS_SCR);
     sek_akt = time(NULL);
@@ -379,10 +386,6 @@ void logo(int yg, int xg, unsigned int attr_logo, char* imie,
     clr_Okno();
     xtxt = xg + 5;
     term_printf(yg + 2, xtxt, attr_logo, text);
-    term_printf(yg + 1, xtxt, attr_logo, "           PRACA MAGISTERSKA ");
-    term_printf(yg + 3, xtxt - 5, attr_logo, "-System czasu rzeczywistego w srodowisku Windows NT- ");
-    term_printf(yg + 5, xtxt - 4, attr_logo, "            Promotor : Jan T. Duda");
-    term_printf(yg + 6, xtxt - 4, attr_logo, "            Autor : Pawel Kisielewicz");
     term_printf(yg + 8, xtxt, attr_logo, "      POMIAR SYGNALU EKG wersja 1.0");
     if (nazwisko != NULL || imie != NULL)
     {
