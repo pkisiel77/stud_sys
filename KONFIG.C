@@ -29,6 +29,7 @@ struct Service          / * deklaracja w sys_dekl.h * /
 #include "ADMIN.H"     /* plik zrodlowy admin.c */
 #include "POMIAR.H"    /* plik zrodlowy pomiar.c */ // pomiar ekg
 #include "URUCHOM.H"
+#include <string.h>
 // #include "pacjent.h"
 // #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjent�w
 // #include "ustaw.h"    /* plik zrodlowy ustaw.c */  // ustawienia pomiaru
@@ -50,6 +51,7 @@ int set_services(void)
     Menu[Nr_sys] = " Sprawdz.otoczenia";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
     S->l_rek_max = 1; /* tylko jeden rekord danych */
     S->kod_uslugi = Nr_sys + 1;
@@ -84,6 +86,7 @@ int set_services(void)
     Menu[Nr_sys] = " Uruchom";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
     S->l_rek_max = 20;
     S->kod_uslugi = Nr_sys + 1;
@@ -119,6 +122,7 @@ int set_services(void)
     Menu[Nr_sys] = " Budzik";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
     S->kod_uslugi = Nr_sys + 1;
     S->l_rek_max = AG_SIZE;
@@ -137,10 +141,15 @@ int set_services(void)
     Menu[Nr_sys] = " O systemie...";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
     S->kod_uslugi = Nr_sys + 1;
+    S->l_rek_max = 1;
+    S->D = NULL;
+    S->typ_bazy = BAZA_SPOJNA;
     S->str_size = sizeof(struct admin);
     S->name = Menu[Nr_sys];
+    S->main_modul = NULL;
     S->def_blankiet = admin_blankiet;
     S->dane_rap_bl = dane_admin;
     S->wpis_rap_bl = wpis_admin;
@@ -151,6 +160,7 @@ int set_services(void)
     Menu[Nr_sys] = " Pomiar EKG";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
     S->kod_uslugi = Nr_sys + 1;
     S->l_rek_max = AG_SIZE;
@@ -220,6 +230,7 @@ int set_services(void)
     Menu[L_SYS] = " -- Stan systemu --";
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
     Serv[L_SYS] = S;
     S->kod_uslugi = L_SYS + 1;
     S->D = SysA;

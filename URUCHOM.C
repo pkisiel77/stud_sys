@@ -1,6 +1,13 @@
 #include "blank/moje.h"
 #include "blank/SYS_DEKL.H"
 #ifdef _NCURSES_
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+#ifdef _NCURSES_
 // Define Windows drive type constants for ncurses
 #define DRIVE_UNKNOWN 0
 #define DRIVE_NO_ROOT_DIR 1
@@ -112,11 +119,32 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
             return ret;
         }
 
-        snprintf(buf, sizeof(buf), "%c:\\", dysk_txt[0]);
-
 #ifdef _NCURSES_
-        wynik = DRIVE_FIXED; // Assume DRIVE_FIXED for ncurses
+        {
+            struct stat st;
+            char unix_root[PATH_MAX];
+
+            if (dysk_txt[0] == 'C' || dysk_txt[0] == 'c')
+            {
+                snprintf(unix_root, sizeof(unix_root), "/");
+            }
+            else
+            {
+                snprintf(unix_root, sizeof(unix_root), "/Volumes/%c", dysk_txt[0]);
+            }
+
+            snprintf(buf, sizeof(buf), "%s", unix_root);
+            if (stat(unix_root, &st) == 0 && S_ISDIR(st.st_mode))
+            {
+                wynik = DRIVE_FIXED;
+            }
+            else
+            {
+                wynik = DRIVE_NO_ROOT_DIR;
+            }
+        }
 #else
+        snprintf(buf, sizeof(buf), "%c:\\", dysk_txt[0]);
         wynik = GetDriveType(buf);
 #endif
         switch (wynik)
@@ -142,7 +170,64 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 
     if (decy == 't')
     {
-#ifndef _NCURSES_
+#ifdef _NCURSES_
+        char* nazw_plik[256];
+        int i = 0;
+        int opcje;
+        int j;
+        DIR* dir;
+        struct dirent* wpis;
+        const int max_poz = (int)(sizeof(nazw_plik) / sizeof(nazw_plik[0]));
+
+        dir = opendir(buf);
+        if (dir == NULL)
+        {
+            ret = dana_koment(-1, -1, "+ Blad katalogu: %s (%s)", buf, strerror(errno));
+            decy = 'n';
+            return ret;
+        }
+
+        while ((wpis = readdir(dir)) != NULL && i < max_poz)
+        {
+            size_t len;
+            char* temp;
+
+            if (strcmp(wpis->d_name, ".") == 0 || strcmp(wpis->d_name, "..") == 0)
+            {
+                continue;
+            }
+
+            len = strlen(wpis->d_name);
+            temp = (char*)malloc(len + 1);
+            if (temp == NULL)
+            {
+                break;
+            }
+            memcpy(temp, wpis->d_name, len + 1);
+            nazw_plik[i] = temp;
+            i++;
+        }
+        closedir(dir);
+
+        if (i == 0)
+        {
+            ret = dana_koment(-1, -1, "+ Katalog pusty: %s", buf);
+        }
+        else
+        {
+            opcje = okno_menu(nazw_plik, i, 0, attr, at_wpis, 4, 25, -1, NULL, 1);
+            if (opcje >= 0 && opcje < i)
+            {
+                ret = dana_koment(-1, -1, "+ Wybrano: %s/%s", buf, nazw_plik[opcje]);
+            }
+        }
+
+        for (j = 0; j < i; j++)
+        {
+            free(nazw_plik[j]);
+        }
+        decy = 'n';
+#else
         static char *nazw_plik[100], *temp;
         int opcje, i = 0;
         WIN32_FIND_DATA nazwa;
