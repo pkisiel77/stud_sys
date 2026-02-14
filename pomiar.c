@@ -76,7 +76,7 @@ static struct agenda **SA;
 // Funkcje i procedury dzi�ki kt�rym dzia� poprawnie us�uga POMIAR
 int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
 int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
-									struct agenda **As, struct agenda *An,
+									struct agenda **As, struct agenda **An,
 									struct agenda ***SA, char *adres_rek0_uslugi, char *nazwa);
 int pokaz_listy_zlecen(struct agenda *Anew, int kod_uslugi, char *tytul);
 int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
@@ -198,7 +198,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 	nr_rek=nr_rekordu;
     
 	ret=dana_koment(-1, -1, " Pacjent[%d]:%s %s",pacjent_nr,pacjent_imie,pacjent_nazwisko);
-	ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, Anew, &SA,
+	ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, &Anew, &SA,
 														adres_rek0_uslugi, "zlecenia pomiaru");
   Aserv=A;
 	if(A==NULL)
@@ -248,21 +248,33 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
      	  // �adowanie plik�w z katalogu 22 do nazw_plik
 		  opcje=FindFirstFile("c:\\pacjent\\dane\\1\\*.dat",&nazwa);
 		  if(opcje==-1) MessageBox(NULL,"B��d znajdowania plik�w","B��d",MB_OK);
-		   else
-		   {   temp=(char*)malloc(15);
-		       sprintf(temp,"%s",nazwa.cFileName);
-	           nazw_plik[i]=temp;
-		       do
-			   {temp=(char*)malloc(15);
-				   n_opcje=FindNextFile(opcje,&nazwa);
-				   if(opcje!=-1) 
-				   {i++;
-                    sprintf(temp,"%s",nazwa.cFileName);
-				    nazw_plik[i]=temp;
+			   else
+			   {
+				   temp=(char*)malloc(strlen(nazwa.cFileName)+1);
+				   if(temp==NULL)
+				   {
+					   FindClose(opcje);
+					   opcje=-1;
 				   }
-			   }while(n_opcje);
-			   FindClose(opcje);
-		   }
+				   else
+				   {
+				       snprintf(temp,strlen(nazwa.cFileName)+1,"%s",nazwa.cFileName);
+			           nazw_plik[i]=temp;
+				       do
+					   {
+						   n_opcje=FindNextFile(opcje,&nazwa);
+						   if(opcje!=-1) 
+						   {
+							   temp=(char*)malloc(strlen(nazwa.cFileName)+1);
+							   if(temp==NULL) break;
+							   i++;
+		                       snprintf(temp,strlen(nazwa.cFileName)+1,"%s",nazwa.cFileName);
+							   nazw_plik[i]=temp;
+						   }
+					   }while(n_opcje);
+				       FindClose(opcje);
+				   }
+			   }
           opcje=okno_menu(nazw_plik,i,0,attr,at_wpis, 4,25,-1,NULL,1);
 		   if(opcje!=-1)
 		   {static char **help=NULL;
@@ -273,7 +285,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 			  char buf[128];
 	          FILE *fp;
 			  CzasPobraniaDanych(POM_START);
-			  sprintf(buf,"c:\\pacjent\\dane\\1\\%s",nazw_plik[opcje]);
+				  snprintf(buf,sizeof(buf),"c:\\pacjent\\dane\\1\\%s",nazw_plik[opcje]);
 	          fp=fopen(buf,"r");
 	           if(fp==NULL) {;}
 	            else
@@ -286,7 +298,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		           fclose(fp);
 				}
 			  retu=CzasPobraniaDanych(POM_STOP);              
-			  sprintf(buf,"Czas pobrania=%d[s] | Czas max.=%d[s]",retu,A->Interval);
+				  snprintf(buf,sizeof(buf),"Czas pobrania=%d[s] | Czas max.=%d[s]",retu,A->Interval);
 			  menu_czas_pom[1]=buf;
 			  okno_menu(menu_czas_pom,2,0,attr,at_wpis,2,1,-1,NULL,1);
 			}
@@ -508,7 +520,7 @@ int dec_pomiar(int decyzja, int kod_decyzji, int nr_dec,
       {int yp, xp;
 		   char text[200];
        yp=MY_MAX; xp=X_L0+1;
- 		   sprintf(text," Proba odczytu nieudana !!! ");
+	 		   snprintf(text,sizeof(text)," Proba odczytu nieudana !!! ");
 		   (void)monit_textowy(yp, xp, ATTR_A, text);
       }
      }

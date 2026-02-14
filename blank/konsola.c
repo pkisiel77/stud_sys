@@ -65,7 +65,7 @@ void SprawdzFunkcje(BOOL ret, PSTR nazwa_funkcji)
 
   if(ret!=TRUE)
    {nr_bledu = GetLastError();
-    sprintf(bufor,"%d",nr_bledu);
+    snprintf(bufor, MAX_WART_BUFORA_BLEDU, "%d",nr_bledu);
 //    MessageBox(NULL,TEXT("Numer b��du:\n")TEXT(bufor),"B��d procedury: " TEXT(nazwa_funkcji),MB_OK|MB_ICONERROR);
    }
 }
@@ -256,4 +256,3 @@ EXPORT int CALLBACK term_delete_console(void)
    KONIEC
 */
 #endif  /* _NCURSES_ */
-

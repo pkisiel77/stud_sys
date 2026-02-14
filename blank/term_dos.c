@@ -253,7 +253,7 @@ int term_printf(int y, int x, unsigned int attr, char* format, ...)
                     break;
                 }
             }
-            vsprintf(text, format, arg);
+            vsnprintf(text, sizeof(text), format, arg);
             bufor = &text[0];
             do
             {

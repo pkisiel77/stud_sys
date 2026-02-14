@@ -302,7 +302,7 @@ int open_sys(void)
                  int godz, min, sek;
                  A->mode='s';
                  Bu=(struct budzik *)(A->data);
-                 sprintf(Bu->nazwa," Budzik %d",i); if(i==1) Bu->nazwa[0]=0;
+                 snprintf(Bu->nazwa, sizeof(Bu->nazwa), " Budzik %d", i); if(i==1) Bu->nazwa[0]=0;
                  czas_zegarowy(&godz, &min, &sek);
                  Bu->min=min; Bu->godz=godz+i;
                  if(Bu->godz>=24) Bu->godz-=24;
@@ -847,7 +847,7 @@ struct agenda* rekord_zlecenia_agendy(int* nr_rekordu, int nr_w_agendzie, int ko
 
 /* ---------- Funkcje uslugowe dla wszystkich zlecen ----------------- */
 
-int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct agenda** As, struct agenda* Anew,
+int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct agenda** As, struct agenda** Anew,
                           struct agenda*** SA, char* adres_rek0_uslugi, char* nazwa)
 {
     struct agenda *A = NULL, *A0 = NULL, **Ab = NULL;
@@ -876,22 +876,27 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
             nr++;
         }
     }
-    if (nr == 0 && Anew == NULL)
+    if (nr == 0 && *Anew == NULL)
     {
         static char *uruch[2] = {"t tak", "n nie"}, dec;
         dec = 'n';
         ret = dana_koment(-1, -1, "+ ");
         ret = dana_koment(-1, -1, " Brak %s w agendzie ", nazwa);
+        wpis_danych_bez_potwierdz();
         ret = dana_decyzyjna(-1, -1, " Uruchomic nowe <%s>  ?? ", "t/n", uruch, 2,
                              &dec, ochr = 1, DEC_NEW);
-        *nr_rekordu = -1;
-        return ret;
+        wpis_danych_z_potwierdz();
+        if (*Anew == NULL)
+        {
+            *nr_rekordu = -1;
+            return ret;
+        }
     }
-    if (Anew != NULL) /* zadeklarow. w sys_dekl.h */
+    if (*Anew != NULL) /* zadeklarow. w sys_dekl.h */
     {
         nr++;
         nr_rek = nr;
-        Ab[nr_rek] = Anew;
+        Ab[nr_rek] = *Anew;
     }
     else { nr_rek = ((*nr_rekordu) % nr); }
     Ab[0] = Ab[nr_rek];
@@ -905,7 +910,7 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
 int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
 {
     int ret, ochr, size, raport, l_opcji;
-    char* typ_form = NULL;
+    char typ_form[32];
     static char* opcje = NULL;
 
     strcpy(typ_form, "* Typ uslugi <%s> ");
@@ -1004,8 +1009,10 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     {
         static char *uruch[2] = {"t tak", "n nie"}, dec = 'n';
         dec = 'n';
+        wpis_danych_bez_potwierdz();
         ret = dana_decyzyjna(-1, -1, " Uruchomic nowe  <%s> ?? ", "t/n", uruch, 2,
                              &dec, ochr = 1, DEC_NEW);
+        wpis_danych_z_potwierdz();
     }
     return ret;
 }

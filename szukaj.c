@@ -144,7 +144,8 @@ int show(int *tb)
   }
   for(i=0;i<MAX && studenci[tb[i]]!=NULL && tb[i]!=-2;i++)
    {temp=(char*)malloc(44);
-    sprintf(temp,"%-20s %-15s %4d",Nazwiska[studenci[tb[i]]->pac_nazwisko],Imiona[studenci[tb[i]]->pac_imie],studenci[tb[i]]->pac_nr_ew);
+    if(temp==NULL) break;
+    snprintf(temp,44,"%-20s %-15s %4d",Nazwiska[studenci[tb[i]]->pac_nazwisko],Imiona[studenci[tb[i]]->pac_imie],studenci[tb[i]]->pac_nr_ew);
     texty[i]=temp;
    }
   opcja=okno_menu(texty,i,1,attr_baz,attr0_baz,5,3,-1,t_show,1);

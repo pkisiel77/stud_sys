@@ -2247,14 +2247,21 @@ void clr_Okno(void)
 /* ---------------------------------------------------------------------- */
 int komunikat(int y, int x, unsigned int attr, char* format, ...)
 {
-    int l, i = 0;
+    int l, i = 0, max_len;
     char bufor[120], *text = NULL;
     va_list arg;
     va_start(arg, format);
-    vsprintf(bufor, format, arg);
+    vsnprintf(bufor, sizeof(bufor), format, arg);
     va_end(arg);
     l = strlen(bufor);
-    if (x + l >= MX_MAX) bufor[MX_MAX - x - l] = 0;
+    max_len = MX_MAX - x;
+    if (max_len < 0) max_len = 0;
+    if (max_len > (int)sizeof(bufor) - 1) max_len = (int)sizeof(bufor) - 1;
+    if (l > max_len)
+    {
+        bufor[max_len] = EOS;
+        l = max_len;
+    }
     for (i = x + l; i < MX_MAX; i++) term_type(y, i, " ", 1, attr);
     term_type(y, x, bufor, 0, attr);
     term_color(TERM_WHITE | TERM_BLACK_BG);
@@ -2772,8 +2779,8 @@ signed char zamknij_blankiet(int* nr_rekordu)
 /* == bscanf zwaraca: -2 <Esc>; -1 <Ent>; 0 pusty; >0 l.znakow w buf === */
 #define macro_wczyt(form)\
 	if(oblig==0)\
-	 {sprintf(buf,format,liczba);\
-		term_type(y,x0,buf,size,attryb); term_cur(y,x0);\
+	 {snprintf(buf, sizeof(buf), format, liczba);\
+			term_type(y,x0,buf,size,attryb); term_cur(y,x0);\
 	 }\
 	else {buf[0]=0; if(size>1) INSERT=-1;}\
 	while(1)\
@@ -2855,7 +2862,7 @@ int wczytaj_int(int y, int x, char* monit, int size, int w_def,
     if (monit[0] == '#') oblig = 1;
     x0 = ustaw_buf_wpisu(y, x, monit, &size, attr_monit, attr_wpis);
     y = m_wherey();
-    sprintf(format, "%%%dd", size);
+    snprintf(format, sizeof(format), "%%%dd", size);
     macro_wczyt("%d");
     return liczba;
 }
@@ -2887,7 +2894,7 @@ float wczytaj_float(int y, int x, char* monit, int size, int prec,
     y = m_wherey();
     if (prec >= size) prec = size - 1;
     if (prec < 0) prec = 0;
-    sprintf(format, "%%%d.%df", size, prec);
+    snprintf(format, sizeof(format), "%%%d.%df", size, prec);
     macro_wczyt("%f")
     return liczba;
 }
@@ -2905,7 +2912,7 @@ char wczytaj_char(int y, int x, char* monit, unsigned char w_def,
     if (monit[0] == '#') oblig = 1;
     x0 = ustaw_buf_wpisu(y, x, monit, &size, attr_monit, attr_wpis);
     y = m_wherey();
-    sprintf(format, "%%c");
+    snprintf((char*)format, sizeof(format), "%%c");
     macro_wczyt("%c");
     return liczba;
 }
@@ -2937,7 +2944,7 @@ char wczytaj_string(int y, int x, char* monit, char* text, int size,
     /*	macro_wpis("%c"); */
     if (oblig == 0)
     {
-        sprintf(buf, "%s", text);
+        snprintf(buf, sizeof(buf), "%s", text);
         term_type(y, x0, buf, size, attryb);
         term_cur(y, x0);
     }
@@ -3191,9 +3198,8 @@ int wpis_indexu(int y, int xp_ind, int ind_size, int* wart,
     float w_tab;
     zle = " ?? ";
     wartn = *wart;
-    sprintf(bufor, f_ind, wartn);
-    sprintf(form, " d");
-    form[0] = '%';
+    snprintf(bufor, sizeof(bufor), f_ind, wartn);
+    snprintf(form, sizeof(form), "%%d");
     xk = xp_ind + ind_size - 1;
     nr_zm = *wart;
     do
@@ -3229,7 +3235,7 @@ int wpis_indexu(int y, int xp_ind, int ind_size, int* wart,
         }
         if (wartn != nr_zm || ogr == 1)
         {
-            sprintf(bufor, f_ind, wartn);
+            snprintf(bufor, sizeof(bufor), f_ind, wartn);
             switch (typ)
             {
             case 'i':
@@ -3377,7 +3383,7 @@ char* formaty_tabl(char* f_nazwy, char* monit_pocz, int* ind_min,
                 zn = *c;
                 *c = EOS;
             }
-            *dl_zakr = sprintf(opis_danej, fmon, *ind_min, *ind_max);
+            *dl_zakr = snprintf(opis_danej, 80, fmon, *ind_min, *ind_max);
             if (c != NULL)
             {
                 *c = zn;
@@ -3464,7 +3470,7 @@ char* formaty_tabl(char* f_nazwy, char* monit_pocz, int* ind_min,
             (*fk_nazwy)[0] = ' ';
             (*fk_nazwy)[1] = EOS;
         }
-        sprintf(*f_ind, " %dd", *ind_size);
+        snprintf(*f_ind, 6, " %dd", *ind_size);
         (*f_ind)[0] = '%';
         *dx_ind = (*ind_size) + strlen(f_nazwy) + strlen(*fk_nazwy);
     } /* koniec obsugi tablicy */
@@ -3557,9 +3563,9 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
     {
         form_d = &form_dat[0];
         form_d[0] = '%';
-        sprintf(&form_d[1], "%dd", size);
+        snprintf(&form_d[1], sizeof(form_dat) - 1, "%dd", size);
         if (typ == FLOAT)
-            sprintf(&form_d[1], "%d.%df", size, skok);
+            snprintf(&form_d[1], sizeof(form_dat) - 1, "%d.%df", size, skok);
         ind_size = 1;
         if (w_max > 9) ind_size = 2;
         if (w_max > 99) ind_size = 3;
@@ -3834,7 +3840,7 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
                                 dw->wartn[kol] = *wart;
                             }
                             if (dw->iobl == 0)
-                                sprintf(dw->bufor, dw->format, *wart);
+                                snprintf(dw->bufor, 10 * sizeof(char), dw->format, *wart);
                             else dw->bufor[0] = EOS;
                             wpisanie_danych_fl(dw->x0, xpf, yd, dw->xmax, xm, 0,
                                                dw->dltn, dw->poz_wart_abs, dw->dlh_ogr, &dw->format,
@@ -3927,9 +3933,9 @@ int okno_tabl_znak(signed char wpis, int y, int x0,
                         &ind_size, &hash, format_tabl, opis_danej, &dl_zakr, &f_ind,
                         &fk_nazwy, &dx_ind);
     if (fmon != NULL)
-        sprintf(&opis_danej[dl_zakr], fmon, opcje);
+        snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, fmon, opcje);
     else
-        sprintf(&opis_danej[dl_zakr], "[%s] ", opcje);
+        snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, "[%s] ", opcje);
     lopt = liczba_obj;
     k = 1; /* rozm_pola znaku */
     xmax = wydruk_monitu(wpis, opis_danej, dl_zakr, taknie, &dltn, text, &x0,
@@ -4623,16 +4629,16 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
         {
         case 'i':
         case 'd':
-            sprintf(text, fdanej, *(int*)(dana));
+            snprintf(text, 80, fdanej, *(int*)(dana));
             break;
         case 'f':
-            sprintf(text, fdanej, *(float *)(dana));
+            snprintf(text, 80, fdanej, *(float*)(dana));
             break;
         case 'e':
-            sprintf(text, fdanej, *(double *)(dana));
+            snprintf(text, 80, fdanej, *(double*)(dana));
             break;
         case 'c':
-            sprintf(text, fdanej, *(dana));
+            snprintf(text, 80, fdanej, *(dana));
             break;
         case 'S':
             if (lenth > max_x) lenth = max_x;
@@ -4652,7 +4658,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                     k = (*(char**)dana)[lenth];
                     (*(char**)dana)[lenth] = EOS;
                 }
-                sprintf(text, fdanej, &(*(char**)dana)[2]);
+                snprintf(text, 80, fdanej, &(*(char**)dana)[2]);
                 /* fprintf(mystderr," text=%s###",text); */
             }
             else
@@ -4662,7 +4668,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                     k = (*(char**)dana)[lenth];
                     (*(char**)dana)[lenth] = EOS;
                 }
-                sprintf(text, fdanej, (*(char**)dana));
+                snprintf(text, 80, fdanej, (*(char**)dana));
             }
             if (k != EOS)
             {
@@ -4687,7 +4693,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                     k = ((char*)dana)[lenth];
                     ((char*)dana)[lenth] = EOS;
                 }
-                sprintf(text, fdanej, (char*)dana);
+                snprintf(text, 80, fdanej, (char*)dana);
             }
             if (k != EOS)
             {
@@ -4783,23 +4789,23 @@ WPIS:
             {
                 if (w_abs < wmin || w_abs > wmax)
                 {
-                    sprintf(text, *format, wartn[nrkol]);
+                    snprintf(text, 80, *format, wartn[nrkol]);
                     i = strlen(text);
                     if (ll == 1)
                     {
-                        i += sprintf(&text[i], help_ogr);
-                        i += sprintf(&text[i], format_bazy, baza);
-                        i += sprintf(&text[i], format_tx);
-                        i += sprintf(&text[i], format_wyn, baza*wartn[nrkol]);
+                        i += snprintf(&text[i], 80 - i, "%s", help_ogr);
+                        i += snprintf(&text[i], 80 - i, format_bazy, baza);
+                        i += snprintf(&text[i], 80 - i, "%s", format_tx);
+                        i += snprintf(&text[i], 80 - i, format_wyn, baza * wartn[nrkol]);
                     }
                     if (zakr[ll][0] == EOS)
-                        sprintf(&text[i], " ZAKRES !! <ENT>-popraw ");
+                        snprintf(&text[i], 80 - i, " ZAKRES !! <ENT>-popraw ");
                     else
                     {
                         if (ll == 0)
-                            sprintf(&text[i], zakres, " poza ", wmin, wmax, " <ENT> ");
+                            snprintf(&text[i], 80 - i, zakres, " poza ", wmin, wmax, " <ENT> ");
                         if (ll == 1)
-                            sprintf(&text[i], " poza%s <ENT> ", zakr_abs);
+                            snprintf(&text[i], 80 - i, " poza%s <ENT> ", zakr_abs);
                     }
                     i = strlen(text) + 1;
                     if (x0 + i > X_maxBlank)
@@ -4846,7 +4852,7 @@ WPIS:
             {
                 wart = (float*)((tabl + (ind_max + 1) * dim * nrkol) + index * dim);
                 if (iobl == 0)
-                    sprintf(bufor, *format, wartn[nrkol]);
+                    snprintf(bufor, 10 * sizeof(char), *format, wartn[nrkol]);
                 else bufor[0] = EOS;
                 xpp = xmax + 1;
                 xmax = xpp + size;
@@ -5053,7 +5059,7 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
     format[7] = EOS;
     bufor = &form[ms + 3 * sizeof(char)];
     bufor[0] = EOS;
-    sprintf(format, " -%ds", size);
+    snprintf(format, xmax - x0 + 14, " -%ds", size);
     format[0] = '%';
     textn[0] = EOS;
     if (((monit[0] != '#') && (monit[1] != '#')) || wpis == 2)
@@ -5163,7 +5169,7 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
         }
         x_konc = m_wherex();
         /*D:*/
-        sprintf(form, "%s s", monit);
+        snprintf(form, (xmax - x0 + 14) - 8, "%s s", monit);
         form[ms] = '%';
     WPIS:
         ins = INSERT;
@@ -7803,7 +7809,7 @@ int dana_koment(int yo, int xo, char* format, ...)
     struct okno* ok;
     va_start(arg, format);
     if (format[0] == '+') i = 1;
-    vsprintf(bufor, &format[i], arg);
+    vsnprintf(bufor, sizeof(bufor), &format[i], arg);
     va_end(arg);
     l = strlen(bufor) + 1;
     text = (char*)Malloc(l * sizeof(char));
@@ -7895,9 +7901,9 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
             {
                 char format_inny_rek[32];
                 if (ob_pocz == ob_konc)
-                    sprintf(format_inny_rek, "� Chcesz WYJSC z RAPORTU ??? ");
+                    snprintf(format_inny_rek, sizeof(format_inny_rek), "� Chcesz WYJSC z RAPORTU ??? ");
                 else
-                    sprintf(format_inny_rek, "� <%c,%c,%c,%c,Home,End>-inny rek", 24, 25, 26, arrow);
+                    snprintf(format_inny_rek, sizeof(format_inny_rek), "� <%c,%c,%c,%c,Home,End>-inny rek", 24, 25, 26, arrow);
 
 #ifndef _DOS_
                 if (*zapis == 1)
@@ -8779,7 +8785,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
         if (ret == -1 && wp < 3) return ret;
         if (wp == 1 || wp == -1 || (wp == 4 && wpisano_dana > 0))
         {
-            if (ret > 0 || z_menu > 0 || wpisano_dana > 0)
+            if (ret > 0 || z_menu > 0 || wpisano_dana > 0 || (ok->decyzja >= 0 && wp == 1 && ret >= 0))
             {
                 ret += z_menu;
                 *wpisano = 1;
@@ -9375,8 +9381,8 @@ void animuj_blank(int liczba, void* ptrs[])
         if (abs(ok->Wpis) > 2) continue; /* wlasnie jest obsluga menu */
         if (ok->typ == 'g' || ok->typ == 'G') goto DISP;
         if (ok->typ == 'F') continue; /* bez aktualizacji bo tablica */
-        if (ok->typ == 's' && ok->typ == 'S') continue; /* bez aktualizacji bo tablica */
-        if (ok->typ == 'z' && ok->typ == 'Z') continue; /* bez aktualizacji bo tablica */
+        if (ok->typ == 's' || ok->typ == 'S') continue; /* bez aktualizacji bo tablica */
+        if (ok->typ == 'z' || ok->typ == 'Z') continue; /* bez aktualizacji bo tablica */
         for (i = 0; i < liczba; i++)
         {
             if (ptrs[i] == NULL) continue;
@@ -9776,7 +9782,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
     }
     if (z != NULL)
     {
-        sprintf(monit, monit_pocz, w_min, w_max);
+        snprintf(monit, sizeof(monit), monit_pocz, w_min, w_max);
         for (cc = z, zz = &zakres[3]; cc != c; cc++, zz++) *zz = *cc;
         zakres[0] = '%';
         zakres[1] = 's';
@@ -9791,7 +9797,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
     }
     else
     {
-        sprintf(monit, monit_pocz);
+        snprintf(monit, sizeof(monit), "%s", monit_pocz);
         zakres[0] = EOS;
     }
     if (monit[0] == '#' || monit[0] == '*' || monit[0] == '+') im = 1;
@@ -9839,12 +9845,12 @@ int okno_double(signed char wpis, int y, int x0, int size,
     format[12] = EOS;
     bufor = &form[ms + 3 * sizeof(char)];
     bufor[0] = EOS;
-    sprintf(format, " %d.%de", size, precyzja);
+    snprintf(format, xmax - x0 + 20, " %d.%de", size, precyzja);
     format[0] = '%';
     iobl = 1;
     if (monit[0] != '#' && monit[1] != '#') iobl = 0;
     if (iobl == 0 || wpis == 2)
-        sprintf(bufor, format, *wart);
+        snprintf(bufor, 10 * sizeof(char), format, *wart);
     Okno(y, x0, y, xmax, attr);
     x_konc = xmax + txl;
     if (wpis != 1)
@@ -9881,7 +9887,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
             if (i + xmax + 1 < X_maxBlank) term_type(y, xmax + 1 + i, &text[i], 1, attrtx);
         }
         x_konc = m_wherex();
-        sprintf(form, "%s e", monit);
+        snprintf(form, (xmax - x0 + 20) - 13, "%s e", monit);
         form[ms] = '%';
     WPIS:
         ins = INSERT;
@@ -9897,12 +9903,12 @@ int okno_double(signed char wpis, int y, int x0, int size,
         }
         if (wartn < w_min || wartn > w_max)
         {
-            sprintf(text, format, wartn);
+            snprintf(text, 80, format, wartn);
             i = strlen(text) + 1;
             if (zakres[0] == EOS)
-                sprintf(&text[i], " ZAKRES !! <ENT>-popraw ");
+                snprintf(&text[i], 80 - i, " ZAKRES !! <ENT>-popraw ");
             else
-                sprintf(&text[i], zakres, " poza ", w_min, w_max, " <ENT> ");
+                snprintf(&text[i], 80 - i, zakres, " poza ", w_min, w_max, " <ENT> ");
             i = strlen(text) + 1;
             if (x0 + i > X_maxBlank)
             {
@@ -10118,9 +10124,9 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
     {
         c = szukaj_formatow(fmon, 'd', &f_pocz);
         if (c == NULL)
-            sprintf(&opis_danej[dl_zakr], fmon);
+            snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, "%s", fmon);
         else
-            sprintf(&opis_danej[dl_zakr], fmon, w_min, w_max);
+            snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, fmon, w_min, w_max);
     }
     lsmax = 0;
     xmax = wydruk_monitu(wpis, opis_danej, dl_zakr, taknie, &dltn, text, &x0,
@@ -10132,7 +10138,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
     lwmall++;
     if (size > 0)
     {
-        sprintf(format, " %dd", size);
+        snprintf(format, size + 15, " %dd", size);
         format[0] = '%';
     }
     else format[0] = 0;
@@ -10152,7 +10158,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
         {if(wpis==0 && wartn>skok) {wartn=skok-1; *wart=wartn;}}
     */
     if ((iobl == 0) || ((wpis == 2) && (size > 0)))
-        sprintf(bufor, format, wartn);
+        snprintf(bufor, size + 3, format, wartn);
     xp_ind = xp;
     if (ind_size > 0)
     {
@@ -10322,8 +10328,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
         {
             if (i + x_konc <= X_maxBlank) term_type(y, x_konc + i, &text[i], 1, attrtx);
         }
-        sprintf(form, "%c d", hash);
-        form[1] = '%';
+        snprintf(form, 6, "%c%%d", hash);
         term_printf(y, xp, attr, format, wartn);
         /* -------------------- Obsluga wpisu indeksu ---------------------- */
         if (ind_size > 0 && wpis == -1)
@@ -10346,7 +10351,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
                 wart = (int*)(tabl + (*index) * dim);
                 wartn = *wart;
                 if (iobl == 0)
-                    sprintf(bufor, format, wartn);
+                    snprintf(bufor, size + 3, format, wartn);
             }
             wpis = 1;
             if (help != NULL) HELP = 1;
@@ -10374,7 +10379,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
             if (wartn < W_min_wpis || wartn > w_max)
             {
                 wartn = nr_zm;
-                sprintf(bufor, format, wartn);
+                snprintf(bufor, size + 3, format, wartn);
                 if (HELP == 2) HELP = 1;
                 goto WPIS;
             }
@@ -10931,10 +10936,10 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
             switch (k)
             {
             case 0: format_bazy = &help_ogr[l];
-                ll = sprintf(zakres, format, baza);
+                ll = snprintf(zakres, sizeof(zakres), format, baza);
                 fh[i] = znak;
                 break;
-            case 1: ll += sprintf(zakres, format, baza*wartn[0]);
+            case 1: ll += snprintf(zakres, sizeof(zakres), format, baza * wartn[0]);
                 format_wyn = &help_ogr[l];
                 break;
             }
@@ -10956,10 +10961,10 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     {
         c = szukaj_formatow(fmon, 'f', &f_pocz);
         if (c == NULL)
-            sprintf(&opis_danej[dl_zakr], fmon);
+            snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, "%s", fmon);
         else
         {
-            sprintf(&opis_danej[dl_zakr], fmon, w_min, w_max);
+            snprintf(&opis_danej[dl_zakr], sizeof(opis_danej) - dl_zakr, fmon, w_min, w_max);
             for (cc = f_pocz, zz = &zakres[3]; cc != c; cc++, zz++) *zz = *cc;
             zakres[0] = '%';
             zakres[1] = 's';
@@ -10977,7 +10982,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     if (format != NULL)
     {
         zakr_abs = &help_ogr[l];
-        dlh_ogr = ll + sprintf(zakr_abs, format, abs_min, abs_max);
+        dlh_ogr = ll + snprintf(zakr_abs, sizeof(help_ogr) - l, format, abs_min, abs_max);
     }
     {
         int siztab;
@@ -10992,7 +10997,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     format = (char*)Malloc((size + 40) * sizeof(char));
     if (format == NULL) return -1;
     lwmall++;
-    sprintf(format, " %d.%df", size, precyzja);
+    snprintf(format, size + 40, " %d.%df", size, precyzja);
     format[0] = '%';
     form = &format[11];
     bufor = &form[10 * sizeof(char)];
@@ -11000,7 +11005,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     iobl = 1;
     if (hash != '#') iobl = 0;
     if (iobl == 0 || wpis == 2)
-        sprintf(bufor, format, *wart);
+        snprintf(bufor, 10 * sizeof(char), format, *wart);
     Okno(y, x0, y, xmax_tab, attr);
     x_konc = xmax_tab + txl;
     x_konc = xmax_tab + 1;
@@ -11027,7 +11032,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
         {
             if (iobl == 0 || wpis == 2)
             {
-                sprintf(bufor, format, wartn[nrkol]);
+                snprintf(bufor, 10 * sizeof(char), format, wartn[nrkol]);
                 term_type(y, xpp, bufor, 0, attr_d);
             }
             else
@@ -11074,8 +11079,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
                     if (wpis == 4)
                     {
                         dw = (struct dane_wpisu*)Malloc(sizeof(struct dane_wpisu));
-                        sprintf(form, "%c f", hash);
-                        form[1] = '%';
+                        snprintf(form, size + 29, "%c%%f", hash);
                         dw->x0 = x0;
                         dw->xmax = xmax;
                         dw->x_konc = x_konc;
@@ -11133,8 +11137,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
         {
             if (i + x_konc <= X_maxBlank) term_type(y, x_konc + i, &text[i], 1, attrtx);
         }
-        sprintf(form, "%c f", hash);
-        form[1] = '%';
+        snprintf(form, size + 29, "%c%%f", hash);
         xpp = xp;
         for (i = 0; i < L_kol; i++, xpp += (size + 1)) term_printf(y, xpp, attr, format, wartn[i]);
         /* -------------------- Obsluga wpisu indeksu ---------------------- */
@@ -11161,7 +11164,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
                     wartn[i] = *wart;
                 }
                 if (iobl == 0)
-                    sprintf(bufor, format, wartn[nrkol]);
+                    snprintf(bufor, 10 * sizeof(char), format, wartn[nrkol]);
             }
             /*       if(wpis==-1) */
             {

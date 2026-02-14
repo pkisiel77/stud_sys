@@ -236,22 +236,24 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
 
         {
             char buff[128];
-            sprintf(buff, "%s*.*", buf);
+            snprintf(buff, sizeof(buff), "%s*.*", buf);
             opcje = FindFirstFile(buff, &nazwa);
             if (opcje == -1) MessageBox(NULL, "B��d znajdowania plik�w", "B��d", MB_OK);
             else
             {
-                temp = (char*)malloc(15);
-                sprintf(temp, "%s", nazwa.cFileName);
+                temp = (char*)malloc(strlen(nazwa.cFileName) + 1);
+                if (temp == NULL) { FindClose(opcje); return ret; }
+                snprintf(temp, strlen(nazwa.cFileName) + 1, "%s", nazwa.cFileName);
                 nazw_plik[i] = temp;
                 do
                 {
-                    temp = (char*)malloc(15);
                     n_opcje = FindNextFile(opcje, &nazwa);
                     if (opcje != -1)
                     {
+                        temp = (char*)malloc(strlen(nazwa.cFileName) + 1);
+                        if (temp == NULL) break;
                         i++;
-                        sprintf(temp, "%s", nazwa.cFileName);
+                        snprintf(temp, strlen(nazwa.cFileName) + 1, "%s", nazwa.cFileName);
                         nazw_plik[i] = temp;
                     }
                 }
@@ -261,7 +263,7 @@ int uruchom_blankiet(int nr_rekordu, int ob_pocz, int ob_konc, int x_lewy_gorny,
             opcje = okno_menu(nazw_plik, i, 0, attr, at_wpis, 4, 25, -1, NULL, 1);
             if (opcje != -1)
             {
-                sprintf(buff, "%s\\%s", buf, nazw_plik[opcje]);
+                snprintf(buff, sizeof(buff), "%s\\%s", buf, nazw_plik[opcje]);
                 WinExec(buff, SW_SHOW);
             }
             decy = 'n';

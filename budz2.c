@@ -1,5 +1,5 @@
 #include "blank/moje.h"
-#include "dek_budz.h"
+#include "dek_budz2.h"
 void chk_time(void);
 extern struct Service *Service;
 /* extern struct agenda *Agenda; */
@@ -31,15 +31,15 @@ int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
 												 int kod_uslugi, char *tytul);
 void ustaw_typ_uslugi(struct agenda *A, int decyzja);
 /* ================================================================ */
-int budz_main(void *DA)
+int budz2_main(void *DA)
  {struct agenda *A;
-	struct budzik *B;
+	struct budzik2 *B;
 	int ret;
 	char tytul[75], *M[3],text[75],text1[75];
 	A=(struct agenda *)DA;
-	B=(struct budzik *)(A->data);
+	B=(struct budzik2 *)(A->data);
 	setalarm(); /* for(i=0;i<10;i++) printf("\a"); */
-	snprintf(tytul,sizeof(tytul)," BUDZIK: <Ent> - wylaczenie sygnalu; <Esc> - usuniecie monitu ");
+	snprintf(tytul,sizeof(tytul)," BUDZIK 2: <Ent> - wylaczenie sygnalu; <Esc> - usuniecie monitu ");
 	snprintf(text,sizeof(text),"     Zgloszono na godz.%02d.%02d",B->godz,B->min);
 	snprintf(text1,sizeof(text1),"     Najblizszy monit za %dmin.%02dsek.", (int)A->Interval/60,(int)A->Interval%60);
 	{
@@ -68,8 +68,8 @@ int budz_main(void *DA)
 	return A->state;
  }
 
-/* --------------------------------- dek_budz.h ----------
-struct budzik
+/* --------------------------------- dek_budz2.h ----------
+struct budzik2
  {char nazwa[78];
 	int godz;
 	int min;
@@ -77,28 +77,40 @@ struct budzik
 	int co_ile;
 	int wyprzedz;
  }; ------------------------------------------------------ */
-int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
+int budz2_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 											int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
 											char *adres_rek0_uslugi)
  {int ret, ochr, size, raport, nr_rek;
-	struct budzik *B;
+	int i, ma_rekord=0;
+	struct budzik2 *B;
 	struct agenda *A;
 /*sledzenie(); */
+	if(Anew==NULL)
+	 {for(i=ob_pocz;i<ob_konc;i++)
+		 {A=(struct agenda *)ustal_adres_rek(kod_uslugi, i);
+			if(A==NULL) continue;
+			if((A->S)->kod_uslugi==kod_uslugi) {ma_rekord=1; break;}
+		 }
+		if(ma_rekord==0)
+		 {int nr0=0;
+			dec_budz2('t', DEC_NEW, 0, kod_uslugi, 0, &nr0);
+		 }
+	 }
   nr_rek=nr_rekordu;
   ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, &Anew, &SA,
-                            adres_rek0_uslugi, "budzikow");
+                            adres_rek0_uslugi, "budzikow 2");
   Aserv=A;
 	if(A==NULL)
 	 {if(nr_rek<0) return ret;
-    ret=dana_koment(-1, -1, " Brak budzika na pozycji %d w agendzie ",nr_rek);
+    ret=dana_koment(-1, -1, " Brak budzika 2 na pozycji %d w agendzie ",nr_rek);
 		return ret;
 	 }
-	B=(struct budzik *)(A->data);
+	B=(struct budzik2 *)(A->data);
 	rekord_danych_do_naglowka(nr_rek);
 	if(Anew==NULL)
-	 {ret=dana_koment(-1,17,"+ Modyfikacja danych BUDZIKA juz zgloszonego ");}
+	 {ret=dana_koment(-1,17,"+ Modyfikacja danych BUDZIKA 2 juz zgloszonego ");}
 	else
-	 {ret=dana_koment(-1,23,"+ Wpis danych NOWEGO BUDZIKA ");}
+	 {ret=dana_koment(-1,23,"+ Wpis danych NOWEGO BUDZIKA 2 ");}
 	ret=dana_text(-1, -1," Sprawa ", B->nazwa, size=60, NULL, 0,ochr=1);
 	ret=dana_koment(-1,-1," Czas budzenia: ");
 	{static int g_min=0, g_max=23, m_min=0, m_max=59, ile_min=1, ile_max=1440;
@@ -131,17 +143,17 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
  }
 
 extern time_t sek_akt;
-char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
+char *dane_budz2(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
 		static struct agenda *A;
-	struct budzik *Bu;
+	struct budzik2 *Bu;
 	int x,y, i;
 	int min, sek, godz;
 	S=Service;
-	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct budzik);
+	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct budzik2);
 	A=(struct agenda *)Malloc(*rozmiar_ob);
 	A->S=S; A->data=(A+1);
-	Bu=(struct budzik *)(A->data);
+	Bu=(struct budzik2 *)(A->data);
 	A->mode='s'; A->prior=1;
 	for(i=0;i<10;i++) Bu->nazwa[i]=0; Bu->nazwa[i]=0;
 	czas_zegarowy(&godz, &min, &sek);  /* oddaje minute od godz.0.0 (stud_sys.c) */
@@ -154,17 +166,17 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
 	return (char *)A;
  }
 
-void wpis_budz(int ob_pocz, int ob_konc,
+void wpis_budz2(int ob_pocz, int ob_konc,
 					 char *D, int rozmiar_ob, char zapis[], char *Kod_op)
  {struct agenda *A;
 	 A=(struct agenda *)D;
 	 (void)A;
  }
 
-void ustaw_czas_budzika(struct agenda *A, struct budzik *B);
-void ustaw_delay_budzika(struct agenda *A, struct budzik *B);
+void ustaw_czas_budzika2(struct agenda *A, struct budzik2 *B);
+void ustaw_delay_budzika2(struct agenda *A, struct budzik2 *B);
 
-void ustaw_czas_budzika(struct agenda *A, struct budzik *B)
+void ustaw_czas_budzika2(struct agenda *A, struct budzik2 *B)
 {
 	int sek, min, godz, minB, dmin, minp, min_doby;
 	if (B->godz >= 24) B->godz -= 24;
@@ -214,7 +226,7 @@ void ustaw_czas_budzika(struct agenda *A, struct budzik *B)
 	B->poprz_godz_budz = B->godz;  B->poprz_min_budz = B->min;
 }
 
-void ustaw_delay_budzika(struct agenda *A, struct budzik *B)
+void ustaw_delay_budzika2(struct agenda *A, struct budzik2 *B)
 {
 	int sek, min, godz, minB, dmin, minp, min_doby, za_duzo;
 	long int ss;
@@ -266,22 +278,23 @@ void ustaw_delay_budzika(struct agenda *A, struct budzik *B)
 	else { A->number_of_calls = B->wyprzedz / B->co_ile + 1; }
 }
 
-int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, int *nr_rekordu)
+int dec_budz2(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, int *nr_rekordu)
 {
 	struct agenda *A;
-	struct budzik *B;
+	struct budzik2 *B;
 	int sek, min, godz;
 	int ret;
-	if (kod_decyzji == DEC_NEW && decyzja == 't')
+	if (kod_decyzji == DEC_NEW)
 	{
-		if (Anew == NULL) Anew = service_default(dec_budz);
+		if (decyzja == 'n' || decyzja == 'N') return kod_uslugi;
+		if (Anew == NULL) Anew = service_default(dec_budz2);
 		if (Anew == NULL) return kod_uslugi;
-		A = Anew; B = (struct budzik *)(A->data);
+		A = Anew; B = (struct budzik2 *)(A->data);
 		/*		 for(i=0;i<10;i++) B->nazwa[i]=0; B->nazwa[i]=0; */
 		czas_zegarowy(&godz, &min, &sek); 	/* oddaje minute od godz.0.0 (stud_sys.c) */
 		B->min = min; B->godz = godz + 1;
 		B->co_ile = 2; B->wyprzedz = 15;
-		ustaw_czas_budzika(A, B);
+		ustaw_czas_budzika2(A, B);
 		Aserv = Anew;
 		return kod_uslugi;
 	}
@@ -290,7 +303,7 @@ int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, i
 		if (Anew != NULL) A = Anew;
 		else A = Aserv; /* rekord zlecenia agendy */
 		if (A == NULL) return kod_uslugi;
-		B = (struct budzik *)(A->data);
+		B = (struct budzik2 *)(A->data);
 	}
 	if (kod_decyzji == DEC_TIME)
 	{
@@ -298,11 +311,11 @@ int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, i
 		{
 			B->godz = B->poprz_godz_budz; B->min = B->poprz_min_budz;
 		}
-		else ustaw_czas_budzika(A, B); /* Zatw.czasu lub zmiana wyprz.lub okresu */
+		else ustaw_czas_budzika2(A, B); /* Zatw.czasu lub zmiana wyprz.lub okresu */
 		B->mod_time = 0;
 	}
 	if (kod_decyzji == DEC_MOD_TIME) B->mod_time = 1;
-	if (kod_decyzji == DEC_DELAY)	{ ustaw_delay_budzika(A, B); }
+	if (kod_decyzji == DEC_DELAY)	{ ustaw_delay_budzika2(A, B); }
 	if (kod_decyzji == DEC_RUN)
 	{
 		ret = decyzje_run(decyzja, &A, &Anew, nr_rekordu,
@@ -311,7 +324,7 @@ int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, i
 	}
 	if (kod_decyzji == DEC_TYP_US)
 	{
-		ustaw_typ_uslugi(A, decyzja); ustaw_czas_budzika(A, B);
+		ustaw_typ_uslugi(A, decyzja); ustaw_czas_budzika2(A, B);
 	}
 	return kod_uslugi;
 }

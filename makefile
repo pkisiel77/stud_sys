@@ -15,6 +15,7 @@ SRCS = core.c \
        blank/konsola.c \
        blank/wewy.c \
        budz.c \
+       budz2.c \
        admin.c \
        pomiar.c \
        sys_rap.c \

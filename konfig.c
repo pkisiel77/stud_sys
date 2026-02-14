@@ -25,6 +25,7 @@ struct Service          / * deklaracja w sys_dekl.h * /
 //#include "baza_stu.h"  /* plik zrodlowy stud_baz.c */
 //#include "dekl_obl.h"  /* plik zrodlowy oblicz.c */
 #include "dek_budz.h"  /* plik zrodlowy budz.c */
+#include "dek_budz2.h" /* plik zrodlowy budz2.c */
 #include "sys_rep.h"   /* plik zrodlowy sys_rap.c */
 #include "admin.h"     /* plik zrodlowy admin.c */
 #include "pomiar.h"    /* plik zrodlowy pomiar.c */ // pomiar ekg
@@ -34,7 +35,7 @@ struct Service          / * deklaracja w sys_dekl.h * /
 // #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjent�w
 // #include "ustaw.h"    /* plik zrodlowy ustaw.c */  // ustawienia pomiaru
 
-#define L_SYS 5
+#define L_SYS 6
 /* --------------------------------------------------------------- */
 #ifdef _DEF_SYS_
 int set_services(void);
@@ -135,6 +136,25 @@ int set_services(void)
     S->dane_rap_bl = dane_budz;
     S->wpis_rap_bl = wpis_budz;
     S->decyzje = dec_budz;
+    /* --------------- Podstawiamy dane uslugi z pliku budz2.c -------- */
+    Nr_sys++;
+    if (Nr_sys >= L_SYS) goto ERR_SERV;
+    Menu[Nr_sys] = " Budzik 2";
+    S = (struct Service*)Malloc(sizeof(struct Service));
+    if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
+    Serv[Nr_sys] = S;
+    S->kod_uslugi = Nr_sys + 1;
+    S->l_rek_max = AG_SIZE;
+    S->str_size = sizeof(struct budzik2);
+    S->typ_bazy = BAZA_WEKTOR;
+    S->D = SysA;
+    S->name = Menu[Nr_sys];
+    S->main_modul = budz2_main;
+    S->def_blankiet = budz2_blankiet;
+    S->dane_rap_bl = dane_budz2;
+    S->wpis_rap_bl = wpis_budz2;
+    S->decyzje = dec_budz2;
     /* --------------- Podstawiamy dane dalszych uslug z pliku admin.c ---- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;

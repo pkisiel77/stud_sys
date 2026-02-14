@@ -20,7 +20,7 @@ static struct agenda **SA;
 
 int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
 int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
-									struct agenda **As, struct agenda *An,
+									struct agenda **As, struct agenda **An,
 									struct agenda ***SA, char *adres_rek0_uslugi, char *nazwa);
 int pokaz_listy_zlecen(struct agenda *Anew, int kod_uslugi, char *tytul);
 int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
@@ -40,7 +40,7 @@ int ustaw_main(void *DA)
 	 {int yp, xp, ret;
 		char text[200];
 		yp=MY_MAX; xp=X_L0+1;
-		sprintf(text," Wykonac komende: %s <t/Esc> ?????? ",Ob->komenda);
+		snprintf(text,sizeof(text)," Wykonac komende: %s <t/Esc> ?????? ",Ob->komenda);
 		ret=monit_textowy(yp, xp, ATTR_A, text);
 		if(ret=='t') system(Ob->komenda);
 	 }
@@ -62,7 +62,7 @@ int ustaw_blankiet(int nr_rekordu, int ob_pocz,
 	struct agenda *A=NULL;
     sledzenie(); 
 	nr_rek=nr_rekordu;
-	ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, Anew, &SA,
+	ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, &Anew, &SA,
 														adres_rek0_uslugi, "zlecen obliczeniowych");
   Aserv=A;
 	if(A==NULL)
