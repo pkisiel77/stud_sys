@@ -113,6 +113,20 @@ void* BUF_com = NULL;
 static char wait_for_synch_trig = 0;
 #endif
 int igraf = 0;
+
+static void ctrl_log(const char* fmt, ...)
+{
+    FILE* fp;
+    va_list ap;
+    fp = fopen("/tmp/stud_sys_ctrl.log", "a");
+    if (fp == NULL) return;
+    fprintf(fp, "[WEWY] ");
+    va_start(ap, fmt);
+    vfprintf(fp, fmt, ap);
+    va_end(ap);
+    fprintf(fp, "\n");
+    fclose(fp);
+}
 /* ================Procedura czytania danych i slow z klawiatury=========*/
 /*      Dane wejsciowe:  monit - komentarz do tekstu pisanego na monitor
 												 text  - slowa lub dane
@@ -2665,7 +2679,7 @@ signed char zamknij_blankiet(int* nr_rekordu)
                 ok = Ok;
                 for (i = 0; i < liczba_danych; i++, ok++)
                 {
-                    if (ok->typ == 'k' && ok->format != NULL)
+                    if (ok->format != NULL)
                     {
                         Free(ok->format);
                         lwmall--;
@@ -3323,21 +3337,21 @@ int wpis_indexu(int y, int xp_ind, int ind_size, int* wart,
 
 char* wpisz_format(char* format, char* monit)
 {
-    return monit;
-    /*   if(format!=NULL) {Free(format); lwmall--;}
-       for(i=0;;i++) {if(monit[i]==EOS) break;}; i+=(i%4);
-       format=(char *)Malloc(i*sizeof(char));
-
-       if(format==NULL)
-            {komunikat(5,1,ATTR_A," Brak pamieci dla formatu danej %d: <Ent>", nr_danej);
-         nr_danej--;
-         GET_char();
-         return NULL;
-        }
-       format[i-1]=EOS;  lwmall++;
-       for(l=0;l<=i;l++) {format[l]=monit[l];}
-      return format;
-    */
+    int len;
+    char* buf;
+    if (format != NULL) { Free(format); lwmall--; }
+    len = strlen(monit) + 1;
+    buf = (char*)Malloc(len);
+    if (buf == NULL)
+    {
+        komunikat(5, 1, ATTR_A, " Brak pamieci dla formatu danej %d: <Ent>", nr_danej);
+        nr_danej--;
+        GET_char();
+        return NULL;
+    }
+    memcpy(buf, monit, len);
+    lwmall++;
+    return buf;
 }
 
 char* formaty_tabl(char* f_nazwy, char* monit_pocz, int* ind_min,
@@ -6737,13 +6751,23 @@ void reset_blankiet(int nr_rekordu)
     ok = Ok;
     for (i = 0; i < liczba_danych; i++, ok++)
     {
-        if (ok->typ == 'k' && ok->format != NULL)
+        if (ok->format != NULL)
         {
             Free(ok->format);
             lwmall--;
         }
         ok->format = NULL;
         ok->wpis = 0;
+        /* help[0] is allocated by wpisz_format for types g/G/s/f/F/W/w/o */
+        switch (ok->typ)
+        {
+        case 'g': case 'G': case 's':
+        case 'f': case 'F': case 'W': case 'w': case 'o':
+            if (ok->help[0] != NULL) { Free(ok->help[0]); lwmall--; }
+            break;
+        default:
+            break;
+        }
         for (l = 0; l < LHELP; l++) ok->help[l] = NULL;
     }
     R = RAP[BL[nr_blank]->nr_raportu];
@@ -6764,7 +6788,7 @@ void reset_blankiet(int nr_rekordu)
 }
 
 /* ========================= Tu zaczyna sie plik wewy3.c =========== */
-void dane_helpu(char* hformat, char* help[], char** parinfo);
+void dane_helpu(char* hformat, char* help[], va_list* ap);
 #ifndef WEWY_INCL
 #define _DOS_
 #include <stdio.h>
@@ -6799,9 +6823,10 @@ int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
                        char* hformat, ...)
 {
     struct reports Rd, *R;
-    char **parinfo, *help[LHELP];
+    char *help[LHELP];
+    va_list _ap;
     int size,/* wydruk nr'u rekordu gdy >0 */dim = 0, xk, dl_tyt, tx_size, i;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     R = &Rd;
     R->D = (char*)Menu;
     R->typ_bazy = BAZA_WEKTOR;
@@ -6810,7 +6835,8 @@ int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
     R->ob_pocz = opcja0;
     R->ob_konc = w_max;
     help[0] = hformat;
-    dane_helpu(hformat, help, parinfo);
+    dane_helpu(hformat, help, &_ap);
+    va_end(_ap);
     tx_size = -1;
     if (tytul != NULL)
     {
@@ -6953,14 +6979,17 @@ int tabl_grup_dec(int y, int x, char* monit, int ind_min,
                   int* tablica, int dim, int size, int ochrona,
                   int skok, signed char raport, int kod_dec, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->decyzja = kod_dec;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    return v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
-                       format_tabl, tablica, dim, size, ochrona, skok, raport,
-                       hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
+                     format_tabl, tablica, dim, size, ochrona, skok, raport,
+                     hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int tabl_grup(int y, int x, char* monit, int ind_min,
@@ -6968,13 +6997,16 @@ int tabl_grup(int y, int x, char* monit, int ind_min,
               int* tablica, int dim, int size, int ochrona,
               int skok, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    return v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
-                       format_tabl, tablica, dim, size, ochrona, skok, raport,
-                       hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
+                     format_tabl, tablica, dim, size, ochrona, skok, raport,
+                     hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int tabl_grup_posredn(int y, int x, char* monit, int ind_min,
@@ -6983,17 +7015,20 @@ int tabl_grup_posredn(int y, int x, char* monit, int ind_min,
                       int size_helpu, int size, int ochrona,
                       int skok, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = size_helpu;
     (Ok + nr_danej)->decyzja = -1;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
     (Ok + nr_danej)->proxy = -1; /* to wskaznik raportu strukt.helpu */
-    return v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
-                       format_tabl, tablica, dim, size, ochrona, skok, raport,
-                       hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, ind_min, ind_max, w_min, w_max,
+                     format_tabl, tablica, dim, size, ochrona, skok, raport,
+                     hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int grupa_rap_posredn_danych(int y, int x, char* monit, int* w_min,
@@ -7001,16 +7036,19 @@ int grupa_rap_posredn_danych(int y, int x, char* monit, int* w_min,
                              int size_helpu, int size, int ochrona,
                              int skok, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = size_helpu;
     (Ok + nr_danej)->decyzja = -1;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
     (Ok + nr_danej)->proxy = 0; /* to wskaznik raportu strukt.helpu */
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int grupa_rap_posredn_danych_dec(int y, int x, char* monit, int* w_min,
@@ -7018,16 +7056,19 @@ int grupa_rap_posredn_danych_dec(int y, int x, char* monit, int* w_min,
                                  int size_helpu, int size, int ochrona, int skok,
                                  signed char raport, int kod_dec, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = size_helpu;
     (Ok + nr_danej)->decyzja = kod_dec;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
     (Ok + nr_danej)->proxy = 0; /* to wskaznik raportu strukt.helpu */
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 
@@ -7035,7 +7076,8 @@ int dana_rekord_str(int y, int x0, char* monit, int* w_min,
                     int* w_max, int* wart, int size, int ochrona,
                     int kod_raportu, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
+    int _r;
+    va_list _ap;
     struct reports* R;
     int i;
     for (i = 0; i < LRAP_BL; i++)
@@ -7048,27 +7090,32 @@ int dana_rekord_str(int y, int x0, char* monit, int* w_min,
     (Ok + nr_danej)->Rep = R;
     if (R->typ_bazy == BAZA_SPOJNA) (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = wart;
     (Ok + nr_danej)->size_helpu = 0;
     /*  (Ok+nr_danej)->decyzja=-1; */
-    return v_tabl_grup(y, x0, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, R->rozmiar_ob, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x0, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, R->rozmiar_ob, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int grupa_danych(int y, int x, char* monit, int* w_min,
                  int* w_max, int* wart, int size, int ochrona,
                  int skok, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = wart;
     (Ok + nr_danej)->size_helpu = 0;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
     /*  (Ok+nr_danej)->decyzja=-1; */
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int dana_rekord_posredn_str(int y, int x, char* monit, int* w_min,
@@ -7076,7 +7123,8 @@ int dana_rekord_posredn_str(int y, int x, char* monit, int* w_min,
                             int kod_raportu_helpu, int size, int ochrona,
                             int kod_raportu, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
+    int _r;
+    va_list _ap;
     struct reports* R;
     int i, skok;
     for (i = 0; i < LRAP_BL; i++)
@@ -7098,12 +7146,14 @@ int dana_rekord_posredn_str(int y, int x, char* monit, int* w_min,
     if (i == LRAP_BL) return nr_danej;
     (Ok + nr_danej)->Rep_help = R;
     if (R->typ_bazy == BAZA_SPOJNA) (Ok + nr_danej)->Rep_help = NULL;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = R->rozmiar_ob;
     (Ok + nr_danej)->decyzja = -1;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int grupa_posredn_danych(int y, int x, char* monit, int* w_min,
@@ -7111,22 +7161,26 @@ int grupa_posredn_danych(int y, int x, char* monit, int* w_min,
                          int size_helpu, int size, int ochrona,
                          int skok, signed char raport, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = size_helpu;
     (Ok + nr_danej)->decyzja = -1;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int dana_rekord_str_dec(int y, int x, char* monit, int* w_min, int* w_max,
                         int* wart, int size, int ochrona, int kod_raportu,
                         signed char raport, char kod_dec, char* hformat, ...)
 {
-    char** parinfo;
+    int _r;
+    va_list _ap;
     struct reports* R;
     int i;
     for (i = 0; i < LRAP_BL; i++)
@@ -7136,15 +7190,20 @@ int dana_rekord_str_dec(int y, int x, char* monit, int* w_min, int* w_max,
         if (R->kod_raportu == kod_raportu) break;
     }
     if (i == LRAP_BL) return nr_danej;
+    ctrl_log("dana_rekord_str_dec monit='%s' kod_raportu=%d raport=%d kod_dec=%d wart=%p hformat='%s'",
+             monit, kod_raportu, raport, (int)kod_dec, (void*)wart, hformat);
     if (R->typ_bazy != BAZA_SPOJNA) (Ok + nr_danej)->Rep = R;
     else (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = wart;
     (Ok + nr_danej)->size_helpu = 0;
     (Ok + nr_danej)->decyzja = kod_dec;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, R->rozmiar_ob, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, R->rozmiar_ob, raport, hformat, &_ap);
+    va_end(_ap);
+    ctrl_log("dana_rekord_str_dec ret=%d", _r);
+    return _r;
 }
 
 
@@ -7152,15 +7211,18 @@ int grupa_danych_dec(int y, int x, char* monit, int* w_min, int* w_max,
                      int* wart, int size, int ochrona, int skok,
                      signed char raport, char kod_dec, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = wart;
     (Ok + nr_danej)->size_helpu = 0;
     (Ok + nr_danej)->decyzja = kod_dec;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int dana_rekord_posredn_str_dec(int y, int x, char* monit, int* w_min,
@@ -7169,7 +7231,8 @@ int dana_rekord_posredn_str_dec(int y, int x, char* monit, int* w_min,
                                 int kod_raportu, signed char raport, char kod_dec,
                                 char* hformat, ...)
 {
-    char** parinfo;
+    int _r;
+    va_list _ap;
     struct reports* R;
     int i, skok;
     for (i = 0; i < LRAP_BL; i++)
@@ -7191,12 +7254,14 @@ int dana_rekord_posredn_str_dec(int y, int x, char* monit, int* w_min,
     if (i == LRAP_BL) return nr_danej;
     (Ok + nr_danej)->Rep_help = R;
     if (R->typ_bazy == BAZA_SPOJNA) (Ok + nr_danej)->Rep_help = NULL;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = R->rozmiar_ob;
     (Ok + nr_danej)->decyzja = kod_dec;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int grupa_posredn_danych_dec(int y, int x, char* monit, int* w_min,
@@ -7205,27 +7270,29 @@ int grupa_posredn_danych_dec(int y, int x, char* monit, int* w_min,
                              int skok, signed char raport, int kod_dec,
                              char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = (int*)index_helpu;
     (Ok + nr_danej)->size_helpu = size_helpu;
     (Ok + nr_danej)->decyzja = kod_dec;
     (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
-    return v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
-                       ochrona, skok, raport, hformat, parinfo);
+    _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
+                     ochrona, skok, raport, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 /* ----------------------------------------------------------------- */
 int v_tabl_grup(int y, int x, char* monit, int ind_min,
                 int ind_max, int* w_min, int* w_max, char* format_tabl,
                 int* tablica, int dim, int size, int ochrona,
-                int skok, signed char raport, char* hformat, char** parinfo)
+                int skok, signed char raport, char* hformat, va_list* ap)
 {
     struct okno* ok;
     int k, lzm;
     char *f = EOS, *form, typ, *zn;
-    /*  va_list parinfo; */
     if (Ok == NULL)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
@@ -7246,8 +7313,9 @@ int v_tabl_grup(int y, int x, char* monit, int ind_min,
     if (ok->format == NULL) return -1;
     ok->help[0] = wpisz_format(ok->help[0], hformat);
     if (ok->help[0] == NULL) return -1;
-    dane_helpu(hformat, ok->help, parinfo);
-    /*va_end(parinfo); */
+    ctrl_log("v_tabl_grup monit='%s' hformat='%s' size=%d skok=%d raport=%d tablica=%p",
+             monit, hformat, size, skok, raport, (void*)tablica);
+    dane_helpu(hformat, ok->help, ap);
     ok->typ = 'g';
     if (ind_min < ind_max && ind_min >= 0)
     {
@@ -7279,13 +7347,14 @@ int v_tabl_grup(int y, int x, char* monit, int ind_min,
 }
 
 /* ----------------------------------------------------------------- */
-void dane_helpu(char* hformat, char* help[], char** parinfo)
+void dane_helpu(char* hformat, char* help[], va_list* ap)
 {
     char *f = NULL, *form = NULL, typ, *zn;
     int lzm, k, lz, dlz = 0;
+    char *_va_peek_cur = NULL;
+    int _va_peeked = 0;
     lzm = 0;
     form = hformat;
-    /*    va_start(parinfo,hformat); * /=====  parinfo=&hformat+1; */
     do
     {
         do
@@ -7299,8 +7368,7 @@ void dane_helpu(char* hformat, char* help[], char** parinfo)
         lzm++;
         if (lzm < LHELP)
         {
-            help[lzm] = (char*)(*parinfo);
-            parinfo++; /*(char *)va_arg(parinfo,char *);*/
+            help[lzm] = va_arg(*ap, char*);
         }
         else break;
         form = &f[k];
@@ -7334,14 +7402,19 @@ void dane_helpu(char* hformat, char* help[], char** parinfo)
                     lz = lzm + 2;
                     dlz = 1;
                     /* fprintf(mystderr,"\n dane_form=%s",zn); */
-                    if (lz >= LHELP || (*(parinfo + 1)) == NULL)
+                    _va_peek_cur = va_arg(*ap, char*); /* biezacy arg */
                     {
-                        komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie (zn=%c k=%d). <Ent>",
-                                  form, *zn, k);
-                        GET_char();
-                        break;
+                        char* _va_peek_nxt = va_arg(*ap, char*); /* nastepny arg */
+                        if (lz >= LHELP || _va_peek_nxt == NULL)
+                        {
+                            komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie (zn=%c k=%d). <Ent>",
+                                      form, *zn, k);
+                            GET_char();
+                            break;
+                        }
+                        help[lz] = _va_peek_nxt;
                     }
-                    help[lz] = (char*)(*(parinfo + 1));
+                    _va_peeked = 1;
                     zn += 2;
                     k = 6;
                 }
@@ -7375,10 +7448,16 @@ void dane_helpu(char* hformat, char* help[], char** parinfo)
             lzm++;
             if (lzm < LHELP)
             {
-                help[lzm] = (char*)(*parinfo);
-                parinfo++; /*(char *)va_arg(parinfo,char *); */
+                if (_va_peeked)
+                {
+                    help[lzm] = _va_peek_cur; /* arg pre-read w [%a%l] */
+                    _va_peeked = 0;
+                }
+                else
+                {
+                    help[lzm] = va_arg(*ap, char*);
+                }
                 lzm += dlz;
-                parinfo += dlz;
                 dlz = 0;
             }
             else break;
@@ -7418,9 +7497,7 @@ void dane_helpu(char* hformat, char* help[], char** parinfo)
                     GET_char();
                     break;
                 }
-                help[lzm] = (char*)(*parinfo);
-                parinfo++;
-                /*          help[lzm]=(char *)va_arg(parinfo,char *); */
+                help[lzm] = va_arg(*ap, char*);
                 form += k; /* przesuwamy poczatek nastepnego formatu */
             }
         } /* koniec else po analizie klamry [%a] */
@@ -7519,6 +7596,7 @@ int tabl_int(int y, int x, char* monit, int ind_min,
     ok->blok_wpisu = 0;
     if (ochrona == -1) ok->blok_wpisu = 1;
     if (ochrona < 0 || BL[nr_blank]->czynny == 0) ok->ochrona = Upr_max;
+    ctrl_log("v_tabl_grup prepared ok typ=%c decyzja=%d yo=%d xo=%d", ok->typ, ok->decyzja, ok->yo, ok->xo);
     return nr_danej;
 }
 
@@ -7717,44 +7795,48 @@ int dana_text(int y, int x, char* monit, char* string, int size,
 
 int wpis_danej_text_menu(int y, int x, char* monit, char* string, int size,
                          int l_opcji, int ochrona,
-                         long int skok, void* R, char* hformat, char** parinfo);
+                         long int skok, void* R, char* hformat, va_list* ap);
 
 int dana_text_menu_rek(int y, int x, char* monit, char* string, int size,
                        int l_opcji, int ochrona,
                        int kod_raportu, char* hformat, ...)
 {
-    char** parinfo;
+    int _r;
+    va_list _ap;
     struct reports* R = NULL;
     int i, skok;
-    parinfo = &hformat + 1;
+    va_start(_ap, hformat);
     for (i = 0; i < LRAP_BL; i++)
     {
         R = RAP[i];
-        if (R == NULL) return nr_danej;
+        if (R == NULL) { va_end(_ap); return nr_danej; }
         if (R->kod_raportu == kod_raportu) break;
     }
-    if (i == LRAP_BL) return nr_danej;
+    if (i == LRAP_BL) { va_end(_ap); return nr_danej; }
     skok = R->rozmiar_ob;
     if (R->typ_bazy == BAZA_SPOJNA) R = NULL;
-    return wpis_danej_text_menu(y, x, monit, string, size, l_opcji, ochrona, skok, R, hformat, parinfo);
+    _r = wpis_danej_text_menu(y, x, monit, string, size, l_opcji, ochrona, skok, R, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int dana_text_menu(int y, int x, char* monit, char* string, int size,
                    int l_opcji, int ochrona,
                    long int skok, char* hformat, ...)
 {
-    char** parinfo;
-    parinfo = &hformat + 1;
-    return wpis_danej_text_menu(y, x, monit, string, size, l_opcji, ochrona, skok, NULL, hformat, parinfo);
+    int _r;
+    va_list _ap;
+    va_start(_ap, hformat);
+    _r = wpis_danej_text_menu(y, x, monit, string, size, l_opcji, ochrona, skok, NULL, hformat, &_ap);
+    va_end(_ap);
+    return _r;
 }
 
 int wpis_danej_text_menu(int y, int x, char* monit, char* string, int size,
                          int l_opcji, int ochrona,
-                         long int skok, void* R, char* hformat, char** parinfo)
+                         long int skok, void* R, char* hformat, va_list* ap)
 {
     struct okno* ok;
-    /*   char **parinfo;
-       parinfo=&hformat+1; */
     if (Ok == NULL)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
@@ -7776,7 +7858,7 @@ int wpis_danej_text_menu(int y, int x, char* monit, char* string, int size,
     if (ok->format == NULL) return -1;
     ok->help[0] = wpisz_format(ok->help[0], hformat);
     if (ok->help[0] == NULL) return -1;
-    dane_helpu(hformat, ok->help, parinfo);
+    dane_helpu(hformat, ok->help, ap);
     ok->typ = 's';
     ok->wartosc = (float*)string;
     ok->kod_anim = -1;
@@ -8330,7 +8412,13 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     }
     /* ------- tu zrobimy kopie oryg.danych i udost.wskaznik do zapis[] --- */
     d_oryg = dane_oryginalne(*nr_rekordu, tytul, &d_rek, &rozmiar_ob, &zmiany);
-    if (zmiany == NULL) return -CR;
+    if (zmiany == NULL)
+    {
+        static char zmiany_dummy = 0;
+        ctrl_log("rap_blank: zmiany==NULL for report=%d nr_rek=%d, using read-only fallback",
+                 *kod_raportu, *nr_rekordu);
+        zmiany = &zmiany_dummy;
+    }
     wp = 0;
     nr_danej = dana;
     for (;;) /* obsluga raportu az do wyjscia */
@@ -8491,6 +8579,8 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
     struct reports* R;
     nr_raportu = BL[nr_blank]->nr_raportu;
     R = RAP[nr_raportu];
+    ctrl_log("dane_oryginalne: rep=%d kod=%d nr_rek=%d zakres=[%d,%d] zapis=%p uprawn=%d",
+             nr_raportu, (int)R->kod_raportu, nr_rekordu, R->ob_pocz, R->ob_konc, (void*)R->zapis, Uprawn);
     *rozmiar = 0;
     if (R->zapis == NULL || nr_rekordu < R->ob_pocz || nr_rekordu > R->ob_konc)
     {
@@ -8797,6 +8887,8 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                 if (ok->decyzja >= 0)
                 {
                     if (ok->ochrona > 0) *wpisano = 3;
+                    ctrl_log("obsluga_wpisu FONT6 dana=%d typ=%c decyzja=%d ret=%d wp=%d",
+                             dana, ok->typ, ok->decyzja, ret, wp);
                     return FONT6;
                 }
             }

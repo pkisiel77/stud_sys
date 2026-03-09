@@ -1,12 +1,28 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
 #include "sys_rep.h"
+#include <stdarg.h>
+#include <stdio.h>
 void chk_time(void);
 extern struct Service *Service;
 extern struct agenda *Agenda;
 extern int X_time, X_tyt;
 extern unsigned int attr_title;
 struct agenda **SA;
+
+static void sys_log(const char* fmt, ...)
+{
+    FILE* fp;
+    va_list ap;
+    fp = fopen("/tmp/stud_sys_ctrl.log", "a");
+    if (fp == NULL) return;
+    fprintf(fp, "[SYS] ");
+    va_start(ap, fmt);
+    vfprintf(fp, fmt, ap);
+    va_end(ap);
+    fprintf(fp, "\n");
+    fclose(fp);
+}
 int sys_main(void *DA)
  {struct agenda *A;
 	A=(struct agenda *)DA;
@@ -29,16 +45,19 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	SA=(struct agenda **)getAgendaPtr(&lsa);
 	A0=(struct agenda *)D;
 	nr_rek=nr_rekordu;
+	sys_log("enter: D=%p lsa=%d nr_rekordu=%d", D, lsa, nr_rekordu);
 	A=(struct agenda *)dane_raportowanego_rekordu(sys_blankiet,&nr_rek);
 	nr_ag=nr_rek;
+	sys_log("A=%p A0=%p SA[0]=%p nr_ag=%d", (void*)A, (void*)A0, lsa>0?(void*)SA[0]:NULL, nr_ag);
 	if(A0==NULL || A0!=SA[0])
-	 {term_printf(MY_MAX,X_L0,ATTR_A," Niezgodnosc adresow w RAP_SYS(SA0=%d A0=%d). <Ent> ",
-																		 SA[0],A0);
+	 {term_printf(MY_MAX,X_L0,ATTR_A," Niezgodnosc adresow w RAP_SYS(SA0=%p A0=%p). <Ent> ",
+																		 (void*)SA[0],(void*)A0);
 		GET_char();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_ag);
 	for(z_min=0;z_min<lsa;z_min++) {if(SA[z_min]!=NULL) break;}
 	for(i=0,ls=0;i<lsa;i++) {if(SA[i]!=NULL) {ls++; z_max=i;}}
+	sys_log("z_min=%d z_max=%d ls=%d", z_min, z_max, ls);
 	if(ls==0)
 	 {ret=dana_koment(-1, 26," Brak zlecen w agendzie ");
 		return ret;
@@ -49,12 +68,16 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	if(A==NULL)
 	 {ret=dana_koment(-1,10,"+ Brak zlecenia na poz.%d w agendzie",nr_ag);}
 	else
-	 {ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, &nr_ag,
+	 {sys_log("before dana_rekord_str_dec: A0->name=%p A0->mode=%c A0->prior=%d A0->Interval=%d A0->delay=%f",
+	          (void*)A0->name, A0->mode, A0->prior, A0->Interval, (double)A0->delay);
+	  if(A0->name) sys_log("A0->name='%s'", A0->name);
+	  ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, &nr_ag,
 													 size=2, ochr=2, Service->kod_uslugi,
 													 raport=(A->S)->kod_uslugi, DEC_NEW,
 													 " %19S typ=%c prior=%d Cykl=%d Opozn=%5.0f",
 													 &A0->name,&(A0->mode), &(A0->prior),
 													 &(A0->Interval),&(A0->delay));
+	  sys_log("after dana_rekord_str_dec ret=%d", ret);
 	 {static char *typ_usl[3]={"p permanentna (stala)", "s seryjna", "t dorazna"};
 		ret=dana_decyzyjna(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3,
 											 &(A->mode), ochr=5, DEC_TYP_US);

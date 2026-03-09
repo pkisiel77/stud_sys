@@ -1,6 +1,20 @@
 /* ======================================================================= */
+static void rap_log(const char* fmt, ...)
+{
+    FILE* fp;
+    va_list ap;
+    fp = fopen("/tmp/stud_sys_ctrl.log", "a");
+    if (fp == NULL) return;
+    fprintf(fp, "[RAP] ");
+    va_start(ap, fmt);
+    vfprintf(fp, fmt, ap);
+    va_end(ap);
+    fprintf(fp, "\n");
+    fclose(fp);
+}
+
 int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
-				int kto, int r_pocz, int lrek, struct Service *S)
+					int kto, int r_pocz, int lrek, struct Service *S)
  {int ret, max_l_data_blank;       /*liczba danych obslugiwana przez bl */
 	int y_gorny, x_lewy=0, y_danej, y_dolny, x_prawy;
 	int decyzja,  kod_decyzji, nr_dec, nr_rekordu, p_konc, i;
@@ -17,6 +31,7 @@ int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 		ret=blankiet(&kod_uslugi, &nr_rekordu, x_lewy, y_gorny+y_shift,
 								 y_dolny, x_prawy, czynny, kolor, ramka,
 								 &poziom, &zapis, &y_danej);
+		rap_log("blankiet ret=%d kod_uslugi=%d nr_rekordu=%d", ret, (int)kod_uslugi, nr_rekordu);
 		if(kod_uslugi>=0)
 		 {for(i=0;i<=L_SYS;i++)
 			 {if(Serv[i]->kod_uslugi==kod_uslugi) {S=Serv[i]; break;}}
@@ -24,13 +39,14 @@ int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 		Service=S;
 		if(ret==UNDO) {continue;}
 		freeAgendaPtr(); freeRepDataPtr(NULL);
-		if(ret<=-1) {continue;}
-		if(ret==Esc) {break;}
+		if(ret==Esc || ret==-Esc) {break;}
 		if(ret==FONT6)
 		 {decyzja=jaka_decyzja(&kod_decyzji, &nr_dec);
+			rap_log("FONT6 decyzja=%d kod_decyzji=%d nr_dec=%d", decyzja, kod_decyzji, nr_dec);
 			old_raport=kod_uslugi;
 			kod_uslugi=S->decyzje(decyzja, kod_decyzji, nr_dec, kod_uslugi,
 														old_rekord, &nr_rekordu);
+			rap_log("decyzje() -> kod_uslugi=%d nr_rekordu=%d", (int)kod_uslugi, nr_rekordu);
 			if(kod_uslugi<0)
 			 {int Ret=old_raport;
 				Ret=okno_menu(Menu,Liczba_opcji,Ret,attr, at_wpis, 10,25,-1," LISTA PODSYSTEMOW - WYBIERZ ",1);
@@ -41,6 +57,7 @@ int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 				 }
 			 }
 		 }
+		if(ret<=-1) {continue;}
 	}while(ret>0);
  return ret;
 }

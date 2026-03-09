@@ -6,6 +6,7 @@
 // -- Uwaga !! 1sza w linii grupa_danych MUSI miec spacje w formacie !!!!
 #ifndef _WEWYBL_H_INCLUDE
 #define _WEWYBL_H_INCLUDE
+#include <stdarg.h>
 #define BAZA_SPOJNA 0
 #define BAZA_WEKTOR 1
 #define BAZA_LISTOW 2
@@ -498,7 +499,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
 int v_tabl_grup(int y, int x, char* monit, int ind_min,
                 int ind_max, int* w_min, int* w_max, char* format_tabl,
                 int* tablica, int dim, int size, int ochrona,
-                int skok, signed char raport, char* hformat, char** parinfo);
+                int skok, signed char raport, char* hformat, va_list* ap);
 void wyjscie(struct okno* Ok, int liczba);
 void wysylka(int dana, int kod, float wartosc, int proxy);
 int disp_dana(signed char wp, int y, int x,
