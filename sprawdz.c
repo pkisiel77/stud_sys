@@ -1,8 +1,6 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
 #include "sprawdz.h"
-#include <stdarg.h>
-#include <stdio.h>
 void chk_time(void);
 extern struct Service* Service;
 /* extern struct agenda *Agenda, *SysA[]; */
@@ -13,20 +11,6 @@ extern unsigned int cursor, nocursor;
 
 char* dni[] = {"Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota"};
 extern struct agenda* SysA[];
-
-static void sprawdz_log(const char* fmt, ...)
-{
-    FILE* fp;
-    va_list ap;
-    fp = fopen("/tmp/stud_sys_ctrl.log", "a");
-    if (fp == NULL) return;
-    fprintf(fp, "[SPRAWDZ] ");
-    va_start(ap, fmt);
-    vfprintf(fp, fmt, ap);
-    va_end(ap);
-    fprintf(fp, "\n");
-    fclose(fp);
-}
 
 int sprawdz(void* DA)
 {
@@ -115,16 +99,13 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     static char* nazwa_w = nazwa_buf;
     (void)DaneUslugi;
     nr_rek = nr_rekordu;
-    sprawdz_log("enter blankiet nr_rekordu=%d kod_uslugi=%d ob=[%d,%d)", nr_rekordu, kod_uslugi, ob_pocz, ob_konc);
     A = (struct agenda*)dane_raportowanego_rekordu(sprawdz_blankiet, &nr_rek);
     if (A == NULL)
     {
-        sprawdz_log("dane_raportowanego_rekordu returned NULL");
         term_printf(MY_MAX, X_L0,ATTR_A, " Blad adresu w Sprawdz (A=%p). <Ent> ", A);
         GET_char();
         return -1;
     }
-    sprawdz_log("record ok A=%p name=%p mode=%c prior=%d interval=%d", (void*)A, (void*)A->name, A->mode, A->prior, A->Interval);
     rekord_danych_do_naglowka(nr_ag);
     snprintf(nazwa_buf, sizeof(nazwa_buf), "%s", (A->name != NULL) ? A->name : "");
     ls = 0;
@@ -144,67 +125,49 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     }
     /* ------------------------------------------------------- */
     {
-        static int z_min = 0, z_max = 0, nrzl = 0;
-        sprawdz_log("before dana_rekord_str_dec name='%s' mode=%c prior=%d interval=%d", nazwa_buf, A->mode, A->prior, A->Interval);
+        static int z_min = 0, z_max = 0;
         ret = dana_rekord_str_dec(-1, -1, "+ Zlecenie glowne:", &z_min, &z_max, (int*)A,
                                   size = 0, ochr = -1, Service->kod_uslugi,
                                   raport = (A->S)->kod_uslugi, DEC_NEW,
                                   " %19S typ=%c prior=%d okres=%d",
                                   &nazwa_w, &(A->mode),
                                   &(A->prior), &(A->Interval));
-        sprawdz_log("after dana_rekord_str_dec ret=%d nrzl=%d", ret, nrzl);
     }
     {
         static char* typ_usl[3] = {"p permanentna (stala)", "s seryjna", "t dorazna"};
-        sprawdz_log("before dana_znak typ_usl");
         ret = dana_znak(-1, -1, " Typ uslugi <%s> ", "p/s/t", typ_usl, 3,
                         &(A->mode), ochr = -1);
-        sprawdz_log("after dana_znak ret=%d mode=%c", ret, A->mode);
     }
     {
         if (A->mode == 'p') ochr = -1;
         else ochr = 2;
-        sprawdz_log("before dana_koment stale info");
         ret = dana_koment(-1, -1, "+   Zlecenie stale nieusuwlne !!!! ");
-        sprawdz_log("after dana_koment ret=%d", ret);
     }
     {
         static int nmin = 1, nmax = 3000, del_min, del_sek;
         del_min = (long int)A->delay / 60l;
         del_sek = ((long int)A->delay) % 60l;
-        sprawdz_log("before dana_int interval interval=%d", A->Interval);
         ret = dana_int(-1, -1, " Okres wywolan [sek](%d-%d) ?? ", &nmin, &nmax,
                        &(A->Interval), size = 4, ochr = 5, raport = -1);
-        sprawdz_log("after dana_int interval ret=%d interval=%d", ret, A->Interval);
-        sprawdz_log("before dana_koment delay");
         ret = dana_koment(-1, -1, " Czas do nastepnego wywolania %dmin %dsek",
                           del_min, del_sek);
-        sprawdz_log("after dana_koment delay ret=%d", ret);
     }
     {
         static int nmin = 1, nmax = 3000, stmin = -999;
-        sprawdz_log("before dana_int prior prior=%d", A->prior);
         ret = dana_int(-1, -1, " Priorytet (%d-%d) ?? ", &nmin, &nmax,
                        &(A->prior), size = 4, ochr = 5, raport = -1);
-        sprawdz_log("after dana_int prior ret=%d prior=%d", ret, A->prior);
-        sprawdz_log("before dana_int state state=%d", A->state);
         ret = dana_int(-1, -1, " Stan realizacji ", &stmin, &nmax,
                        &(A->state), size = 4, ochrf, raport = -1);
-        sprawdz_log("after dana_int state ret=%d state=%d", ret, A->state);
     }
 
     if (ls == 0)
     {
-        sprawdz_log("before dana_koment plus");
         ret = dana_koment(-1, -1, "+ ");
-        sprawdz_log("after dana_koment plus ret=%d", ret);
     }
     {
         static char *usun[3] = {"d wpis danych", "m menu glowne", "a dane algorytmow"}, dec = 'm';
-        sprawdz_log("before dana_decyzyjna dec");
         ret = dana_decyzyjna(-1, -1, " Co robimy <%s>  ?? ", "d/m/a", usun, 3,
                              &dec, ochr = 0, DEC_DALEJ);
-        sprawdz_log("after dana_decyzyjna ret=%d dec=%c", ret, dec);
     }
 
 
@@ -241,8 +204,6 @@ int dec_sprawdz(int decyzja, int kod_decyzji, int nr_dec,
                 int kod_raportu, int np, int* nr_rekordu)
 {
     int p_min, p_max, ret;
-    sprawdz_log("dec_sprawdz wejscie decyzja=%c kod_decyzji=%d nr_dec=%d kod_raportu=%d nr_rekordu=%d",
-                decyzja, kod_decyzji, nr_dec, kod_raportu, *nr_rekordu);
     (void)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
     (void)ustal_adres_rek(kod_raportu, *nr_rekordu);
     switch (kod_decyzji)

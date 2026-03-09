@@ -114,19 +114,6 @@ static char wait_for_synch_trig = 0;
 #endif
 int igraf = 0;
 
-static void ctrl_log(const char* fmt, ...)
-{
-    FILE* fp;
-    va_list ap;
-    fp = fopen("/tmp/stud_sys_ctrl.log", "a");
-    if (fp == NULL) return;
-    fprintf(fp, "[WEWY] ");
-    va_start(ap, fmt);
-    vfprintf(fp, fmt, ap);
-    va_end(ap);
-    fprintf(fp, "\n");
-    fclose(fp);
-}
 /* ================Procedura czytania danych i slow z klawiatury=========*/
 /*      Dane wejsciowe:  monit - komentarz do tekstu pisanego na monitor
 												 text  - slowa lub dane
@@ -7190,8 +7177,6 @@ int dana_rekord_str_dec(int y, int x, char* monit, int* w_min, int* w_max,
         if (R->kod_raportu == kod_raportu) break;
     }
     if (i == LRAP_BL) return nr_danej;
-    ctrl_log("dana_rekord_str_dec monit='%s' kod_raportu=%d raport=%d kod_dec=%d wart=%p hformat='%s'",
-             monit, kod_raportu, raport, (int)kod_dec, (void*)wart, hformat);
     if (R->typ_bazy != BAZA_SPOJNA) (Ok + nr_danej)->Rep = R;
     else (Ok + nr_danej)->Rep = NULL;
     (Ok + nr_danej)->Rep_help = NULL;
@@ -7202,7 +7187,6 @@ int dana_rekord_str_dec(int y, int x, char* monit, int* w_min, int* w_max,
     _r = v_tabl_grup(y, x, monit, 0, 0, w_min, w_max, NULL, wart, 0, size,
                      ochrona, R->rozmiar_ob, raport, hformat, &_ap);
     va_end(_ap);
-    ctrl_log("dana_rekord_str_dec ret=%d", _r);
     return _r;
 }
 
@@ -7213,7 +7197,6 @@ int grupa_danych_dec(int y, int x, char* monit, int* w_min, int* w_max,
 {
     int _r;
     va_list _ap;
-    va_start(_ap, hformat);
     (Ok + nr_danej)->index_helpu = wart;
     (Ok + nr_danej)->size_helpu = 0;
     (Ok + nr_danej)->decyzja = kod_dec;
@@ -7313,8 +7296,6 @@ int v_tabl_grup(int y, int x, char* monit, int ind_min,
     if (ok->format == NULL) return -1;
     ok->help[0] = wpisz_format(ok->help[0], hformat);
     if (ok->help[0] == NULL) return -1;
-    ctrl_log("v_tabl_grup monit='%s' hformat='%s' size=%d skok=%d raport=%d tablica=%p",
-             monit, hformat, size, skok, raport, (void*)tablica);
     dane_helpu(hformat, ok->help, ap);
     ok->typ = 'g';
     if (ind_min < ind_max && ind_min >= 0)
@@ -7596,7 +7577,6 @@ int tabl_int(int y, int x, char* monit, int ind_min,
     ok->blok_wpisu = 0;
     if (ochrona == -1) ok->blok_wpisu = 1;
     if (ochrona < 0 || BL[nr_blank]->czynny == 0) ok->ochrona = Upr_max;
-    ctrl_log("v_tabl_grup prepared ok typ=%c decyzja=%d yo=%d xo=%d", ok->typ, ok->decyzja, ok->yo, ok->xo);
     return nr_danej;
 }
 
@@ -8415,8 +8395,6 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     if (zmiany == NULL)
     {
         static char zmiany_dummy = 0;
-        ctrl_log("rap_blank: zmiany==NULL for report=%d nr_rek=%d, using read-only fallback",
-                 *kod_raportu, *nr_rekordu);
         zmiany = &zmiany_dummy;
     }
     wp = 0;
@@ -8579,8 +8557,6 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
     struct reports* R;
     nr_raportu = BL[nr_blank]->nr_raportu;
     R = RAP[nr_raportu];
-    ctrl_log("dane_oryginalne: rep=%d kod=%d nr_rek=%d zakres=[%d,%d] zapis=%p uprawn=%d",
-             nr_raportu, (int)R->kod_raportu, nr_rekordu, R->ob_pocz, R->ob_konc, (void*)R->zapis, Uprawn);
     *rozmiar = 0;
     if (R->zapis == NULL || nr_rekordu < R->ob_pocz || nr_rekordu > R->ob_konc)
     {
@@ -8887,8 +8863,6 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                 if (ok->decyzja >= 0)
                 {
                     if (ok->ochrona > 0) *wpisano = 3;
-                    ctrl_log("obsluga_wpisu FONT6 dana=%d typ=%c decyzja=%d ret=%d wp=%d",
-                             dana, ok->typ, ok->decyzja, ret, wp);
                     return FONT6;
                 }
             }
