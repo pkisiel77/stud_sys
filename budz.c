@@ -19,8 +19,9 @@ extern time_t sek_akt;
 #define DEC_DELAY  5
  ----------------------------------------------------------- */
 #define DEC_MOD_TIME 16
-static struct agenda **SA;
 extern int AgendaMax, lwmall;
+extern struct agenda *SysA[];
+static struct agenda *Anew = NULL, *Aserv = NULL; /* stan lokalny uslugi budzik */
 int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
 int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
 									struct agenda **As, struct agenda **An,
@@ -30,6 +31,98 @@ int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
 int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
 												 int kod_uslugi, char *tytul);
 void ustaw_typ_uslugi(struct agenda *A, int decyzja);
+/* ============ Persystencja budzikow ================================ */
+
+struct budz_rekord_pliku {
+    char nazwa[78];
+    int  godz;
+    int  min;
+    int  co_ile;
+    int  wyprzedz;
+    char mode;
+    char _pad[3];
+};
+
+static const char *budz_sciezka(void)
+{
+    static char path[256];
+    const char *home = getenv("HOME");
+    if (home) snprintf(path, sizeof(path), "%s/.stud_sys_budz.dat", home);
+    else       snprintf(path, sizeof(path), "./budz.dat");
+    return path;
+}
+
+void budz_zapisz_do_pliku(void)
+{
+    FILE *fp;
+    int i, count = 0;
+    struct agenda *A;
+    struct budzik *B;
+    struct budz_rekord_pliku rec;
+
+    for (i = 1; i <= AgendaMax; i++) {
+        A = SysA[i];
+        if (A == NULL || A->number_of_calls == 0) continue;
+        if ((A->S)->decyzje == dec_budz) count++;
+    }
+
+    fp = fopen(budz_sciezka(), "wb");
+    if (fp == NULL) return;
+
+    fwrite(&count, sizeof(int), 1, fp);
+
+    for (i = 1; i <= AgendaMax; i++) {
+        A = SysA[i];
+        if (A == NULL || A->number_of_calls == 0) continue;
+        if ((A->S)->decyzje != dec_budz) continue;
+        B = (struct budzik *)(A->data);
+        memset(&rec, 0, sizeof(rec));
+        strncpy(rec.nazwa, B->nazwa, sizeof(rec.nazwa) - 1);
+        rec.godz     = B->godz;
+        rec.min      = B->min;
+        rec.co_ile   = B->co_ile;
+        rec.wyprzedz = B->wyprzedz;
+        rec.mode     = A->mode;
+        fwrite(&rec, sizeof(rec), 1, fp);
+    }
+    fclose(fp);
+}
+
+void budz_wczytaj_z_pliku(void)
+{
+    FILE *fp;
+    int count, i;
+    struct agenda *A;
+    struct budzik *B;
+    struct budz_rekord_pliku rec;
+
+    fp = fopen(budz_sciezka(), "rb");
+    if (fp == NULL) return;
+
+    if (fread(&count, sizeof(int), 1, fp) != 1 || count < 0 || count > 100) {
+        fclose(fp); return;
+    }
+
+    for (i = 0; i < count; i++) {
+        if (fread(&rec, sizeof(rec), 1, fp) != 1) break;
+        A = service_default(dec_budz);
+        if (A == NULL) break;
+        B = (struct budzik *)(A->data);
+        memset(B, 0, sizeof(struct budzik));
+        strncpy(B->nazwa, rec.nazwa, sizeof(B->nazwa) - 1);
+        B->godz     = rec.godz;
+        B->min      = rec.min;
+        B->co_ile   = (rec.co_ile  > 0) ? rec.co_ile  : 2;
+        B->wyprzedz = (rec.wyprzedz > 0) ? rec.wyprzedz : 15;
+        A->mode = (rec.mode == 's' || rec.mode == 'p' || rec.mode == 't')
+                  ? rec.mode : 's';
+        ustaw_czas_budzika(A, B);
+        insert_to_agenda(A);
+        free_agenda_mem(A);
+    }
+    fclose(fp);
+}
+
 /* ================================================================ */
 int budz_main(void *DA)
  {struct agenda *A;
@@ -77,63 +170,192 @@ struct budzik
 	int co_ile;
 	int wyprzedz;
  }; ------------------------------------------------------ */
+/* ---------- Pomocnicze: wczytaj liczbe w wierszu statusu ---------- */
+static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int current)
+{
+    char buf[12];
+    int len, ch, val;
+    snprintf(buf, sizeof(buf), "%d", current);
+    len = (int)strlen(buf);
+    setcursor(cursor);
+    for (;;) {
+        term_printf(MY_MAX, X_L0, ATTR_A,
+                    " %s [%d-%d]: %-8s  (Enter=zatwierdz  Esc=anuluj)", prompt, min_val, max_val, buf);
+        ch = getch();
+        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
+        if (ch == 27) { len = -1; break; }
+        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
+            buf[--len] = 0;
+        } else if (ch >= '0' && ch <= '9' && len < (int)(sizeof(buf) - 2)) {
+            buf[len++] = ch; buf[len] = 0;
+        }
+    }
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    setcursor(nocursor);
+    if (len <= 0) return current;
+    val = atoi(buf);
+    if (val < min_val) val = min_val;
+    if (val > max_val) val = max_val;
+    return val;
+}
+
+/* ---------- Pomocnicze: wczytaj tekst w wierszu statusu ----------- */
+static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
+{
+    char tmp[128];
+    int len, ch;
+    strncpy(tmp, buf, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = 0;
+    len = (int)strlen(tmp);
+    setcursor(cursor);
+    for (;;) {
+        term_printf(MY_MAX, X_L0, ATTR_A,
+                    " %s: %-44s  (Enter=zatwierdz  Esc=anuluj)", prompt, tmp);
+        ch = getch();
+        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
+        if (ch == 27) { len = -1; break; }
+        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
+            tmp[--len] = 0;
+        } else if (ch >= 32 && ch < 256 && len < max_len - 1) {
+            tmp[len++] = ch; tmp[len] = 0;
+        }
+    }
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    setcursor(nocursor);
+    if (len > 0) {
+        strncpy(buf, tmp, max_len - 1);
+        buf[max_len - 1] = 0;
+    }
+}
+
+/* ====================== BLANKIET BUDZIKA — LISTA I ZARZADZANIE ===== */
+
+/* Formularz edycji jednego budzika.
+   Zwraca indeks wybranej pozycji (>= 3 = akcja, < 0 = Escape). */
+static int budz_formularz(struct agenda *A, struct budzik *B,
+                           char *tytul, char **menu, int nmenu)
+{
+    char e0[80], e1[80], e2[80];
+    int ew = 0, w;
+    for (;;) {
+        snprintf(e0, sizeof(e0), "  Sprawa  : %.52s", B->nazwa);
+        snprintf(e1, sizeof(e1), "  Godzina : %02d:%02d", B->godz, B->min);
+        snprintf(e2, sizeof(e2), "  Co ile  : %d min  (wyprzedz: %d min)",
+                 B->co_ile, B->wyprzedz);
+        menu[0] = e0; menu[1] = e1; menu[2] = e2;
+        w = okno_menu(menu, nmenu, ew, attr, at_wpis,
+                      Y_G0 + 2, X_L0 + 2, -1, tytul, 1);
+        ew = (w >= 0) ? w : 0;
+        switch (w) {
+        case 0:
+            budz_czytaj_text(B->nazwa, sizeof(B->nazwa), "Nazwa budzika");
+            break;
+        case 1:
+            B->godz     = budz_czytaj_int("Godzina", 0, 23, B->godz);
+            B->min      = budz_czytaj_int("Minuta",  0, 59, B->min);
+            B->mod_time = 1;
+            break;
+        case 2:
+            B->co_ile   = budz_czytaj_int("Co ile minut",       1, 1440, B->co_ile);
+            B->wyprzedz = budz_czytaj_int("Wyprzedzenie [min]", 1, 1440, B->wyprzedz);
+            break;
+        default:
+            return w; /* akcja lub Escape */
+        }
+    }
+}
+
 int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
-											int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
-											char *adres_rek0_uslugi)
- {int ret, ochr, size, raport, nr_rek;
-	struct budzik *B;
-	struct agenda *A;
-/*sledzenie(); */
-  nr_rek=nr_rekordu;
-  ret=pobierz_rekord_uslugi(&nr_rek,kod_uslugi, ob_konc, &A, &Anew, &SA,
-                            adres_rek0_uslugi, "budzikow");
-  Aserv=A;
-	if(A==NULL)
-	 {if(nr_rek<0) return ret;
-    ret=dana_koment(-1, -1, " Brak budzika na pozycji %d w agendzie ",nr_rek);
-		return ret;
-	 }
-	B=(struct budzik *)(A->data);
-	rekord_danych_do_naglowka(nr_rek);
-	if(Anew==NULL)
-	 {ret=dana_koment(-1,17,"+ Modyfikacja danych BUDZIKA juz zgloszonego ");}
-	else
-	 {ret=dana_koment(-1,23,"+ Wpis danych NOWEGO BUDZIKA ");}
-	ret=dana_text(-1, -1," Sprawa ", B->nazwa, size=60, NULL, 0,ochr=1);
-	ret=dana_koment(-1,-1," Czas budzenia: ");
-	{static int g_min=0, g_max=23, m_min=0, m_max=59, ile_min=1, ile_max=1440;
-	 ret=dana_int_dec(-1, -1,"godz.", &g_min, &g_max, &B->godz, size=2, ochr=1, raport=-1,DEC_MOD_TIME);
-	 ret=dana_int_dec(-1, -1," min.", &m_min, &m_max, &B->min, size=2, ochr=1, raport=-1,DEC_MOD_TIME);
-	 if(B->mod_time>0 && Anew==NULL)
-		{static char dec, *zatw[3]={"t tak","n anulow.zmiany","?  CZEKAM !!! "};
-		 dec='?';
-		 ret=dana_decyzyjna(-1,-1, " Zatwierdz czas <%s>  ?? ", "t/n/?", zatw, 3,
-											 &dec, ochr=5, DEC_TIME);
-		}
-	 else {ret=dana_koment(-1, -1, "+ ");}
-	 ret=dana_int_dec(-1, -1,"+ Podaj WYPRZEDZENIE alarmu [min] ", &ile_min, &ile_max, &B->wyprzedz,
-										size=4, ochr=1, raport=-1,DEC_TIME);
-	 if(A->mode=='t')
-		{int godz, min, sek, min_doby;
-		 long int Sek;
-		 min_doby=czas_zegarowy(&godz, &min, &sek);
-		 Sek=min_doby*S_MIN+sek+(long int)A->delay;
-		 godz=(int)(Sek/3600l); min=(int)(Sek%3600l); min=min/60; sek=min%60;
-		 if(godz>=24) godz-=24;
-		 ret=dana_koment(-1, -1, "+ Wywolanie jednorazowe o godz.%02d.%02d,%02d",godz,min,sek);
-		}
-	 else
-		{ret=dana_int_dec(-1, -1,"+ CO ILE MINUT monit (%d-%d) ?? ", &ile_min, &B->wyprzedz, &B->co_ile,
-										size=4, ochr=1, raport=-1,DEC_TIME);
-		}
-	}
-	return dane_agendy(A, Anew, 0);
- }
+                  int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
+                  char *adres_rek0_uslugi)
+{
+    struct agenda *lista[AG_SIZE];
+    struct agenda *A;
+    struct budzik *B;
+    char mstr[AG_SIZE + 3][80];
+    char *menu_l[AG_SIZE + 3];
+    static int lw = 0;
+    int n, i, w;
+    (void)nr_rekordu; (void)ob_pocz; (void)ob_konc;
+    (void)x_lewy_gorny; (void)y_lewy_gorny; (void)adres_rek0_uslugi;
+
+    for (;;) {
+        /* --- Zbierz aktywne budziki z agendy --- */
+        n = 0;
+        for (i = 1; i <= AgendaMax && n < AG_SIZE; i++) {
+            A = SysA[i];
+            if (A == NULL || A->number_of_calls == 0) continue;
+            if ((A->S)->decyzje != dec_budz) continue;
+            lista[n] = A;
+            B = (struct budzik *)(A->data);
+            snprintf(mstr[n], 80, "  %02d:%02d   %-44s",
+                     B->godz, B->min, B->nazwa);
+            menu_l[n] = mstr[n];
+            n++;
+        }
+        snprintf(mstr[n],     80, "  +++ Dodaj nowy budzik +++");
+        snprintf(mstr[n + 1], 80, "  Wyjdz");
+        menu_l[n]     = mstr[n];
+        menu_l[n + 1] = mstr[n + 1];
+        if (lw > n + 1) lw = 0;
+
+        w = okno_menu(menu_l, n + 2, lw, attr, at_wpis,
+                      Y_G0 + 1, X_L0, -1, " LISTA BUDZIKOW ", 1);
+        lw = (w >= 0) ? w : 0;
+
+        if (w < 0 || w == n + 1) return BLANKIET_UI_EXIT;
+
+        if (w == n) {
+            /* ---------- Nowy budzik ---------- */
+            int godz, min, sek;
+            char *mn[5] = {NULL, NULL, NULL,
+                           "  >>> Wpisz do agendy <<<",
+                           "  Anuluj"};
+            A = service_default(dec_budz);
+            if (A == NULL) continue;
+            A->mode = 's';
+            B = (struct budzik *)(A->data);
+            czas_zegarowy(&godz, &min, &sek);
+            B->godz = (godz + 1) % 24; B->min = min;
+            B->co_ile = 2; B->wyprzedz = 15;
+
+            w = budz_formularz(A, B, " NOWY BUDZIK ", mn, 5);
+            if (w == 3) {
+                ustaw_czas_budzika(A, B);
+                insert_to_agenda(A);
+                free_agenda_mem(A);
+                budz_zapisz_do_pliku();
+                lw = 0;
+            } else {
+                free_agenda_mem(A);
+            }
+
+        } else {
+            /* ---------- Edytuj istniejacy ---------- */
+            char *me[6] = {NULL, NULL, NULL,
+                           "  >>> Zatwierdz zmiany <<<",
+                           "  >>> Usun budzik <<<",
+                           "  Wyjdz (bez zmian)"};
+            A = lista[w];
+            B = (struct budzik *)(A->data);
+
+            w = budz_formularz(A, B, " BUDZIK ", me, 6);
+            if (w == 3) {
+                ustaw_czas_budzika(A, B);
+                budz_zapisz_do_pliku();
+            } else if (w == 4) {
+                A->number_of_calls = 0;
+                budz_zapisz_do_pliku();
+                if (lw >= n - 1) lw = 0;
+            }
+        }
+    }
+}
 
 extern time_t sek_akt;
 char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
-		static struct agenda *A;
+	static struct agenda *A;
 	struct budzik *Bu;
 	int x,y, i;
 	int min, sek, godz;

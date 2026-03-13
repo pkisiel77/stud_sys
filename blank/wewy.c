@@ -271,6 +271,19 @@ int mscanf(char* stos, ...)
     signed char ff;
     unsigned int cc;
     double a;
+    /* Collect variadic args via va_list (ARM64-safe replacement for &stos+1) */
+    char *_va_arr[16];
+    int _va_n = 0;
+    {
+        va_list _ap;
+        const char *_p;
+        va_start(_ap, stos);
+        for (_p = stos; *_p && _va_n < 16; _p++)
+            if (*_p == '%' && *(_p+1) != '%') _va_n++;
+        for (int _i = 0; _i < _va_n; _i++)
+            _va_arr[_i] = va_arg(_ap, char*);
+        va_end(_ap);
+    }
     text[0] = EOS;
     l_danych = 0;
     monit = stos;
@@ -322,8 +335,7 @@ B:
     term_cur(y_akt, x_akt);
 D:
     z0 = strlen(text);
-    adres_danej = &stos;
-    adres_danej++;
+    adres_danej = _va_arr;
     form = forms;
     if (*monit == '\n')
     {
@@ -520,6 +532,19 @@ int bscanf(char* text, unsigned int attrtx, char* stos, ...)
     signed char ff;
     unsigned int cc;
     double a;
+    /* Collect variadic args via va_list (ARM64-safe replacement for &stos+1) */
+    char *_va_arr[16];
+    int _va_n = 0;
+    {
+        va_list _ap;
+        const char *_p;
+        va_start(_ap, stos);
+        for (_p = stos; *_p && _va_n < 16; _p++)
+            if (*_p == '%' && *(_p+1) != '%') _va_n++;
+        for (int _i = 0; _i < _va_n; _i++)
+            _va_arr[_i] = va_arg(_ap, char*);
+        va_end(_ap);
+    }
     l_danych = 0;
     z0 = strlen(text);
     if (z0 > MXR_MAX) text[MXR_MAX] = EOS;
@@ -574,8 +599,7 @@ B:
     ifmon = 0;
 D:
     z0 = strlen(text);
-    adres_danej = &stos;
-    adres_danej++;
+    adres_danej = _va_arr;
     form = forms;
     if (ifmon == 1)
     {
@@ -2178,23 +2202,27 @@ void maluj_ramke(int yp, int xp, int ym, int xm, unsigned int attr)
     if (yp < Y_G0) yp = Y_G0;
     if (xm > MXR_MAX) xm = MXR_MAX;
     if (ym > MYR_MAX) ym = MYR_MAX;
+#ifdef _NCURSES_
+    ramka_graficzna(yp, xp, ym, xm, attr);
+#else
 #ifdef GRAF
     if (igraf != 0) ramka_graficzna(yp, xp, ym, xm, attr);
     else
 #endif
     {
-        term_type(yp, xp, "�", 1, attr);
-        for (i = xp + 1; i < xm; i++) term_type(yp, i, "�", 1, attr);
-        term_type(yp, xm, "�", 1, attr);
+        term_type(yp, xp, "\xC9", 1, attr);
+        for (i = xp + 1; i < xm; i++) term_type(yp, i, "\xCD", 1, attr);
+        term_type(yp, xm, "\xBB", 1, attr);
         for (i = yp + 1; i < ym; i++)
         {
-            term_type(i, xp, "�", 1, attr);
-            term_type(i, xm, "�", 1, attr);
+            term_type(i, xp, "\xBA", 1, attr);
+            term_type(i, xm, "\xBA", 1, attr);
         }
-        term_type(ym, xp, "�", 1, attr);
-        for (i = xp + 1; i < xm; i++) term_type(ym, i, "�", 1, attr);
-        term_type(ym, xm, "�", 1, attr);
+        term_type(ym, xp, "\xC8", 1, attr);
+        for (i = xp + 1; i < xm; i++) term_type(ym, i, "\xCD", 1, attr);
+        term_type(ym, xm, "\xBC", 1, attr);
     }
+#endif
 }
 
 /* ====================================================================== */
@@ -4651,30 +4679,31 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
             /* fprintf(mystderr,"\n Dana S=%s fdanej=%s",*(char**)dana,fdanej); */
             else { i = strlen((char*)(*(char**)dana)); }
             /* fprintf(mystderr," dlug=%d",i); */
+            /* Use local buffer to avoid modifying possibly read-only string */
             if (menu != NULL)
             {
                 lenth += 2;
-                if (i > lenth)
                 {
-                    k = (*(char**)dana)[lenth];
-                    (*(char**)dana)[lenth] = EOS;
+                    char s_buf[82];
+                    const char *s_src = &(*(char**)dana)[2];
+                    int s_len = i > 2 ? i - 2 : 0;
+                    int copy_len = (s_len < lenth - 2) ? s_len : (lenth - 2);
+                    if (copy_len < 0) copy_len = 0;
+                    if (copy_len > 80) copy_len = 80;
+                    memcpy(s_buf, s_src, copy_len);
+                    s_buf[copy_len] = EOS;
+                    snprintf(text, 80, fdanej, s_buf);
                 }
-                snprintf(text, 80, fdanej, &(*(char**)dana)[2]);
                 /* fprintf(mystderr," text=%s###",text); */
             }
             else
             {
-                if (i > lenth)
-                {
-                    k = (*(char**)dana)[lenth];
-                    (*(char**)dana)[lenth] = EOS;
-                }
-                snprintf(text, 80, fdanej, (*(char**)dana));
-            }
-            if (k != EOS)
-            {
-                (*(char**)dana)[lenth] = k;
-                k = EOS;
+                char s_buf[82];
+                int copy_len = (i < lenth) ? i : lenth;
+                if (copy_len > 80) copy_len = 80;
+                memcpy(s_buf, *(char**)dana, copy_len);
+                s_buf[copy_len] = EOS;
+                snprintf(text, 80, fdanej, s_buf);
             }
             fdanej[koniec - 1] = 'S';
             break;
@@ -6735,6 +6764,7 @@ void reset_blankiet(int nr_rekordu)
     int i, l;
     struct okno* ok;
     struct reports* R;
+    if (nr_blank < 0) return;
     ok = Ok;
     for (i = 0; i < liczba_danych; i++, ok++)
     {
@@ -7932,6 +7962,7 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
     {
         D = czy_jest_blankiet(*kod_raportu, &anim_pid, nr_ob, &ob_pocz, &ob_konc,
                               &rozmiar_ob, &tytul, &Kolor, &Ramka, czynny, yp, xp, ym, xm);
+        if (D == (char*)-1) return -Esc;
         if (D == NULL) return -1;
         Ret = rap_blank(tytul, kod_raportu, nr_ob);
         /* ============= Interpretacja wyjscia Ret: =========================
@@ -8742,6 +8773,10 @@ D:
     /*fprintf(mystderr,"\nreset_po_def_bl(%d/%d): D=%d ret=%d nr_ob=%d nr_rap=%d",
                                nr_blank, Czy_Blankiet_otwarty, Dane,ret,*nr_ob,nr_rap);
     */
+    if (ret == BLANKIET_UI_EXIT)
+    {
+        return (char*)-1;
+    }
     if (ret < 0)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak danych w blankiecie %d: nr_danej=%d nr_ob=%d . <Ent> ",
@@ -10794,7 +10829,8 @@ int def_float(int y, int x, char* monit, int ind_min, int ind_max,
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
     if (ok->format == NULL) return -1;
-    ok->help[0] = wpisz_format(ok->help[0], format);
+    if (format != NULL) ok->help[0] = wpisz_format(ok->help[0], format);
+    else if (ok->help[0] != NULL) { Free(ok->help[0]); lwmall--; ok->help[0] = NULL; }
     ok->ind_min = ind_min;
     ok->L_kol = L_kol;
     ok->decyzja = -1;

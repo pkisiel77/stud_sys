@@ -25,6 +25,24 @@ struct Service
                    int kod_uslugi, int np, int* nr_rekordu);
 };
 
+/* Stany alarmu dla rt_data.alarm */
+#define RT_ALARM_OK      0  /* brak alarmu               */
+#define RT_ALARM_TIMEOUT 1  /* przekroczony czas pomiaru */
+#define RT_ALARM_RANGE   2  /* wartosc poza zakresem     */
+
+/* Dane pomiarowe przekazywane przez kazdy modul RT.
+ * Kazdy main_modul() zapisuje tutaj wynik swojego pomiaru;
+ * system (sprawdz, MQTT) czyta te pola bez znajomosci
+ * wewnetrznej struktury uslugi.                         */
+struct rt_data
+{
+    float value;    /* biezaca wartosc pomiaru              */
+    float elapsed;  /* czas trwania / liczba probek [s]     */
+    float val_max;  /* maksymalna zaobserwowana wartosc     */
+    float val_min;  /* minimalna zaobserwowana wartosc      */
+    int   alarm;    /* stan alarmu: RT_ALARM_*              */
+};
+
 struct agenda
 {
     struct Service* S; /* adres danych stalych uslugi (struct Service *)*/
@@ -40,12 +58,7 @@ struct agenda
     int state; /* stan wykonania: 0 - zakoncz; 1 - poczatek; 2, .. dalej */
     int status; /* 0 nie wchodzi gdy stare w kol; 1 wchodzi zawsze; 2 usuwa stare */
     void* data; /* dalsze (specyficzne) dane dane uslugi */
-    // proteza
-    float dana;
-    float czas;
-    float wart_max;
-    float wart_min;
-    int alarm;
+    struct rt_data rt; /* dane pomiarowe RT */
 };
 
 
@@ -66,14 +79,20 @@ void** getRepDataPtr(int* d_size);
 void freeAgendaPtr(void);
 void freeQueuePtr(void);
 void freeRepDataPtr(void** DataPtr);
+void free_agenda_mem(struct agenda* A);
 void free_service(struct agenda* A);
 struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji,
                                               int nr_dec, int kod_uslugi, int np, int* nr_rekordu));
 int czas_zegarowy(int* godz, int* min, int* sek);
 int data_systemowa(int* dzien, int* miesiac, int* rok);
 struct agenda* rekord_zlecenia_agendy(int* nr_rekordu, int nr_w_agendzie, int kod_uslugi);
-static struct agenda *Anew = NULL, *Aserv = NULL;
+/* Anew i Aserv sa stanem lokalnym kazdego modulu uslugi - deklaruj w swoim .c */
 #define NO_PRIOR    0
 #define MAX_PRIOR   1
 #define RAND_PRIOR  2
+
+/* Blankiet z wlasnym UI moze zakonczyc sie lokalnie bez zamykania
+   calego systemu raportow. Silnik blankietu tlumaczy ten kod na
+   standardowe wyjscie z raportu. */
+#define BLANKIET_UI_EXIT (-2)
 #endif

@@ -1,6 +1,5 @@
 #define _MAIN_MODUL_
 #define _WEWY_TERM_
-#define _DEF_SYS_
 // #define GRAF
 // #define _NCURSES_  // Defined in Makefile with -D_NCURSES_
 // miejsce dla opcjesys.h
@@ -22,14 +21,9 @@ struct agenda* SysQ[Q_SIZE];
 void** RepDataPtr[L_REP_MAX];
 int report_act[L_REP_MAX + 2];
 int ag_rep, q_rep;
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcomment"
-#endif
-#include "konfig.c"
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
+#include "konfig.h"
+#include "dek_budz.h"   /* budz_blankiet, budz_wczytaj_z_pliku */
+#include "mqtt_pub.h"   /* mqtt_auto_start */
 #include "randf.c"
 /* ----------------------------------------------------------- */
 void logo(int yg, int xg, unsigned int attr_logo, char* imie, char* nazwisko, signed char mode);
@@ -66,8 +60,8 @@ int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 #define DL_NAZWY_UZYT 12
 #define DL_NAZWY_HASLA 12
 // ustawienie scie�ek do katalog�w pacjenta
-#define PATH_LOG   "c:\\pacjent\\log\\log.dat"
-#define PATH_HASLA "c:\\pacjent\\hasla\\hasla.dat"
+#define PATH_LOG   "/tmp/stud_sys.log"
+#define PATH_HASLA "/tmp/stud_sys_hasla.dat"
 //
 int ZapiszDoLog(char* sciezka, char* tryb);
 int ZapiszLog(char* uzytkownik, char* haslo);
@@ -84,11 +78,7 @@ int main(int argc, char* argv[])
 
     // printf("%d",add(1, 2));
 
-#ifdef _CVC_
-    //	SetConsoleCP(GetConsoleCP());
     InitConsole();
-    //	otworz_graf_blank(0,0.4,-1,-1,Yz_max_graf,TERM_WHITE|TERM_BLACK_BG);
-#endif
     term_fill(TERM_WHITE | TERM_BLACK_BG);
     Cls();
     /*
@@ -224,11 +214,7 @@ int main(int argc, char* argv[])
     zamknij_raporty();
     term_fill(TERM_WHITE | TERM_BLACK_BG);
     Endgraph();
-#ifdef _CVC_
-    // zapis ko�ca sesji w systemie
-    ret = ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
-    MessageBox(NULL, "Good Byeee", "Koniec", MB_OK);
-#endif
+    ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
     (void)ret;
     /*	if(mystderr!=NULL) fclose(mystderr); */
     return 0;
@@ -278,7 +264,8 @@ int open_sys(void)
         A->Interval = 1;
         A->prior = 200;
         A->prior_plus = 0;
-        A->name = (A->S)->name;
+        { const char* sn = (A->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
+          A->name = (char*)Malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
         A->state = 0;
         A->delay = 0;
         A->last_time = sek_akt;
@@ -320,7 +307,7 @@ int open_sys(void)
         */
     wewy_abort_off();
     wpis_danych_bez_potwierdz();
-#include "blank/hasla.c"
+def_haslo("st", "Student");
     haslo_nieaktywne();
     for (i = 0; i < liczba_opcji; i++)
     {
@@ -338,6 +325,8 @@ int open_sys(void)
             GET_char();
         }
     }
+    budz_wczytaj_z_pliku();
+    mqtt_auto_start();
     term_clear(TERM_CLS_SCR);
     sek_akt = time(NULL);
     return liczba_opcji;
@@ -530,7 +519,8 @@ int insert_to_agenda(struct agenda* A)
             An->data = (An + 1);
             przepisz((char*)An->data, (char*)A->data, size - ag_size);
         }
-        An->name = (An->S)->name;
+        { const char* sn = (An->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
+          An->name = (char*)Malloc(snlen); if(An->name) memcpy(An->name, sn ? sn : "", snlen); }
         SysA[poz] = An;
     }
     if (poz > AgendaMax) { AgendaMax = poz; }
@@ -587,7 +577,8 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
         A->data = (A + 1);
         for (i = 0; i < str_size - ag_size; i++) { *((char*)A->data + i) = 0; }
     }
-    A->name = (A->S)->name;
+    { const char* sn = (A->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
+      A->name = (char*)Malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
     A->state = 0;
     A->mode = 'n';
     A->number_of_calls = 1;
@@ -597,12 +588,29 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
     A->cur_prior = A->prior;
     A->delay = 160;
     A->status = 0;
+    A->rt.value   = 0.0f;
+    A->rt.elapsed = 0.0f;
+    A->rt.val_max = 0.0f;
+    A->rt.val_min = 0.0f;
+    A->rt.alarm   = RT_ALARM_OK;
     return A;
 }
 
 void mod_prior(struct agenda* Q)
 {
     (void)Q;
+}
+
+void free_agenda_mem(struct agenda* A)
+{
+    if (A == NULL) return;
+    if (A->name != NULL)
+    {
+        const char* service_name = (A->S != NULL) ? A->S->name : NULL;
+        if (A->name != service_name) Free(A->name);
+    }
+    Free(A);
+    lwmall--;
 }
 
 void cancel_serv(struct agenda* A, int i)
@@ -617,8 +625,7 @@ void cancel_serv(struct agenda* A, int i)
     }
     if (A->mode == 't')
     {
-        Free(A);
-        lwmall--; /* usuwamy servis */
+        free_agenda_mem(A); /* usuwamy servis */
     }
     return;
 }
@@ -798,9 +805,8 @@ void free_service(struct agenda* A)
         }
     }
     /*	if(A->data!=NULL) Farfree(A->data);  */
-    Free(A);
+    free_agenda_mem(A);
     SysA[nr_ag] = NULL;
-    lwmall--; /* usuwamy servis */
     if (AgendaMax == nr_ag) AgendaMax--;
     return;
 }
@@ -851,7 +857,7 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
                           struct agenda*** SA, char* adres_rek0_uslugi, char* nazwa)
 {
     struct agenda *A = NULL, *A0 = NULL, **Ab = NULL;
-    int nr, i, nrR, lzl, nr_rek, ret = 0, ochr;
+    int nr, i, nrR, lzl, nr_rek, ret = 0;
     A0 = (struct agenda*)adres_rek0_uslugi;
     nr_rek = *nr_rekordu;
     *SA = getAgendaPtr(&lzl);
@@ -878,18 +884,21 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
     }
     if (nr == 0 && *Anew == NULL)
     {
-        static char *uruch[2] = {"t tak", "n nie"}, dec;
-        dec = 'n';
-        ret = dana_koment(-1, -1, "+ ");
-        ret = dana_koment(-1, -1, " Brak %s w agendzie ", nazwa);
-        wpis_danych_bez_potwierdz();
-        ret = dana_decyzyjna(-1, -1, " Uruchomic nowe <%s>  ?? ", "t/n", uruch, 2,
-                             &dec, ochr = 1, DEC_NEW);
-        wpis_danych_z_potwierdz();
+        char *menu_wybor[2] = {"Tak - uruchom nowy", "Nie"};
+        int wybor;
+        dana_koment(-1, -1, "+ ");
+        dana_koment(-1, -1, " Brak %s w agendzie ", nazwa);
+        wybor = okno_menu(menu_wybor, 2, 0, attr, at_wpis, Y_G0+3, X_L0+1, -1, " Uruchomic nowe? ", 1);
+        if (wybor != 0)
+        {
+            *nr_rekordu = -1;
+            return 0;
+        }
+        Service->decyzje('t', DEC_NEW, 0, kod_uslugi, 0, nr_rekordu);
         if (*Anew == NULL)
         {
             *nr_rekordu = -1;
-            return ret;
+            return 0;
         }
     }
     if (*Anew != NULL) /* zadeklarow. w sys_dekl.h */
@@ -914,7 +923,6 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     static char* opcje = NULL;
 
     strcpy(typ_form, "* Typ uslugi <%s> ");
-
     if (Anew != NULL) /* zadeklarow. w sys_dekl.h */
     {
         l_opcji = 5;
@@ -974,7 +982,6 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
         ret = dana_float_dec(-1, -1, " Liczba sek.do najblizszego wywolania  ??",
                              &dmin, &dmax, &A->delay, size = 6, prec = 0,
                              ochr = 5, kod_an = 2, DEC_DELAY);
-
         if (A->number_of_calls < 0) ret = dana_koment(-1, -1, " Usluga stala ");
         else
         {
@@ -1084,8 +1091,7 @@ int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* 
         break;
     case 'u': if ((*Anew) != NULL)
         {
-            Free(*Anew);
-            lwmall--;
+            free_agenda_mem(*Anew);
             *Anew = NULL;
         }
         else (*Aserv)->number_of_calls = 0;
@@ -1104,8 +1110,7 @@ int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* 
         {
             i = insert_to_agenda(*Anew);
             *Aserv = rekord_zlecenia_agendy(nr_rekordu, i, kod_uslugi); /*  Szukamy rekordu nowego zlecenia */
-            Free(*Anew);
-            lwmall--;
+            free_agenda_mem(*Anew);
             *Anew = NULL;
             /*
                                                  { FILE *fp;
@@ -1133,7 +1138,7 @@ int ZapiszDoLog(char* sciezka, char* tryb)
 {
     FILE* fp;
     fp = fopen(sciezka, "a");
-    if (fp == NULL) MessageBox(NULL, " B��d otwarcia pliku LOG.DAT", " B��d I/O ", MB_OK);
+    if (fp == NULL) { fprintf(stderr, "Blad otwarcia LOG: %s\n", sciezka); return 0; }
     else
     {
         // zapis data i time otwarcia systemu
@@ -1151,7 +1156,7 @@ int ZapiszLog(char* uzytkownik, char* haslo)
 {
     FILE* fp;
     fp = fopen(PATH_LOG, "a");
-    if (fp == NULL) MessageBox(NULL, " B��d otwarcia pliku LOG.DAT", " B��d I/O ", MB_OK);
+    if (fp == NULL) { fprintf(stderr, "Blad otwarcia LOG: %s\n", PATH_LOG); return 0; }
     else
     {
         fprintf(fp, "\n%s %s", uzytkownik, haslo);
