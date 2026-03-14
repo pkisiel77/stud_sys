@@ -3,7 +3,7 @@
 
 #include "blank/moje.h"   /* struct Service, struct agenda */
 
-#define L_SYS 6
+#define L_SYS 5
 
 extern struct agenda *SysA[];
 

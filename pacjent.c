@@ -89,7 +89,7 @@ imie_txt[0]=0;
 	 ret=dana_int(-1, -1,"+ Czas pomiaru [%d...%d]: ",&czas_pom_min,&czas_pom_max,
 			      &d->czas_pom, 4, OCHR_POMIAR, -1);
      ret=dana_text_dec(-1, -1,"+ Zapis do pliku ", imie_txt, size=15, Imiona, limion,OCHR_POMIAR,DEC_IMIE);
-	 ret=dana_decyzyjna(-1,-1,"+ Pomiar EKG - %s  ?? ", "a/n", dec_pom, 2,
+	 ret=dana_decyzyjna(-1,-1,"+ Pomiar RT - %s  ?? ", "a/n", dec_pom, 2,
 					    &dec, OCHR_POMIAR, DEC_POMIAR);
 
 	 if(dec=='a')

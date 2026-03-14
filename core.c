@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     /*
     { char *text[]={" Praca magisterska",
     " System RT w srodowisku Windows NT",
-    " Pomiar EKG ",
+    " Modul RT ",
     " Wersja 1.0.0",
     " Data 29.10.2001",
     " Logowanie do systemu pomiarowego"};

@@ -41,7 +41,6 @@ SRCS = core.c \
        blank/wewy.c \
        budz.c \
        admin.c \
-       pomiar.c \
        sys_rap.c \
        sprawdz.c \
        mqtt_pub.c \

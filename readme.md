@@ -173,7 +173,7 @@ Topic:   stud_sys/{node_id}/{nazwa_uslugi}
 Payload: {
   "ts": 1700000000,
   "node": 1,
-  "service": "Pomiar EKG",
+  "service": "Czujnik Sim",
   "state": 0,
   "alarm": 0,
   "dana": 1.2300,

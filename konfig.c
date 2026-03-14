@@ -26,7 +26,6 @@ struct Service          / * deklaracja w sys_dekl.h * /
 #include "dek_budz.h"  /* plik zrodlowy budz.c */
 #include "sys_rep.h"   /* plik zrodlowy sys_rap.c */
 #include "admin.h"     /* plik zrodlowy admin.c */
-#include "pomiar.h"    /* plik zrodlowy pomiar.c */ // pomiar ekg
 #include "mqtt_pub.h"   /* plik zrodlowy mqtt_pub.c */ // MQTT publisher
 #include "sensor_sim.h" /* plik zrodlowy sensor_sim.c */ // symulowany czujnik RT
 #include <string.h>
@@ -132,25 +131,6 @@ int set_services(void)
     S->dane_rap_bl = dane_admin;
     S->wpis_rap_bl = wpis_admin;
     S->decyzje = dec_admin;
-    /* --------------- Podstawiamy dane dalszych uslug z pliku RT pomiar.c ---- */
-    Nr_sys++;
-    if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " Pomiar EKG";
-    S = (struct Service*)Malloc(sizeof(struct Service));
-    if (S == NULL) goto ERR_MEM;
-    memset(S, 0, sizeof(struct Service));
-    Serv[Nr_sys] = S;
-    S->kod_uslugi = Nr_sys + 1;
-    S->l_rek_max = AG_SIZE;
-    S->str_size = sizeof(struct pomiar);
-    S->typ_bazy = BAZA_WEKTOR;
-    S->D = SysA;
-    S->name = Menu[Nr_sys];
-    S->main_modul = pomiar_main; /* Jest zleceniem RT */
-    S->def_blankiet = pomiar_blankiet;
-    S->dane_rap_bl = dane_pomiar;
-    S->wpis_rap_bl = wpis_pomiar;
-    S->decyzje = dec_pomiar;
     /* --------------- Podstawiamy dane uslugi MQTT publisher ------------- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
