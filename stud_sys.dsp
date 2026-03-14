@@ -113,10 +113,6 @@ SOURCE=.\Sys_rap.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Uruchom.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\Blank\Wewy.c
 # End Source File
 # End Group

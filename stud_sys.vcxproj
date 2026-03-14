@@ -124,11 +124,9 @@
     <ClCompile Include="blank\wewy.c" />
     <ClCompile Include="Budz.c" />
     <ClCompile Include="Pacjent.c" />
-    <ClCompile Include="Pomiar.c" />
     <ClCompile Include="Sprawdz.c" />
     <ClCompile Include="core.c" />
     <ClCompile Include="Sys_rap.c" />
-    <ClCompile Include="Uruchom.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

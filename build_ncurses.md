@@ -50,12 +50,12 @@ gcc -D_NCURSES_ -I. -Iblank -Iopcjesys \
     blank/term_ncurses.c \
     blank/konsola.c \
     blank/wewy.c \
-    Budz.c \
+    budz.c \
     admin.c \
-    pomiar.c \
     sys_rap.c \
     sprawdz.c \
-    uruchom.c \
+    mqtt_pub.c \
+    sensor_sim.c \
     -lncurses -lm
 ```
 

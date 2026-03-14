@@ -371,7 +371,7 @@ void logo(int yg, int xg, unsigned int attr_logo, char* imie,
     clr_Okno();
     xtxt = xg + 5;
     term_printf(yg + 2, xtxt, attr_logo, text);
-    term_printf(yg + 8, xtxt, attr_logo, "      POMIAR SYGNALU EKG wersja 1.0");
+    term_printf(yg + 8, xtxt, attr_logo, "      STUD_SYS wersja 1.0");
     if (nazwisko != NULL || imie != NULL)
     {
         term_printf(yg + 6, xtxt, attr_logo, "      Uzytkownik: ");

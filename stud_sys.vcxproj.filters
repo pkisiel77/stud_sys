@@ -33,9 +33,6 @@
     <ClCompile Include="Sys_rap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Uruchom.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core.c">
       <Filter>Source Files</Filter>
     </ClCompile>
