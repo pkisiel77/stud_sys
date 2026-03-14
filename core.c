@@ -158,10 +158,10 @@ int main(int argc, char* argv[])
     /* ------------------------------------------------------------- */
     YZ_max_text = MY_MAX;
     Yz_max_graf = YZ_max_text;
-    l_poz_menu = Liczba_opcji;
+    l_poz_menu = Liczba_opcji - 1;
     MYR_MAX = MY_MAX - 1;
     Menu[L_SYS + 1] = graf_text[0];
-    l_poz_menu = Liczba_opcji + 1;
+    l_poz_menu = Liczba_opcji;
     Yz_max_graf = Y_MAX_graf;
     if (if_graf != 0) if_graf = otworz_graf_blank(0, 0, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
     do
