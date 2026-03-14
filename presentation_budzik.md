@@ -67,3 +67,94 @@ System nie jest tylko lista formularzy. To prosty scheduler RT:
 - utrzymuje je w agendzie,
 - wykonuje wedlug czasu i priorytetu,
 - pozwala podejrzec stan pracy w raporcie systemowym.
+
+## Wersja 2 min
+
+1. Wejdz w `Budzik`.
+2. Dodaj budzik jednorazowy za `10 s`.
+3. Wroc do listy budzikow.
+4. Wejdz w `-- Stan systemu --`.
+5. Pokaz:
+   - rekord budzika,
+   - `Cykl`,
+   - `Priorytet`,
+   - `Opozn`.
+6. Wroc do `Budzik` i poczekaj na alarm.
+
+### Co powiedziec
+- System przyjmuje zadanie czasowe.
+- Zadanie trafia do agendy i jest widoczne w raporcie systemowym.
+- Po zadanym czasie scheduler uruchamia budzik.
+
+## Wersja 5 min
+
+1. Wejdz w `Budzik`.
+2. Pokaz istniejace wpisy lub pusta liste.
+3. Dodaj budzik `A` za `10 s`, priorytet `80`.
+4. Dodaj budzik `B` za `30 s`, priorytet `60`.
+5. Pokaz, ze wpisy mozna edytowac albo usuwac.
+6. Wejdz w `-- Stan systemu --`.
+7. Pokaz dwa rekordy budzikow i omow:
+   - typ zadania,
+   - czas/cykl,
+   - priorytet,
+   - opoznienie.
+8. Wroc do `Budzik`.
+9. Poczekaj na pierwszy alarm.
+10. Pokaz, ze drugi budzik nadal pozostaje aktywny.
+
+### Co powiedziec
+- System obsluguje wiele zadan czasowych jednoczesnie.
+- Zadania maja rozne czasy uruchomienia i priorytety.
+- `Stan systemu` pokazuje wewnetrzny obraz pracy harmonogramu RT.
+
+## Lista klikow
+
+### Demo podstawowe
+
+1. Start programu.
+2. `Enter` na `Budzik`.
+3. Wybierz `+++ Dodaj nowy budzik +++`.
+4. Ustaw:
+   - typ: `t`
+   - czas: `10 s`
+   - priorytet: `80`
+5. Zapisz wpis.
+6. `Esc` do menu.
+7. `Enter` na `-- Stan systemu --`.
+8. Pokaz rekord budzika.
+9. `Esc` do menu.
+10. `Enter` na `Budzik`.
+11. Poczekaj na alarm.
+
+### Demo rozszerzone
+
+1. Dodaj pierwszy budzik:
+   - czas: `10 s`
+   - priorytet: `80`
+2. Dodaj drugi budzik:
+   - czas: `30 s`
+   - priorytet: `60`
+3. Wejdz w `-- Stan systemu --`.
+4. Przelacz rekord na drugi wpis.
+5. Pokaz roznice parametrow.
+6. Wroc do `Budzik`.
+7. Poczekaj na pierwszy alarm.
+8. Pokaz, ze drugi wpis nadal czeka na wykonanie.
+
+## Gotowe wartosci do wpisania
+
+### Budzik A
+- typ: `t`
+- czas: `10 s`
+- priorytet: `80`
+
+### Budzik B
+- typ: `t`
+- czas: `30 s`
+- priorytet: `60`
+
+### Budzik C
+- typ: `t`
+- czas: `60 s`
+- priorytet: `40`
