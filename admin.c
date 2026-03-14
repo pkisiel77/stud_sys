@@ -6,9 +6,6 @@ Autor: gonzo77@poczta.fm
 
 #include "blank/moje.h"
 #include "admin.h"
-#ifndef _NCURSES_
-#include <mmsystem.h>
-#endif
 
 void chk_time(void);
 void PrzegladajLog(void);//char *buffor[20]);
@@ -18,6 +15,7 @@ int nr_poz=-1;
 extern struct Service *Service;
 extern struct agenda *Agenda;
 extern unsigned int attr_title;
+extern unsigned int attr, at_wpis;
 extern int X_time, X_tyt;
 extern unsigned int cursor, nocursor;
 
@@ -39,20 +37,17 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
 		GET_char();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_rek);
-    ret=dana_koment(-1,-1,"+ ");  
-/*
-	if(nr_poz==-1)
+    ret=dana_koment(-1,-1,"+ ");
 	{ char *admin_menu[]={"Przegladanie pliku log.dat","Informacje o systemie"};
 	  int l_poz_menu = 2;
       nr_poz=okno_menu(admin_menu,l_poz_menu,nr_poz,attr, at_wpis, 10,25,-1," WYBIERZ OPCJE ",1);
 	}
 	switch(nr_poz)
-	{ case 0: PrzegladajLog();break;
-	  case 1: InfoSystem(ret);break;
-	default:break;
+	{ case 0: PrzegladajLog(); break;
+	  case 1: InfoSystem(ret); break;
+	  default: break;
 	}
-*/
-	InfoSystem(ret);
+	nr_poz=-1;
 	return ret;
  }
 
@@ -91,17 +86,23 @@ int dec_admin(int decyzja, int kod_decyzji, int nr_dec, int kod_raportu, int np,
 /*------------------------DODATKOWE FUNKCJIE------------------------------*/
 void PrzegladajLog(void)
 {
-	FILE *fp;
-	char znak;
-    fp=fopen("c:\\pacjent\\log\\log.dat","r");
-	if(fp==NULL) dana_koment(MY_MAX,X_L0,"Blad otawrcia pliku LOG.DAT");
-	 else
-	 {
-		 while((znak=fgetc(fp))!=EOF)
-		 {printf("%c",znak);}
-		 
-		 fclose(fp);
-	 }
+    FILE *fp;
+    char line[256];
+    const char *logpath = "/tmp/stud_sys.log";
+    fp = fopen(logpath, "r");
+    if (fp == NULL)
+    {
+        dana_koment(MY_MAX, X_L0, "+ Blad otwarcia logu: %s", logpath);
+        return;
+    }
+    dana_koment(-1, -1, "+ --- Log: %s ---", logpath);
+    while (fgets(line, sizeof(line), fp) != NULL)
+    {
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') line[len-1] = '\0';
+        dana_koment(-1, -1, "+ %s", line);
+    }
+    fclose(fp);
 }
 
 /*-------------------------
@@ -113,56 +114,9 @@ void PrzegladajLog(void)
 
 int InfoSystem(int ret)
 {
-#ifdef _NCURSES_
-	// NCURSES stub - display basic system info
 	ret=dana_koment(-1,20,"+ Informacje o systemie");
 	ret=dana_koment(-1,-1,"+ ");
 	ret=dana_koment(-1,-1,"+ System: Linux/Unix (ncurses)");
 	ret=dana_koment(-1,-1,"+ ");
 	return ret;
-#else
-	char *text;
-	char buffor[128];
-	int zwrot,retu;
-	// struktury 
-	OSVERSIONINFO vi;
-	SYSTEM_INFO   si;
-    // pocz�tek
-    ret=dana_koment(-1,20,"+ Informacje o systemie");
-    ret=dana_koment(-1,-1,"+ ");
-    ret=dana_koment(-1,-1,"+ System:");
-	 vi.dwOSVersionInfoSize=sizeof(OSVERSIONINFO);
-	 zwrot=GetVersionEx(&vi);
-      if(zwrot) 
-	  {
-		if(vi.dwPlatformId==VER_PLATFORM_WIN32s)        text="3.1";  
-        if(vi.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS) text="98";
-        if(vi.dwPlatformId==VER_PLATFORM_WIN32_NT)      text="NT" ;
-        ret=dana_koment(-1,-1,"+  Windows %s",text);	    
-	    ret=dana_koment(-1,-1,"+  %d.%.2d.%d",vi.dwMajorVersion,vi.dwMinorVersion,vi.dwBuildNumber);
-	    ret=dana_koment(-1,-1,"+  %s",vi.szCSDVersion);
-	  }
-	 ret=dana_koment(-1,-1,"+ ");
-	 ret=dana_koment(-1,-1,"+ Procesor:");
-	  GetSystemInfo(&si);
-	   if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL) text=" Architektura: INTEL";
-	   if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_MIPS) text=" Architektura: MIPS";
-	   if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ALPHA) text=" Architektura: ALPHA";
-	   if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_PPC) text=" Architektura: PPC";
-       if(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_UNKNOWN) text=" Architektura: Nieznana";
-	    ret=dana_koment(-1,-1,"+ %s",text);
-       if(si.dwProcessorType==PROCESSOR_INTEL_386) text=" Typ: INTEL_386";
-       if(si.dwProcessorType==PROCESSOR_INTEL_486) text=" Typ: INTEL_486";
-	   if(si.dwProcessorType==PROCESSOR_INTEL_PENTIUM) text=" Typ: INTEL_PENTIUM";
-       if(si.dwProcessorType==PROCESSOR_MIPS_R4000) text=" Typ: MIPS_R4000";
-       if(si.dwProcessorType==PROCESSOR_ALPHA_21064) text=" Typ: ALPHA_21064";
-	    ret=dana_koment(-1,-1,"+ %s",text);
-	   ret=dana_koment(-1,-1,"+  Liczba w systemie: %d",si.dwNumberOfProcessors);   
-	 ret=dana_koment(-1,-1,"+ ");
-	 ret=dana_koment(-1,-1,"+ Pamiec:");
-	 ret=dana_koment(-1,-1,"+  196 084 KB");
-	// koniec
-	retu=ret;
-	return retu;
-#endif  // _NCURSES_
 }

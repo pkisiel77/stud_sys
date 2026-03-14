@@ -47,7 +47,6 @@ int sprawdz(void* DA)
         if (kod_uslugi_blank >= 0)
         {
             SA = getAgendaPtr(&lzl);
-            freeAgendaPtr();
             Ag = (void**)Malloc(7 * lzl * sizeof(void*));
             if (Ag != NULL)
             {
@@ -59,21 +58,22 @@ int sprawdz(void* DA)
                     Ag[lza] = &SA[i]->delay;
                     lza++;
                     // moje...to ja
-                    Ag[lza] = &SA[i]->dana;
+                    Ag[lza] = &SA[i]->rt.value;
                     lza++;
-                    Ag[lza] = &SA[i]->czas;
+                    Ag[lza] = &SA[i]->rt.elapsed;
                     lza++;
-                    Ag[lza] = &SA[i]->wart_max;
+                    Ag[lza] = &SA[i]->rt.val_max;
                     lza++;
-                    Ag[lza] = &SA[i]->wart_min;
+                    Ag[lza] = &SA[i]->rt.val_min;
                     lza++;
-                    Ag[lza] = &SA[i]->alarm;
+                    Ag[lza] = &SA[i]->rt.alarm;
                     lza++;
                     //
                 }
                 animuj_blank(lza, Ag);
                 free(Ag);
             }
+            freeAgendaPtr();
         }
     }
     attryb = old_attr;
@@ -179,13 +179,16 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 char* dane_sprawdz(int ob_pocz, int ob_konc, int* rozmiar_ob)
 {
     int ls;
-    return (char*)getAgendaPtr(&ls);
+    struct agenda** SA = getAgendaPtr(&ls);
+    *rozmiar_ob = sizeof(struct agenda*);
+    return (char*)SA;
 }
 
 void wpis_sprawdz(int ob_pocz, int ob_konc,
                   char* D, int rozmiar_ob, char zapis[], char* Kod_op)
 {
-    ;
+    (void)D; (void)rozmiar_ob; (void)zapis; (void)Kod_op;
+    (void)ob_pocz; (void)ob_konc;
 }
 
 /* -------------- def. w sys_dekl.h ----------------

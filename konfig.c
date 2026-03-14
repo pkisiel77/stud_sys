@@ -19,26 +19,22 @@ struct Service          / * deklaracja w sys_dekl.h * /
 											int kod_uslugi, int np, int *nr_rekordu);
  };
  -------------------------------------------------------- */
-/* #include "...."
-	 ........ itd headery kolejnych podsystemow */
+#include "konfig.h"
 #include "sprawdz.h"   /* plik zrodlowy sprawdz.c */
 //#include "baza_stu.h"  /* plik zrodlowy stud_baz.c */
 //#include "dekl_obl.h"  /* plik zrodlowy oblicz.c */
 #include "dek_budz.h"  /* plik zrodlowy budz.c */
-#include "dek_budz2.h" /* plik zrodlowy budz2.c */
 #include "sys_rep.h"   /* plik zrodlowy sys_rap.c */
 #include "admin.h"     /* plik zrodlowy admin.c */
 #include "pomiar.h"    /* plik zrodlowy pomiar.c */ // pomiar ekg
-#include "uruchom.h"
+#include "mqtt_pub.h"   /* plik zrodlowy mqtt_pub.c */ // MQTT publisher
+#include "sensor_sim.h" /* plik zrodlowy sensor_sim.c */ // symulowany czujnik RT
 #include <string.h>
 // #include "pacjent.h"
 // #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjent�w
 // #include "ustaw.h"    /* plik zrodlowy ustaw.c */  // ustawienia pomiaru
 
-#define L_SYS 6
 /* --------------------------------------------------------------- */
-#ifdef _DEF_SYS_
-int set_services(void);
 char* Menu[L_SYS + 3];
 int (*Fun_sys[L_SYS + 1])();
 int (*dialog[L_SYS + 1])();
@@ -81,25 +77,6 @@ int set_services(void)
         S->dane_rap_bl=dane_pacjent;
         S->wpis_rap_bl=wpis_pacjent;
         S->decyzje=dec_pacjent;
-    /* --------------- Podstawiamy dane uslugi z stud_baz.c --------- */
-    Nr_sys++;
-    if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " Uruchom";
-    S = (struct Service*)Malloc(sizeof(struct Service));
-    if (S == NULL) goto ERR_MEM;
-    memset(S, 0, sizeof(struct Service));
-    Serv[Nr_sys] = S;
-    S->l_rek_max = 20;
-    S->kod_uslugi = Nr_sys + 1;
-    S->D = NULL;
-    S->str_size = sizeof(struct uruchom);
-    S->name = Menu[Nr_sys];
-    S->main_modul = NULL;
-    S->typ_bazy = BAZA_SPOJNA;
-    S->def_blankiet = uruchom_blankiet;
-    S->dane_rap_bl = dane_uruchom;
-    S->wpis_rap_bl = wpis_uruchom;
-    S->decyzje = dec_uruchom;
     /* --------------- Podstawiamy dane uslugi z pliku oblicz.c ---------
         Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
         Menu[Nr_sys]=" Obliczenia ";
@@ -136,25 +113,6 @@ int set_services(void)
     S->dane_rap_bl = dane_budz;
     S->wpis_rap_bl = wpis_budz;
     S->decyzje = dec_budz;
-    /* --------------- Podstawiamy dane uslugi z pliku budz2.c -------- */
-    Nr_sys++;
-    if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " Budzik 2";
-    S = (struct Service*)Malloc(sizeof(struct Service));
-    if (S == NULL) goto ERR_MEM;
-    memset(S, 0, sizeof(struct Service));
-    Serv[Nr_sys] = S;
-    S->kod_uslugi = Nr_sys + 1;
-    S->l_rek_max = AG_SIZE;
-    S->str_size = sizeof(struct budzik2);
-    S->typ_bazy = BAZA_WEKTOR;
-    S->D = SysA;
-    S->name = Menu[Nr_sys];
-    S->main_modul = budz2_main;
-    S->def_blankiet = budz2_blankiet;
-    S->dane_rap_bl = dane_budz2;
-    S->wpis_rap_bl = wpis_budz2;
-    S->decyzje = dec_budz2;
     /* --------------- Podstawiamy dane dalszych uslug z pliku admin.c ---- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
@@ -193,6 +151,44 @@ int set_services(void)
     S->dane_rap_bl = dane_pomiar;
     S->wpis_rap_bl = wpis_pomiar;
     S->decyzje = dec_pomiar;
+    /* --------------- Podstawiamy dane uslugi MQTT publisher ------------- */
+    Nr_sys++;
+    if (Nr_sys >= L_SYS) goto ERR_SERV;
+    Menu[Nr_sys] = " MQTT Publisher";
+    S = (struct Service*)Malloc(sizeof(struct Service));
+    if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
+    Serv[Nr_sys] = S;
+    S->kod_uslugi  = Nr_sys + 1;
+    S->l_rek_max   = AG_SIZE;
+    S->str_size    = sizeof(struct mqtt_cfg);
+    S->typ_bazy    = BAZA_WEKTOR;
+    S->D           = SysA;
+    S->name        = Menu[Nr_sys];
+    S->main_modul  = mqtt_main;
+    S->def_blankiet= mqtt_blankiet;
+    S->dane_rap_bl = dane_mqtt;
+    S->wpis_rap_bl = wpis_mqtt;
+    S->decyzje     = dec_mqtt;
+    /* --------------- Symulowany czujnik RT (sensor_sim.c) --------------- */
+    Nr_sys++;
+    if (Nr_sys >= L_SYS) goto ERR_SERV;
+    Menu[Nr_sys] = " Czujnik Sim";
+    S = (struct Service*)Malloc(sizeof(struct Service));
+    if (S == NULL) goto ERR_MEM;
+    memset(S, 0, sizeof(struct Service));
+    Serv[Nr_sys] = S;
+    S->kod_uslugi  = Nr_sys + 1;
+    S->l_rek_max   = AG_SIZE;
+    S->str_size    = sizeof(struct sensor_sim);
+    S->typ_bazy    = BAZA_WEKTOR;
+    S->D           = SysA;
+    S->name        = Menu[Nr_sys];
+    S->main_modul  = sensor_sim_main;
+    S->def_blankiet= sensor_sim_blankiet;
+    S->dane_rap_bl = dane_sensor_sim;
+    S->wpis_rap_bl = wpis_sensor_sim;
+    S->decyzje     = dec_sensor_sim;
     /* --------------- Podstawiamy dane dalszych uslug z pliku pacjent.c ----
         Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
         Menu[Nr_sys]=" Pacjent";
@@ -293,4 +289,3 @@ ERR_SERV:
     }
     return 0;
 }
-#endif

@@ -101,6 +101,133 @@ Function keys and special keys are mapped consistently:
 4. **blank/konsola.c** - Updated: Conditional compilation for ncurses
 5. **Makefile** - New: Build system for ncurses
 
+## MQTT Publisher
+
+Usługa RT publikująca dane ze wszystkich aktywnych usług do brokera MQTT.
+
+### Wymagania
+
+```bash
+# macOS
+brew install paho-mqtt-c
+
+# Ubuntu/Debian (embedded)
+sudo apt-get install libpaho-mqtt-dev
+
+# Raspberry Pi
+sudo apt-get install libpaho-mqtt-dev
+```
+
+Broker MQTT (lokalny do testów):
+
+```bash
+# macOS
+brew install mosquitto
+brew services start mosquitto
+
+# Ubuntu/Debian / Raspberry Pi
+sudo apt-get install mosquitto mosquitto-clients
+sudo systemctl start mosquitto
+```
+
+### Budowanie z MQTT
+
+```bash
+make MQTT=1
+```
+
+Bez flagi (`make`) system kompiluje się bez MQTT — usługa jest widoczna w menu ale nie łączy się.
+
+### Uruchomienie
+
+```bash
+# Terminal 1 — broker
+mosquitto
+
+# Terminal 2 — podglad wiadomosci
+mosquitto_sub -h localhost -t "stud_sys/#" -v
+
+# Terminal 3 — system
+./stud_sys
+```
+
+### Konfiguracja w systemie
+
+1. Menu główne → **MQTT Publisher**
+2. Ustaw pola (strzałki góra/dół, Enter = edytuj):
+   - **Broker** — adres hosta, np. `localhost` lub `192.168.1.100`
+   - **Port** — domyślnie `1883`
+   - **Topic** — temat bazowy, np. `stud_sys`
+   - **Node ID** — identyfikator węzła (przydatne przy wielu urządzeniach)
+   - **QoS** — jakość usług: `0` (fire & forget), `1` (at least once), `2` (exactly once)
+   - **Interwal** — co ile sekund publikować dane (np. `30`)
+3. Wybierz **>>> Polacz / Zapisz <<<**
+4. Konfiguracja zapisuje się do `~/.stud_sys_mqtt.cfg` — przy następnym uruchomieniu połączenie nawiązywane automatycznie
+
+### Format wiadomości
+
+Każda aktywna usługa RT publikowana jest osobno:
+
+```
+Topic:   stud_sys/{node_id}/{nazwa_uslugi}
+Payload: {
+  "ts": 1700000000,
+  "node": 1,
+  "service": "Pomiar EKG",
+  "state": 0,
+  "alarm": 0,
+  "dana": 1.2300,
+  "wart_min": -1.0000,
+  "wart_max": 2.5000,
+  "czas": 42.0
+}
+```
+
+Przykładowe tematy przy domyślnej konfiguracji:
+
+```
+stud_sys/1/pomiar_ekg
+stud_sys/1/budzik
+stud_sys/1/sprawdz_otoczenia
+```
+
+### Konfiguracja ręczna
+
+Plik `~/.stud_sys_mqtt.cfg` (tworzony automatycznie po pierwszym połączeniu):
+
+```ini
+broker=localhost
+port=1883
+topic=stud_sys
+client_id=stud_sys_1
+user=
+password=
+qos=0
+node_id=1
+interval=30
+```
+
+### Embedded (Raspberry Pi i inne)
+
+Kompilacja na Raspberry Pi OS:
+
+```bash
+sudo apt-get install libpaho-mqtt-dev libncurses5-dev
+make MQTT=1
+```
+
+Połączenie z zewnętrznym brokerem (np. HiveMQ Cloud, AWS IoT, mosquitto na serwerze):
+
+```ini
+broker=twoj-broker.example.com
+port=1883
+topic=dom/czujniki
+node_id=1
+interval=10
+```
+
+---
+
 ## Known Limitations
 
 1. **Graphics Mode**: The original system has a graphics mode that is not fully supported in ncurses (limited to text-mode rendering)

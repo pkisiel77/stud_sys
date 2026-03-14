@@ -22,3 +22,5 @@ struct budzik
  };
 
 void ustaw_czas_budzika(struct agenda *A, struct budzik *B);
+void budz_wczytaj_z_pliku(void);
+void budz_zapisz_do_pliku(void);

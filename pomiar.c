@@ -1,6 +1,4 @@
-#ifndef _NCURSES_
-#include <process.h>
-#endif
+#include <dirent.h>
 #include "time.h"
 #include "ramkaa.h"
 #include "blank/moje.h"
@@ -24,6 +22,7 @@ extern unsigned int attr,at_wpis;
 extern unsigned int cursor, nocursor;
 
 extern int X_time, X_tyt, lwmall;
+static struct agenda *Anew = NULL, *Aserv = NULL; /* stan lokalny uslugi pomiar */
 
 /* ********************************** */
 #define IL_WSP 6000
@@ -115,26 +114,22 @@ int pomiar_main(void *DA)
 		if(P->usluga_pomiar==POMIAR) // wy�wietlanie danych A[V] i t[s]
 		{ if(krok>=P->czas_pomiaru) krok=0;// koniec pomiaru
 		   else
-		   { A->dana=(float)P->tablica_pomiarowa[krok];
-		     A->czas+=1.0;
-			 if(A->dana<=A->wart_min) A->wart_min=A->dana;
-             if(A->dana>=A->wart_max) A->wart_max=A->dana;
+		   { A->rt.value=(float)P->tablica_pomiarowa[krok];
+		     A->rt.elapsed+=1.0;
+			 if(A->rt.value<=A->rt.val_min) A->rt.val_min=A->rt.value;
+             if(A->rt.value>=A->rt.val_max) A->rt.val_max=A->rt.value;
 			 // obsluga b��d�w
 			 // zapis do pliku ../tmp/raport.dat
 			 // nr pr�bki i warto�� i nr pacjenta
 			 // i Beep
 			 // przekroczony zakres
-			 if((A->dana>=ekg_max) || (A->dana<=ekg_min))
+			 if((A->rt.value>=ekg_max) || (A->rt.value<=ekg_min))
 			 {
-				 A->alarm=2;
-#ifdef _NCURSES_
-				 beep();  // ncurses beep
-#else
-				 Beep(100,100);  // Windows Beep
-#endif
+				 A->rt.alarm = RT_ALARM_RANGE;
+				 beep();
 			 }
 			 else
-				 A->alarm=0;//powr�t do normalno�ci
+				 A->rt.alarm = RT_ALARM_OK;//powr�t do normalno�ci
 			 
 		   }
 		}
@@ -156,7 +151,7 @@ int pomiar_main(void *DA)
 	//dana_koment(-1,-1,"Kisiel");
 /*
 	{static float i=0.0;
-    A->dana=i++;
+    A->rt.value=i++;
     Beep(100,100);   
 	}
 */	
@@ -177,9 +172,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 	int cykl_max=6000;
 	struct pomiar*P;
     struct agenda *A=NULL;
-#ifndef _NCURSES_
-	static int dysk=0;
-#endif
+    static int dysk=0;
 	
 // zmienne kt�re powinne byc przekazywane do blankietu
 	int pacjent_nr=1;//dane_pacjenta.pac_nr_ew;
@@ -187,7 +180,7 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 	char *pacjent_nazwisko="Kowalski";//dane_pacjenta.pac_nazwisko;
 
 	if(pacjent_nr<0) 
-	{ MessageBox(NULL,"Uwaga wchodzisz bez podania pacjenta","Uwaga",MB_ICONWARNING|MB_OK);
+	{ dana_koment(-1,-1,"+ Uwaga: wchodzisz bez podania pacjenta");
 	  pacjent_nr=0;
 	  pacjent_imie="NULL";
 	  pacjent_nazwisko="NULL";
@@ -236,80 +229,72 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		 P->zrodlo_danych=zrodlo_danych_buf; 
 		// 2. nazwa pliku do zapisu lub odczytu
 		// dane statyczne czyli odczyt z pliku danego pacjenta
-#ifndef _NCURSES_
- 	    if((P->zrodlo_danych[0]=='d') && (dysk!=1))
-		{ 
-          static char *nazw_plik[100],*temp;
-		  int opcje,i=0;
-		  WIN32_FIND_DATA nazwa;
-		  BOOL n_opcje;
-		  // uruchomienie okna wykresu
-		  if(P->nr_wzoru==2) WinExec("c:\\MenuDemo.exe",SW_SHOW);
-     	  // �adowanie plik�w z katalogu 22 do nazw_plik
-		  opcje=FindFirstFile("c:\\pacjent\\dane\\1\\*.dat",&nazwa);
-		  if(opcje==-1) MessageBox(NULL,"B��d znajdowania plik�w","B��d",MB_OK);
-			   else
-			   {
-				   temp=(char*)malloc(strlen(nazwa.cFileName)+1);
-				   if(temp==NULL)
-				   {
-					   FindClose(opcje);
-					   opcje=-1;
-				   }
-				   else
-				   {
-				       snprintf(temp,strlen(nazwa.cFileName)+1,"%s",nazwa.cFileName);
-			           nazw_plik[i]=temp;
-				       do
-					   {
-						   n_opcje=FindNextFile(opcje,&nazwa);
-						   if(opcje!=-1) 
-						   {
-							   temp=(char*)malloc(strlen(nazwa.cFileName)+1);
-							   if(temp==NULL) break;
-							   i++;
-		                       snprintf(temp,strlen(nazwa.cFileName)+1,"%s",nazwa.cFileName);
-							   nazw_plik[i]=temp;
-						   }
-					   }while(n_opcje);
-				       FindClose(opcje);
-				   }
-			   }
-          opcje=okno_menu(nazw_plik,i,0,attr,at_wpis, 4,25,-1,NULL,1);
-		   if(opcje!=-1)
-		   {static char **help=NULL;
-		    P->nazwa_pliku=nazw_plik[opcje];
-            ret=dana_text(-1,-1,"+ Odczyt pliku:  ??",P->nazwa_pliku,12,help,0,ochr=-1);
-			{ int retu,i=0,x;
-			  static char *menu_czas_pom[2]={"Czas pomiaru",""};
-			  char buf[128];
-	          FILE *fp;
-			  CzasPobraniaDanych(POM_START);
-				  snprintf(buf,sizeof(buf),"c:\\pacjent\\dane\\1\\%s",nazw_plik[opcje]);
-	          fp=fopen(buf,"r");
-	           if(fp==NULL) {;}
-	            else
-				{
-					do{ retu=fscanf(fp,"%d",&x);
-			            P->tablica_pomiarowa[i]=(0.001*x)+1.3;
-					    i++;
-					}while(retu!=EOF);
-					P->czas_pomiaru=i;
-		           fclose(fp);
-				}
-			  retu=CzasPobraniaDanych(POM_STOP);              
-				  snprintf(buf,sizeof(buf),"Czas pobrania=%d[s] | Czas max.=%d[s]",retu,A->Interval);
-			  menu_czas_pom[1]=buf;
-			  okno_menu(menu_czas_pom,2,0,attr,at_wpis,2,1,-1,NULL,1);
-			}
-		   }
-		   dysk=1;
-        } 
-	#endif  // _NCURSES_
+        if ((P->zrodlo_danych[0] == 'd') && (dysk != 1))
+        {
+            char* nazw_plik[100];
+            int i = 0, opcje = -1, j;
+            DIR* dir;
+            struct dirent* wpis;
+
+            dir = opendir(".");
+            if (dir != NULL)
+            {
+                while ((wpis = readdir(dir)) != NULL && i < 100)
+                {
+                    size_t namelen = strlen(wpis->d_name);
+                    if (namelen > 4 && strcmp(wpis->d_name + namelen - 4, ".dat") == 0)
+                    {
+                        char* temp = (char*)malloc(namelen + 1);
+                        if (temp == NULL) break;
+                        memcpy(temp, wpis->d_name, namelen + 1);
+                        nazw_plik[i++] = temp;
+                    }
+                }
+                closedir(dir);
+            }
+            if (i == 0)
+            {
+                ret = dana_koment(-1, -1, "+ Brak plikow .dat w katalogu biezacym");
+            }
+            else
+            {
+                opcje = okno_menu(nazw_plik, i, 0, attr, at_wpis, 4, 25, -1, NULL, 1);
+                if (opcje >= 0 && opcje < i)
+                {
+                    FILE* fp;
+                    int retu, x, idx = 0;
+                    ret = dana_koment(-1, -1, "+ Odczyt: %s", nazw_plik[opcje]);
+                    fp = fopen(nazw_plik[opcje], "r");
+                    if (fp != NULL)
+                    {
+                        do
+                        {
+                            retu = fscanf(fp, "%d", &x);
+                            if (retu == 1 && idx < TAB_POM_X - 1)
+                            {
+                                P->tablica_pomiarowa[idx] = (0.001f * x) + 1.3f;
+                                idx++;
+                            }
+                        } while (retu != EOF);
+                        P->czas_pomiaru = idx;
+                        fclose(fp);
+                        ret = dana_koment(-1, -1, "+ Wczytano %d probek", idx);
+                    }
+                    else
+                    {
+                        ret = dana_koment(-1, -1, "+ Blad otwarcia pliku");
+                    }
+                    P->nazwa_pliku = nazw_plik[opcje];
+                }
+            }
+            for (j = 0; j < i; j++) { if (j != opcje) free(nazw_plik[j]); }
+            dysk = 1;
+        }
+
         if(P->zrodlo_danych[0]=='k')  // Fixed: compare first char
 		{
 		  ret=dana_koment(-1,-1,"Pomiar dynamiczny");
-		  MessageBox(NULL,"Brak karty d�wi�kowej","B��d I/0",MB_ICONWARNING|MB_OK);
+		  dana_koment(-1,-1,"+ Brak karty dzwiekowej");
 		  //ret=dana_text(-1,-1,"+ Zapis do pliku:  ??",P->nazwa_pliku,11,help,0,ochr);
 		}
 		}
@@ -325,27 +310,27 @@ int pomiar_blankiet(int nr_rekordu, int ob_pocz,
 		 case 1:
 		 case 2:
 	      {static float wmin=0.0,wmax=5.0;// 0-5[V]
-		  	A->dana=0.0;
-			A->wart_max=0.0;
-			A->wart_min=wmax;
-        ret=dana_float_dec(-1,-1," Amplituda <%.1f-%.1f> :", &wmin, &wmax, &(A->dana), 5, 3, ochr,0,DEC_AMPLITUDA);
+		  	A->rt.value=0.0;
+			A->rt.val_max=0.0;
+			A->rt.val_min=wmax;
+        ret=dana_float_dec(-1,-1," Amplituda <%.1f-%.1f> :", &wmin, &wmax, &(A->rt.value), 5, 3, ochr,0,DEC_AMPLITUDA);
 		ret=dana_koment(-1,-1,"+  [V]");
 		// max.
-        ret=dana_float_dec(-1,-1,"+ Wartosc max. :", &wmin, &wmax, &(A->wart_max), 5, 3, ochr,0,DEC_AMPLITUDA);
+        ret=dana_float_dec(-1,-1,"+ Wartosc max. :", &wmin, &wmax, &(A->rt.val_max), 5, 3, ochr,0,DEC_AMPLITUDA);
 		// min.
-		ret=dana_float_dec(-1,-1,"+ Wartosc min. :", &wmin, &wmax, &(A->wart_min), 5, 3, ochr,0,DEC_AMPLITUDA);
+		ret=dana_float_dec(-1,-1,"+ Wartosc min. :", &wmin, &wmax, &(A->rt.val_min), 5, 3, ochr,0,DEC_AMPLITUDA);
       }
       {static float wmin = 0.0, wmax= 1000.0;// 0-60[s]
-	    A->czas=0.0;
+	    A->rt.elapsed=0.0;
 	    ret=dana_koment(-1,-1," [1p/100ms] <==> [1p/ %d s]",(A->Interval));
 		ret=dana_koment(-1,-1,"+ Ilosc pobranych probek = %d ",(P->czas_pomiaru));
-		ret=dana_float_dec(-1,-1," Probka nr : ", &wmin, &wmax, &(A->czas), 2, 2, ochr,0,DEC_CZAS);
+		ret=dana_float_dec(-1,-1," Probka nr : ", &wmin, &wmax, &(A->rt.elapsed), 2, 2, ochr,0,DEC_CZAS);
 		ret=dana_koment(-1,-1,"+  [%d s]",(A->Interval));
       }
 	  { static char *menu_alarm[3]={"Wszystko w porzadku","Uwaga przekroczony czas pobierania danych <zobacz raport.dat>","Uwaga przekroczony zakres pomiaru <zobacz raport.dat>"}; 
 	    static int w_min=0, w_max=3;
-		A->alarm=0;
-		ret=dana_int_menu(-1,-1," Alarm nr ",&w_min,&w_max,&(A->alarm),2,ochr,-1,3,menu_alarm);
+		A->rt.alarm = RT_ALARM_OK;
+		ret=dana_int_menu(-1,-1," Alarm nr ",&w_min,&w_max,&(A->rt.alarm),2,ochr,-1,3,menu_alarm);
 	  }
         break;
 		 default: break;
