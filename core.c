@@ -46,7 +46,7 @@ struct Service* Service;
 unsigned short int NODE_NO = 1;
 signed char _TYP_KONSOLI_ = -1;
 int lmall;
-extern int lwmall;
+extern int lwmall, lwmallp;
 char Dec = 'p', typ_raportu = ' ';
 time_t sek_akt;
 int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
@@ -137,6 +137,9 @@ int main(int argc, char* argv[])
     #endif
     */
     Liczba_opcji = open_sys();
+    /* Ignore long-lived allocations created during system startup when
+       reporting per-session memory growth in the report engine. */
+    lwmallp = lwmall;
     Ret = Liczba_opcji - 1;
     /*
         for(nd=1;nd<argc;nd++)
