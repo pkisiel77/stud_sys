@@ -22,20 +22,24 @@ static int nr_ag=0;
 int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 						int x_lewy_gorny, int y_lewy_gorny, int anim_pid, char *D)
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
- {struct agenda *A, *A0, **SA;
+ {struct agenda *A, **SA;
 	int ls, nr_rek, size, ochr, ochrf=-3, raport, ret;
 	static char nazwa_buf[80];
 	static char *nazwa_w = nazwa_buf;
 	static int z_min=0, z_max;
 	int i, lsa;
+	(void)ob_pocz;
+	(void)ob_konc;
+	(void)x_lewy_gorny;
+	(void)y_lewy_gorny;
+	(void)anim_pid;
+	(void)D;
 	SA=(struct agenda **)getAgendaPtr(&lsa);
-	A0=(struct agenda *)D;
 	nr_rek=nr_rekordu;
 	A=(struct agenda *)dane_raportowanego_rekordu(sys_blankiet,&nr_rek);
 	nr_ag=nr_rek;
-	if(A0==NULL || A0!=SA[0])
-	 {term_printf(MY_MAX,X_L0,ATTR_A," Niezgodnosc adresow w RAP_SYS(SA0=%p A0=%p). <Ent> ",
-																		 (void*)SA[0],(void*)A0);
+	if(A==NULL && nr_rek>=0)
+	 {term_printf(MY_MAX,X_L0,ATTR_A," Brak rekordu w RAP_SYS nr=%d. <Ent> ",nr_rek);
 		GET_char();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_ag);
@@ -51,7 +55,9 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	if(A==NULL)
 	 {ret=dana_koment(-1,10,"+ Brak zlecenia na poz.%d w agendzie",nr_ag);}
 	else
-	 {snprintf(nazwa_buf, sizeof(nazwa_buf), "%s", (A->name!=NULL)?A->name:"");
+	 {const char *nazwa;
+	  nazwa=(A->name!=NULL)?A->name:(((A->S)!=NULL && (A->S)->name!=NULL)?(A->S)->name:"");
+	  snprintf(nazwa_buf, sizeof(nazwa_buf), "%s", nazwa);
 	  ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, (int*)A,
 													 size=2, ochr=2, Service->kod_uslugi,
 													 raport=(A->S)->kod_uslugi, DEC_NEW,

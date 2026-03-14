@@ -344,9 +344,16 @@ char *dane_pomiar(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
 		static struct agenda AS, *A;
 		int x,y;
+		(void)ob_pocz;
+		(void)ob_konc;
   A=&AS; S=Service;
-	A=(struct agenda *)Malloc(sizeof(struct agenda)+l_algory*sizeof(struct pomiar));
-  A->S=S; A->data=(A+1);
+	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct pomiar);
+	A=(struct agenda *)Malloc(*rozmiar_ob);
+	if(A==NULL) return NULL;
+	memset(A,0,(size_t)(*rozmiar_ob));
+  A->S=S;
+  A->name=S->name;
+  A->data=(A+1);
   x=m_wherex(); y=m_wherey(); setcursor(nocursor);
 	term_printf(Y_G0,X_tyt,attr_title,"%s",S->name);
 	term_cur(y,x); setcursor(cursor);
