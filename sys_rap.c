@@ -24,6 +24,8 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
  {struct agenda *A, *A0, **SA;
 	int ls, nr_rek, size, ochr, ochrf=-3, raport, ret;
+	static char nazwa_buf[80];
+	static char *nazwa_w = nazwa_buf;
 	static int z_min=0, z_max;
 	int i, lsa;
 	SA=(struct agenda **)getAgendaPtr(&lsa);
@@ -49,12 +51,13 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	if(A==NULL)
 	 {ret=dana_koment(-1,10,"+ Brak zlecenia na poz.%d w agendzie",nr_ag);}
 	else
-	 {ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, &nr_ag,
+	 {snprintf(nazwa_buf, sizeof(nazwa_buf), "%s", (A->name!=NULL)?A->name:"");
+	  ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, (int*)A,
 													 size=2, ochr=2, Service->kod_uslugi,
 													 raport=(A->S)->kod_uslugi, DEC_NEW,
 													 " %19S typ=%c prior=%d Cykl=%d Opozn=%5.0f",
-													 &A0->name,&(A0->mode), &(A0->prior),
-													 &(A0->Interval),&(A0->delay));
+													 &nazwa_w,&(A->mode), &(A->prior),
+													 &(A->Interval),&(A->delay));
 	 {static char *typ_usl[3]={"p permanentna (stala)", "s seryjna", "t dorazna"};
 		ret=dana_decyzyjna(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3,
 											 &(A->mode), ochr=5, DEC_TYP_US);
@@ -99,7 +102,8 @@ char *dane_sys(int ob_pocz, int ob_konc, int *rozmiar_ob)
 	*rozmiar_ob=sizeof(struct agenda *);
 	nr_ag=ns; if(ns==AG_SIZE) nr_ag=-1;
   x=m_wherex(); y=m_wherey();
-  term_printf(Y_G0,X_tyt,attr_title,"%s",(SysA[nr_ag]->S)->name);
+  if(nr_ag>=0) term_printf(Y_G0,X_tyt,attr_title,"%s",(SysA[nr_ag]->S)->name);
+  else term_printf(Y_G0,X_tyt,attr_title,"%s",Service->name);
   term_cur(y,x);
   return (char *)SysA;
  }
