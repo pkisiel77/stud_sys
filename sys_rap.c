@@ -24,8 +24,6 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
  {struct agenda *A, **SA;
 	int ls, nr_rek, size, ochr, ochrf=-3, raport, ret;
-	static char nazwa_buf[80];
-	static char *nazwa_w = nazwa_buf;
 	static int z_min=0, z_max;
 	int i, lsa;
 	(void)ob_pocz;
@@ -52,18 +50,15 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	ustaw_rek_max_raportu(sys_blankiet, z_max);
 /* ------------------------------------------------------- */
 	ret=dana_koment(-1,16,"+ Raport zlecen okresowych w agendzie (jest razem %d)",ls);
+	ret=dana_int_dec(-1,-1,"+ Zlec. (%d-%d) ", &z_min,&z_max,
+									 &nr_ag, size=2, ochr=2, raport=-1, DEC_NEW);
 	if(A==NULL)
 	 {ret=dana_koment(-1,10,"+ Brak zlecenia na poz.%d w agendzie",nr_ag);}
 	else
 	 {const char *nazwa;
 	  nazwa=(A->name!=NULL)?A->name:(((A->S)!=NULL && (A->S)->name!=NULL)?(A->S)->name:"");
-	  snprintf(nazwa_buf, sizeof(nazwa_buf), "%s", nazwa);
-	  ret=dana_rekord_str_dec(-1,-1, "+ Zlec. (%d-%d) ", &z_min, &z_max, (int*)A,
-													 size=2, ochr=2, Service->kod_uslugi,
-													 raport=(A->S)->kod_uslugi, DEC_NEW,
-													 " %19S typ=%c prior=%d Cykl=%d Opozn=%5.0f",
-													 &nazwa_w,&(A->mode), &(A->prior),
-													 &(A->Interval),&(A->delay));
+	  ret=dana_koment(-1,-1,"+ Usluga: %19s typ=%c prior=%d Cykl=%d Opozn=%5.0f",
+										nazwa, A->mode, A->prior, A->Interval, A->delay);
 	 {static char *typ_usl[3]={"p permanentna (stala)", "s seryjna", "t dorazna"};
 		ret=dana_decyzyjna(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3,
 											 &(A->mode), ochr=5, DEC_TYP_US);
