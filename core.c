@@ -66,6 +66,7 @@ int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 int ZapiszDoLog(char* sciezka, char* tryb);
 int ZapiszLog(char* uzytkownik, char* haslo);
 int SprawdzLog(char* uzytkownik, char* haslo);
+static int build_presentation_menu(char* menu_view[], int menu_map[], char* graph_text);
 /* ---------------------------------------------------------------- */
 
 /*******************************************************************/
@@ -74,6 +75,9 @@ int main(int argc, char* argv[])
 {
     int ret, Ret, l_poz_menu, y_logo = 3;
     char* graf_text[2] = {"Zmiana trybu na GRAFICZNY", "Zmiana trybu na TEKSTOWY "};
+    char* menu_view[L_SYS + 3];
+    int menu_map[L_SYS + 3];
+    int visible_options;
     /* ---------------------------------------------------------------- */
 
     // printf("%d",add(1, 2));
@@ -158,10 +162,11 @@ int main(int argc, char* argv[])
     /* ------------------------------------------------------------- */
     YZ_max_text = MY_MAX;
     Yz_max_graf = YZ_max_text;
-    l_poz_menu = Liczba_opcji - 1;
+    visible_options = build_presentation_menu(menu_view, menu_map, graf_text[0]);
+    Ret = 0;
+    l_poz_menu = visible_options - 1;
     MYR_MAX = MY_MAX - 1;
-    Menu[L_SYS + 1] = graf_text[0];
-    l_poz_menu = Liczba_opcji;
+    l_poz_menu = visible_options;
     Yz_max_graf = Y_MAX_graf;
     if (if_graf != 0) if_graf = otworz_graf_blank(0, 0, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
     do
@@ -174,16 +179,16 @@ int main(int argc, char* argv[])
             int y_menu;
             y_menu = MY_MAX - l_poz_menu - 10;
             if (y_menu - (y_logo + 10) > 1) y_menu = y_logo + 11;
-            Ret = okno_menu(Menu, l_poz_menu, Ret, attr, at_wpis, y_menu, 25, -1, " MENU GLOWNE ", 1);
+            Ret = okno_menu(menu_view, l_poz_menu, Ret, attr, at_wpis, y_menu, 25, -1, " MENU GLOWNE ", 1);
         }
         if (Ret < 0)
         {
             break;
         }
 
-        if (Menu[L_SYS + 1] != NULL)
+        if (menu_map[Ret] < 0)
         {
-            if (Ret == L_SYS + 1)
+            if (menu_view[Ret] != NULL)
             {
                 if (if_graf != 0)
                 {
@@ -201,11 +206,12 @@ int main(int argc, char* argv[])
                     setcursor(nocursor);
                     if_graf = otworz_graf_blank(0, 0, -1, -1, Yz_max_graf, TERM_WHITE | TERM_BLACK_BG);
                 }
-                Menu[L_SYS + 1] = graf_text[if_graf];
+                menu_view[Ret] = graf_text[if_graf];
                 continue;
             }
         }
 
+        Ret = menu_map[Ret];
         Service = Serv[Ret];
         Agenda = NULL;
         {
@@ -221,6 +227,22 @@ int main(int argc, char* argv[])
     (void)ret;
     /*	if(mystderr!=NULL) fclose(mystderr); */
     return 0;
+}
+
+static int build_presentation_menu(char* menu_view[], int menu_map[], char* graph_text)
+{
+    int idx = 0;
+    menu_view[idx] = Menu[1];
+    menu_map[idx] = 1;
+    idx++;
+    menu_view[idx] = Menu[L_SYS];
+    menu_map[idx] = L_SYS;
+    idx++;
+    menu_view[idx] = graph_text;
+    menu_map[idx] = -1;
+    idx++;
+    menu_view[idx] = NULL;
+    return idx - 1;
 }
 
 /* -------------------------------------------------------------------- */
