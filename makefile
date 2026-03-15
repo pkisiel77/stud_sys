@@ -8,6 +8,8 @@ CFLAGS = -D_NCURSES_ -I. -Iblank -Iopcjesys -Wall -Wno-format -Wno-pointer-sign 
 LDFLAGS = -lncurses -lm
 TARGET  = stud_sys
 OBJDIR  = obj
+DOC_VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
+DOC_DATE := $(shell date +%F)
 
 # ----------------------------------------------------------------
 # Opcjonalna obsluga MQTT (wymaga biblioteki paho-mqtt-c)
@@ -77,10 +79,12 @@ run: $(TARGET)
 
 docs-pdf:
 	@mkdir -p docs/pdf
-	pandoc docs/user_guide.md -o docs/pdf/user_guide.pdf --pdf-engine=xelatex
-	pandoc docs/presentation_budzik.md -o docs/pdf/presentation_budzik.pdf --pdf-engine=xelatex
-	pandoc docs/operator_cheatsheet.md -o docs/pdf/operator_cheatsheet.pdf --pdf-engine=xelatex
-	pandoc docs/quick_start.md docs/user_guide.md docs/operator_cheatsheet.md docs/presentation_budzik.md -o docs/pdf/stud_sys_docs_bundle.pdf --pdf-engine=xelatex
+	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/pdf_header.tex.in > docs/.pdf_header.generated.tex
+	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/title_page.md.in > docs/.title_page.generated.md
+	pandoc docs/user_guide.md -o docs/pdf/user_guide.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
+	pandoc docs/presentation_budzik.md -o docs/pdf/presentation_budzik.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
+	pandoc docs/operator_cheatsheet.md -o docs/pdf/operator_cheatsheet.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
+	pandoc docs/.title_page.generated.md docs/quick_start.md docs/user_guide.md docs/operator_cheatsheet.md docs/presentation_budzik.md -o docs/pdf/stud_sys_docs_bundle.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	@echo "PDF export complete: docs/pdf/"
 
 .SUFFIXES: .c .C .o

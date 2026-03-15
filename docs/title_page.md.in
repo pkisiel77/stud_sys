@@ -1,0 +1,26 @@
+\thispagestyle{empty}
+
+---
+
+\vspace*{4cm}
+
+# stud_sys
+
+## Pakiet dokumentacji
+
+\vspace{1cm}
+
+**Wersja dokumentacji:** `@DOC_VERSION@`
+
+**Data eksportu:** `@DOC_DATE@`
+
+\vspace{1cm}
+
+Zawartość pakietu:
+
+- Quick Start
+- Instrukcja użytkownika
+- Operator Cheatsheet
+- Prezentacja demo: Budzik
+
+\newpage

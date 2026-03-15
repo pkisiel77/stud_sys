@@ -44,3 +44,9 @@ Domyślnie generowane są:
 - `docs/pdf/user_guide.pdf`
 - `docs/pdf/presentation_budzik.pdf`
 - `docs/pdf/stud_sys_docs_bundle.pdf`
+
+Każdy PDF ma stopkę z:
+
+- datą eksportu,
+- wersją dokumentacji opartą o aktualny commit,
+- numerem strony.

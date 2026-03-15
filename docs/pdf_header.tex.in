@@ -1,0 +1,16 @@
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[L]{stud\_sys}
+\fancyfoot[C]{Dokumentacja @DOC_VERSION@ | @DOC_DATE@}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[L]{stud\_sys}
+  \fancyfoot[C]{Dokumentacja @DOC_VERSION@ | @DOC_DATE@}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
