@@ -1,30 +1,30 @@
 \begin{titlepage}
 \thispagestyle{empty}
 \begin{center}
-\includegraphics[width=0.42\textwidth]{docs/assets/stud_sys_logo.pdf}
+\includegraphics[width=0.38\textwidth]{docs/assets/stud_sys_logo.pdf}
 \end{center}
 
-\vspace{0.6cm}
+\vspace{0.7cm}
 
 \color{studblue}
 \rule{\textwidth}{1.6pt}
 
-\vspace{1.2cm}
+\vspace{1.0cm}
 
 {\Huge\bfseries stud\_sys \par}
-\vspace{0.4cm}
-{\Large Pakiet dokumentacji \par}
+\vspace{0.3cm}
+{\Large Pakiet prezentacyjny \par}
 
 \vspace{0.8cm}
 \color{studaccent}
-\rule{0.42\textwidth}{4pt}
+\rule{0.34\textwidth}{4pt}
 \color{black}
 
+\vspace{1.3cm}
+
+{\large Krótki zestaw materiałów do pokazu działania modułu `Budzik`. \par}
+
 \vspace{1.4cm}
-
-{\large System czasu rzeczywistego z interfejsem terminalowym i modułem demonstracyjnym `Budzik`. \par}
-
-\vspace{1.6cm}
 
 \begin{tabular}{rl}
 \textbf{Wersja dokumentacji:} & @DOC_VERSION@ \\
@@ -35,12 +35,10 @@
 
 Zawartość pakietu:
 
-- Quick Start
-- Instrukcja użytkownika
 - Operator Cheatsheet
 - Prezentacja demo: Budzik
 
-\vspace{1.2cm}
+\vspace{1.1cm}
 \color{studblue}
 \rule{\textwidth}{1.6pt}
 \end{titlepage}

@@ -19,6 +19,7 @@ To jest strona startowa dokumentacji projektu.
 
 - `docs/operator_cheatsheet.md` - skrócona ściąga operatora
 - `docs/presentation_budzik.md` - scenariusz prezentacji `Budzik`
+- `docs/pdf/stud_sys_presentation_pack.pdf` - krótki pakiet PDF do samej prezentacji
 
 ### Techniczne
 
@@ -44,6 +45,7 @@ Domyślnie generowane są:
 - `docs/pdf/user_guide.pdf`
 - `docs/pdf/presentation_budzik.pdf`
 - `docs/pdf/stud_sys_docs_bundle.pdf`
+- `docs/pdf/stud_sys_presentation_pack.pdf`
 
 Każdy PDF ma stopkę z:
 
@@ -55,3 +57,8 @@ Scalony PDF `docs/pdf/stud_sys_docs_bundle.pdf` zawiera dodatkowo:
 
 - stronę tytułową,
 - automatyczny spis treści.
+
+W katalogu `docs/assets/` znajduje się także logo dokumentacji:
+
+- `docs/assets/stud_sys_logo.tex` - źródło logo
+- `docs/assets/stud_sys_logo.pdf` - wygenerowany asset do PDF

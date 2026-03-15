@@ -1,5 +1,6 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
+\usepackage{graphicx}
 \definecolor{studblue}{HTML}{16324F}
 \definecolor{studaccent}{HTML}{C87941}
 \pagestyle{fancy}
