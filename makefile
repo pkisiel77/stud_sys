@@ -79,6 +79,8 @@ docs-pdf:
 	@mkdir -p docs/pdf
 	pandoc docs/user_guide.md -o docs/pdf/user_guide.pdf --pdf-engine=xelatex
 	pandoc docs/presentation_budzik.md -o docs/pdf/presentation_budzik.pdf --pdf-engine=xelatex
+	pandoc docs/operator_cheatsheet.md -o docs/pdf/operator_cheatsheet.pdf --pdf-engine=xelatex
+	pandoc docs/quick_start.md docs/user_guide.md docs/operator_cheatsheet.md docs/presentation_budzik.md -o docs/pdf/stud_sys_docs_bundle.pdf --pdf-engine=xelatex
 	@echo "PDF export complete: docs/pdf/"
 
 .SUFFIXES: .c .C .o

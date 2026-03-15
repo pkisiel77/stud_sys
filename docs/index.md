@@ -40,5 +40,7 @@ docs/pdf/
 
 Domyślnie generowane są:
 
+- `docs/pdf/operator_cheatsheet.pdf`
 - `docs/pdf/user_guide.pdf`
 - `docs/pdf/presentation_budzik.pdf`
+- `docs/pdf/stud_sys_docs_bundle.pdf`
