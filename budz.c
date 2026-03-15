@@ -32,6 +32,8 @@ int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
 												 int kod_uslugi, char *tytul);
 void ustaw_typ_uslugi(struct agenda *A, int decyzja);
 static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
+static float budz_pozostalo_teraz(struct agenda *A);
+static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul);
 /* ============ Persystencja budzikow ================================ */
 
 struct budz_rekord_pliku {
@@ -290,7 +292,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
             if ((A->S)->decyzje != dec_budz) continue;
             lista[n] = A;
             B = (struct budzik *)(A->data);
-            budz_format_pozostalo(A->delay, pozostal, sizeof(pozostal));
+            budz_format_pozostalo(budz_pozostalo_teraz(A), pozostal, sizeof(pozostal));
             snprintf(mstr[n], 80, "  %02d:%02d  [%8s]  %-33s",
                      B->godz, B->min, pozostal, B->nazwa);
             menu_l[n] = mstr[n];
@@ -302,8 +304,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         menu_l[n + 1] = mstr[n + 1];
         if (lw > n + 1) lw = 0;
 
-        w = okno_menu(menu_l, n + 2, lw, attr, at_wpis,
-                      Y_G0 + 1, X_L0, -1, " LISTA BUDZIKOW ", 1);
+        w = budz_menu_live(menu_l, n + 2, lw, " LISTA BUDZIKOW ");
         lw = (w >= 0) ? w : 0;
 
         if (w < 0 || w == n + 1) return BLANKIET_UI_EXIT;
@@ -369,6 +370,100 @@ static void budz_format_pozostalo(float delay, char *buf, size_t buflen)
         snprintf(buf, buflen, "%02ld:%02ld:%02ld", hh, mm, ss);
     else
         snprintf(buf, buflen, "%02ld:%02ld", mm, ss);
+}
+
+static float budz_pozostalo_teraz(struct agenda *A)
+{
+    time_t now;
+    float left;
+    if (A == NULL) return 0.0f;
+    now = time(NULL);
+    left = A->delay - (float)(now - sek_akt);
+    if (left < 0.0f) left = 0.0f;
+    return left;
+}
+
+static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
+{
+    int yp = Y_G0 + 1, xp = X_L0;
+    int ym, xm, i, maxlen, ch, sel;
+    unsigned int att;
+    char *koniec = "<Esc>";
+
+    if (count <= 0) return -1;
+    sel = (opcja0 >= 0 && opcja0 < count) ? opcja0 : 0;
+    maxlen = (int)strlen(koniec);
+    if (tytul != NULL && (int)strlen(tytul) > maxlen) maxlen = (int)strlen(tytul);
+    for (i = 0; i < count; i++)
+    {
+        int len = (opcje[i] != NULL) ? (int)strlen(opcje[i]) : 0;
+        if (len > maxlen) maxlen = len;
+    }
+    xm = xp + maxlen + 3;
+    if (xm > MXR_MAX) xm = MXR_MAX;
+    ym = yp + count + 2;
+    if (ym > MYR_MAX) ym = MYR_MAX;
+
+    for (;;)
+    {
+        Okno(yp, xp, ym, xm, attr);
+        maluj_ramke(yp, xp, ym, xm, attr);
+        if (tytul != NULL)
+        {
+            int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
+            if (xt < xp + 1) xt = xp + 1;
+            term_type(yp, xt, tytul, 0, attr);
+        }
+        for (i = 0; i < count; i++)
+        {
+            const char *txt = (opcje[i] != NULL) ? opcje[i] : "";
+            int y = yp + 1 + i;
+            int x;
+            att = (i == sel) ? at_wpis : attr;
+            for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
+            term_type(y, xp + 1, (char*)txt, 0, att);
+        }
+        term_cur(yp + 1 + sel, xp + 2);
+        term_flush();
+
+        ch = GET_char();
+        if (ch == -1) continue;
+        ch &= 0x00ff;
+        switch (ch)
+        {
+        case NLCR:
+        case CR:
+            return sel;
+        case Esc:
+            return -1;
+        case SPEC:
+            ch = GETchar() & 0x00ff;
+            switch (ch)
+            {
+            case UP:
+            case BBS:
+                sel--;
+                if (sel < 0) sel = count - 1;
+                break;
+            case DOWN:
+            case FFR:
+                sel++;
+                if (sel >= count) sel = 0;
+                break;
+            case Home:
+                sel = 0;
+                break;
+            case End:
+                sel = count - 1;
+                break;
+            default:
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 extern time_t sek_akt;
