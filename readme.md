@@ -1,67 +1,67 @@
 # stud_sys
 
-`stud_sys` to terminalowy system czasu rzeczywistego z prostym harmonogramem RT, formularzami typu `blankiet` i raportem stanu pracy. Projekt wywodzi sie ze starszego systemu badawczego, ale aktualna wersja zostala uproszczona i dostosowana do pracy w terminalu `ncurses`.
+`stud_sys` to terminalowy system czasu rzeczywistego z prostym harmonogramem RT, formularzami typu `blankiet` i raportem stanu pracy. Projekt wywodzi się ze starszego systemu badawczego, ale aktualna wersja została uproszczona i dostosowana do pracy w terminalu `ncurses`.
 
-Obecny wariant repo jest przygotowany glownie do prezentacji zadania `Budzik`, przy zachowaniu pelnego silnika harmonogramu i raportowania.
+Obecny wariant repo jest przygotowany głównie do prezentacji zadania `Budzik`, przy zachowaniu pełnego silnika harmonogramu i raportowania.
 
 ## Co robi system
 
-System uruchamia zestaw uslug zapisanych jako rekordy `agenda`. Kazda usluga ma:
+System uruchamia zestaw usług zapisanych jako rekordy `agenda`. Każda usługa ma:
 
-- nazwe,
+- nazwę,
 - tryb pracy,
 - priorytet,
-- okres wywolania (`Interval`),
-- opoznienie do najblizszego uruchomienia (`delay`).
+- okres wywołania (`Interval`),
+- opóźnienie do najbliższego uruchomienia (`delay`).
 
 Scheduler w `core.c` cyklicznie:
 
-- odlicza opoznienia zadan,
+- odlicza opóźnienia zadań,
 - wybiera gotowe rekordy,
 - przenosi je do kolejki wykonania,
-- uruchamia przypisany modul RT.
+- uruchamia przypisany moduł RT.
 
 W praktyce system pozwala:
 
-- definiowac zadania czasowe,
-- obserwowac ich stan,
-- modyfikowac rekordy przez formularze tekstowe,
-- sprawdzac stan pracy schedulera w raporcie systemowym.
+- definiować zadania czasowe,
+- obserwować ich stan,
+- modyfikować rekordy przez formularze tekstowe,
+- sprawdzać stan pracy schedulera w raporcie systemowym.
 
 ## Aktualny widok programu
 
-Repo jest obecnie ustawione w tryb prezentacyjny. W menu glownym widoczne sa tylko:
+Repo jest obecnie ustawione w tryb prezentacyjny. W menu głównym widoczne są tylko:
 
 - `Budzik`
 - `-- Stan systemu --`
-- przelacznik `GRAFICZNY/TEKSTOWY`
+- przełącznik `GRAFICZNY/TEKSTOWY`
 
-Pozostale moduly pozostaja w kodzie, ale nie sa eksponowane w glownym menu prezentacyjnym.
+Pozostałe moduły pozostają w kodzie, ale nie są eksponowane w głównym menu prezentacyjnym.
 
-## Glowny scenariusz uzycia
+## Główny scenariusz użycia
 
-Najwazniejszy aktywny modul to `Budzik`.
+Najważniejszy aktywny moduł to `Budzik`.
 
-Umozliwia on:
+Umożliwia on:
 
-- dodawanie nowych budzikow,
-- edycje istniejacych wpisow,
-- usuwanie wpisow,
-- podglad czasu pozostalego do uruchomienia,
-- obserwacje odliczania na zywo na liscie budzikow.
+- dodawanie nowych budzików,
+- edycję istniejących wpisów,
+- usuwanie wpisów,
+- podgląd czasu pozostałego do uruchomienia,
+- obserwację odliczania na żywo na liście budzików.
 
-Raport `-- Stan systemu --` sluzy do pokazania:
+Raport `-- Stan systemu --` służy do pokazania:
 
-- jakie rekordy sa aktywne,
-- jaki maja okres,
-- jaki maja priorytet,
-- jakie jest ich biezace opoznienie.
+- jakie rekordy są aktywne,
+- jaki mają okres,
+- jaki mają priorytet,
+- jakie jest ich bieżące opóźnienie.
 
 To jest podstawowy ekran diagnostyczny systemu RT.
 
 ## Architektura
 
-Projekt sklada sie z czterech warstw:
+Projekt składa się z czterech warstw:
 
 ### 1. Scheduler i stan systemu
 
@@ -72,15 +72,15 @@ Pliki:
 - `konfig.h`
 - `blank/sys_dekl.h`
 
-Odpowiedzialnosc:
+Odpowiedzialność:
 
-- inicjalizacja uslug,
+- inicjalizacja usług,
 - utrzymanie tablicy `SysA`,
-- kolejka zadan gotowych do wykonania,
-- wybor zadania do uruchomienia,
-- wspolne operacje na rekordach `agenda`.
+- kolejka zadań gotowych do wykonania,
+- wybór zadania do uruchomienia,
+- wspólne operacje na rekordach `agenda`.
 
-### 2. Silnik formularzy i raportow
+### 2. Silnik formularzy i raportów
 
 Pliki:
 
@@ -89,14 +89,14 @@ Pliki:
 - `blank/konsola.c`
 - `blank/term_ncurses.c`
 
-Odpowiedzialnosc:
+Odpowiedzialność:
 
 - rysowanie okien i kontrolek,
-- obsluga klawiatury,
+- obsługa klawiatury,
 - raporty i blankiety,
-- wspolna logika Enter/Esc/decyzji.
+- wspólna logika Enter/Esc/decyzji.
 
-### 3. Moduly funkcjonalne
+### 3. Moduły funkcjonalne
 
 Pliki:
 
@@ -114,7 +114,7 @@ Pliki:
 - `blank/term_ncurses.c`
 - `blank/term_ncurses.h`
 
-Odpowiedzialnosc:
+Odpowiedzialność:
 
 - inicjalizacja `ncurses`,
 - mapowanie klawiszy,
@@ -123,25 +123,25 @@ Odpowiedzialnosc:
 
 ## Jak zbudowany jest rekord RT
 
-Kazde aktywne zadanie jest osadzone w strukturze `agenda` zdefiniowanej w `blank/sys_dekl.h`.
+Każde aktywne zadanie jest osadzone w strukturze `agenda` zdefiniowanej w `blank/sys_dekl.h`.
 
-Najwazniejsze pola:
+Najważniejsze pola:
 
 - `name` - nazwa zadania,
 - `mode` - typ pracy,
 - `Interval` - okres uruchamiania,
-- `delay` - czas do najblizszego uruchomienia,
+- `delay` - czas do najbliższego uruchomienia,
 - `prior` - priorytet bazowy,
 - `prior_plus` - wzrost priorytetu przy oczekiwaniu,
-- `number_of_calls` - licznik wywolan,
-- `S` - wskaznik do definicji uslugi.
+- `number_of_calls` - licznik wywołań,
+- `S` - wskaźnik do definicji usługi.
 
-Na tej strukturze opieraja sie:
+Na tej strukturze opierają się:
 
 - scheduler,
-- lista uslug,
+- lista usług,
 - raport `Stan systemu`,
-- moduly takie jak `Budzik` i `MQTT Publisher`.
+- moduły takie jak `Budzik` i `MQTT Publisher`.
 
 ## Budowanie
 
@@ -156,7 +156,7 @@ Budowanie podstawowe:
 make
 ```
 
-Budowanie z obsluga MQTT:
+Budowanie z obsługą MQTT:
 
 ```bash
 make MQTT=1
@@ -170,11 +170,11 @@ Uruchomienie:
 
 ## MQTT
 
-Modul `MQTT Publisher` pozostaje w projekcie i moze publikowac stan aktywnych uslug do brokera MQTT. W trybie prezentacyjnym nie jest pokazany w menu glownym, ale kod i konfiguracja nadal sa obecne.
+Moduł `MQTT Publisher` pozostaje w projekcie i może publikować stan aktywnych usług do brokera MQTT. W trybie prezentacyjnym nie jest pokazany w menu głównym, ale kod i konfiguracja nadal są obecne.
 
-Aby budowac z obsluga MQTT, potrzebna jest biblioteka `paho-mqtt-c`.
+Aby budować z obsługą MQTT, potrzebna jest biblioteka `paho-mqtt-c`.
 
-Przyklad:
+Przykład:
 
 ```bash
 # macOS
@@ -184,22 +184,26 @@ brew install paho-mqtt-c
 sudo apt-get install libpaho-mqtt-dev
 ```
 
-## Najwazniejsze pliki
+## Najważniejsze pliki
 
-- `core.c` - scheduler, start systemu, menu glowne
-- `konfig.c` - rejestracja uslug
-- `budz.c` - glowny modul demonstracyjny
+- `core.c` - scheduler, start systemu, menu główne
+- `konfig.c` - rejestracja usług
+- `budz.c` - główny moduł demonstracyjny
 - `sys_rap.c` - raport diagnostyczny
-- `presentation_budzik.md` - scenariusz prezentacji
-- `user_guide.md` - instrukcja obslugi dla uzytkownika
+- `docs/presentation_budzik.md` - scenariusz prezentacji
+- `docs/user_guide.md` - instrukcja obsługi dla użytkownika
+- `docs/architecture.md` - dokumentacja techniczna
 
 ## Ograniczenia
 
 - interfejs jest terminalowy i oparty na starym modelu formularzy,
 - tryb graficzny jest historyczny i ma ograniczone znaczenie w wersji `ncurses`,
-- projekt nie jest nowoczesnym frameworkiem RT; to lekki system demonstracyjny z wlasnym schedulerem i formularzami.
+- projekt nie jest nowoczesnym frameworkiem RT; to lekki system demonstracyjny z własnym schedulerem i formularzami.
 
-## Dokumenty pomocnicze
+## Dokumentacja
 
-- opis prezentacji: `presentation_budzik.md`
-- instrukcja obslugi: `user_guide.md`
+- `docs/quick_start.md` - szybkie uruchomienie
+- `docs/user_guide.md` - instrukcja użytkownika
+- `docs/operator_cheatsheet.md` - skrócona ściąga do prezentacji
+- `docs/presentation_budzik.md` - scenariusz demo
+- `docs/architecture.md` - opis techniczny

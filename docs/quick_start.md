@@ -2,7 +2,7 @@
 
 ## Cel
 
-Ten dokument sluzy do szybkiego uruchomienia `stud_sys` bez czytania pelnej dokumentacji.
+Ten dokument służy do szybkiego uruchomienia `stud_sys` bez czytania pełnej dokumentacji.
 
 ## Wymagania
 
@@ -42,23 +42,23 @@ W aktualnym trybie prezentacyjnym menu pokazuje:
 ## Najszybsze demo
 
 1. Uruchom `stud_sys`.
-2. Wejdz w `Budzik`.
+2. Wejdź w `Budzik`.
 3. Dodaj nowy budzik za `10 s`.
-4. Wroc do listy.
+4. Wróć do listy.
 5. Obserwuj countdown.
-6. Wejdz w `-- Stan systemu --`.
-7. Pokaz rekord budzika.
-8. Wroc do `Budzik`.
+6. Wejdź w `-- Stan systemu --`.
+7. Pokaż rekord budzika.
+8. Wróć do `Budzik`.
 9. Poczekaj na alarm.
 
 ## Podstawowe klawisze
 
-- `Strzalki gora/dol` - zmiana pozycji
-- `Enter` - wejscie / akceptacja
-- `Esc` - wyjscie
+- `Strzałki góra/dół` - zmiana pozycji
+- `Enter` - wejście / akceptacja
+- `Esc` - wyjście
 
-## Gdzie szukac dalej
+## Gdzie szukać dalej
 
-- `user_guide.md` - instrukcja obslugi
-- `presentation_budzik.md` - scenariusz prezentacji
-- `architecture.md` - opis techniczny
+- `docs/user_guide.md` - instrukcja obsługi
+- `docs/presentation_budzik.md` - scenariusz prezentacji
+- `docs/architecture.md` - opis techniczny
