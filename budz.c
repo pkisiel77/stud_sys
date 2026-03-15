@@ -386,12 +386,17 @@ static float budz_pozostalo_teraz(struct agenda *A)
 static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
 {
     int yp = Y_G0 + 1, xp = X_L0;
-    int ym, xm, i, maxlen, ch, sel;
+    int ym, xm, i, maxlen, ch, sel, need_redraw;
     unsigned int att;
     char *koniec = "<Esc>";
+    time_t last_refresh;
+    char prev[AG_SIZE + 3][80];
 
     if (count <= 0) return -1;
     sel = (opcja0 >= 0 && opcja0 < count) ? opcja0 : 0;
+    last_refresh = 0;
+    need_redraw = 1;
+    for (i = 0; i < AG_SIZE + 3; i++) prev[i][0] = EOS;
     maxlen = (int)strlen(koniec);
     if (tytul != NULL && (int)strlen(tytul) > maxlen) maxlen = (int)strlen(tytul);
     for (i = 0; i < count; i++)
@@ -406,25 +411,44 @@ static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
 
     for (;;)
     {
-        Okno(yp, xp, ym, xm, attr);
-        maluj_ramke(yp, xp, ym, xm, attr);
-        if (tytul != NULL)
+        time_t now;
+        now = time(NULL);
+        if (now != last_refresh)
         {
-            int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
-            if (xt < xp + 1) xt = xp + 1;
-            term_type(yp, xt, tytul, 0, attr);
+            last_refresh = now;
+            for (i = 0; i < count; i++)
+            {
+                const char *txt = (opcje[i] != NULL) ? opcje[i] : "";
+                if (strncmp(prev[i], txt, sizeof(prev[i])) != 0)
+                {
+                    snprintf(prev[i], sizeof(prev[i]), "%s", txt);
+                    need_redraw = 1;
+                }
+            }
         }
-        for (i = 0; i < count; i++)
+
+        if (need_redraw)
         {
-            const char *txt = (opcje[i] != NULL) ? opcje[i] : "";
-            int y = yp + 1 + i;
-            int x;
-            att = (i == sel) ? at_wpis : attr;
-            for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
-            term_type(y, xp + 1, (char*)txt, 0, att);
+            Okno(yp, xp, ym, xm, attr);
+            maluj_ramke(yp, xp, ym, xm, attr);
+            if (tytul != NULL)
+            {
+                int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
+                if (xt < xp + 1) xt = xp + 1;
+                term_type(yp, xt, tytul, 0, attr);
+            }
+            for (i = 0; i < count; i++)
+            {
+                int y = yp + 1 + i;
+                int x;
+                att = (i == sel) ? at_wpis : attr;
+                for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
+                term_type(y, xp + 1, prev[i], 0, att);
+            }
+            term_cur(yp + 1 + sel, xp + 2);
+            term_flush();
+            need_redraw = 0;
         }
-        term_cur(yp + 1 + sel, xp + 2);
-        term_flush();
 
         ch = GET_char();
         if (ch == -1) continue;
@@ -444,17 +468,21 @@ static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
             case BBS:
                 sel--;
                 if (sel < 0) sel = count - 1;
+                need_redraw = 1;
                 break;
             case DOWN:
             case FFR:
                 sel++;
                 if (sel >= count) sel = 0;
+                need_redraw = 1;
                 break;
             case Home:
                 sel = 0;
+                need_redraw = 1;
                 break;
             case End:
                 sel = count - 1;
+                need_redraw = 1;
                 break;
             default:
                 break;
