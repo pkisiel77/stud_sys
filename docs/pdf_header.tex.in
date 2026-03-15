@@ -1,4 +1,7 @@
+\usepackage{xcolor}
 \usepackage{fancyhdr}
+\definecolor{studblue}{HTML}{16324F}
+\definecolor{studaccent}{HTML}{C87941}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyfoot[L]{stud\_sys}

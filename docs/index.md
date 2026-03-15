@@ -50,3 +50,8 @@ Każdy PDF ma stopkę z:
 - datą eksportu,
 - wersją dokumentacji opartą o aktualny commit,
 - numerem strony.
+
+Scalony PDF `docs/pdf/stud_sys_docs_bundle.pdf` zawiera dodatkowo:
+
+- stronę tytułową,
+- automatyczny spis treści.

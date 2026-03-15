@@ -1,20 +1,31 @@
+\begin{titlepage}
 \thispagestyle{empty}
+\color{studblue}
+\rule{\textwidth}{1.6pt}
 
----
+\vspace{1.2cm}
 
-\vspace*{4cm}
+{\Huge\bfseries stud\_sys \par}
+\vspace{0.4cm}
+{\Large Pakiet dokumentacji \par}
 
-# stud_sys
+\vspace{0.8cm}
+\color{studaccent}
+\rule{0.42\textwidth}{4pt}
+\color{black}
 
-## Pakiet dokumentacji
+\vspace{1.4cm}
 
-\vspace{1cm}
+{\large System czasu rzeczywistego z interfejsem terminalowym i modułem demonstracyjnym `Budzik`. \par}
 
-**Wersja dokumentacji:** `@DOC_VERSION@`
+\vspace{1.6cm}
 
-**Data eksportu:** `@DOC_DATE@`
+\begin{tabular}{rl}
+\textbf{Wersja dokumentacji:} & @DOC_VERSION@ \\
+\textbf{Data eksportu:} & @DOC_DATE@ \\
+\end{tabular}
 
-\vspace{1cm}
+\vfill
 
 Zawartość pakietu:
 
@@ -23,4 +34,11 @@ Zawartość pakietu:
 - Operator Cheatsheet
 - Prezentacja demo: Budzik
 
+\vspace{1.2cm}
+\color{studblue}
+\rule{\textwidth}{1.6pt}
+\end{titlepage}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
 \newpage
