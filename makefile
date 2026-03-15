@@ -51,7 +51,7 @@ OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) \
 
 $(shell mkdir -p $(OBJDIR)/blank $(OBJDIR)/opcjesys)
 
-.PHONY: all clean
+.PHONY: all clean docs-pdf
 
 all: $(TARGET)
 
@@ -74,5 +74,11 @@ clean:
 
 run: $(TARGET)
 	./$(TARGET)
+
+docs-pdf:
+	@mkdir -p docs/pdf
+	pandoc docs/user_guide.md -o docs/pdf/user_guide.pdf --pdf-engine=xelatex
+	pandoc docs/presentation_budzik.md -o docs/pdf/presentation_budzik.pdf --pdf-engine=xelatex
+	@echo "PDF export complete: docs/pdf/"
 
 .SUFFIXES: .c .C .o

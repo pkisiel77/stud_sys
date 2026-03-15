@@ -202,6 +202,7 @@ sudo apt-get install libpaho-mqtt-dev
 
 ## Dokumentacja
 
+- `docs/index.md` - strona startowa dokumentacji
 - `docs/quick_start.md` - szybkie uruchomienie
 - `docs/user_guide.md` - instrukcja użytkownika
 - `docs/operator_cheatsheet.md` - skrócona ściąga do prezentacji
