@@ -31,6 +31,7 @@ int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
 int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
 												 int kod_uslugi, char *tytul);
 void ustaw_typ_uslugi(struct agenda *A, int decyzja);
+static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
 /* ============ Persystencja budzikow ================================ */
 
 struct budz_rekord_pliku {
@@ -283,13 +284,15 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         /* --- Zbierz aktywne budziki z agendy --- */
         n = 0;
         for (i = 1; i <= AgendaMax && n < AG_SIZE; i++) {
+            char pozostal[20];
             A = SysA[i];
             if (A == NULL || A->number_of_calls == 0) continue;
             if ((A->S)->decyzje != dec_budz) continue;
             lista[n] = A;
             B = (struct budzik *)(A->data);
-            snprintf(mstr[n], 80, "  %02d:%02d   %-44s",
-                     B->godz, B->min, B->nazwa);
+            budz_format_pozostalo(A->delay, pozostal, sizeof(pozostal));
+            snprintf(mstr[n], 80, "  %02d:%02d  [%8s]  %-33s",
+                     B->godz, B->min, pozostal, B->nazwa);
             menu_l[n] = mstr[n];
             n++;
         }
@@ -350,6 +353,22 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
             }
         }
     }
+}
+
+static void budz_format_pozostalo(float delay, char *buf, size_t buflen)
+{
+    long total;
+    long hh, mm, ss;
+    if (buf == NULL || buflen == 0) return;
+    if (delay < 0.0f) delay = 0.0f;
+    total = (long)(delay + 0.5f);
+    hh = total / 3600L;
+    mm = (total % 3600L) / 60L;
+    ss = total % 60L;
+    if (hh > 0)
+        snprintf(buf, buflen, "%02ld:%02ld:%02ld", hh, mm, ss);
+    else
+        snprintf(buf, buflen, "%02ld:%02ld", mm, ss);
 }
 
 extern time_t sek_akt;
