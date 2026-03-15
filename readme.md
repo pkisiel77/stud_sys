@@ -1,264 +1,205 @@
-# stud_sys - Real-Time EKG Measurement System
+# stud_sys
 
-## Overview
-This is a real-time EKG (ECG) measurement and data management system originally developed for Windows NT as a master's thesis. The system has been ported to support cross-platform execution using ncurses.
+`stud_sys` to terminalowy system czasu rzeczywistego z prostym harmonogramem RT, formularzami typu `blankiet` i raportem stanu pracy. Projekt wywodzi sie ze starszego systemu badawczego, ale aktualna wersja zostala uproszczona i dostosowana do pracy w terminalu `ncurses`.
 
-## Platform Support
+Obecny wariant repo jest przygotowany glownie do prezentacji zadania `Budzik`, przy zachowaniu pelnego silnika harmonogramu i raportowania.
 
-### Windows Console (Original)
-The original implementation uses Windows-specific console APIs:
-- `windows.h` for console operations
-- `MessageBox` for dialogs
-- Windows GDI for text rendering
+## Co robi system
 
-### ncurses (New - Linux/Unix)
-The system now supports ncurses for cross-platform terminal control:
-- Uses standard ncurses library
-- Compatible with Linux, macOS, and other Unix-like systems
-- Maintains the same user interface and functionality
+System uruchamia zestaw uslug zapisanych jako rekordy `agenda`. Kazda usluga ma:
 
-## Building
+- nazwe,
+- tryb pracy,
+- priorytet,
+- okres wywolania (`Interval`),
+- opoznienie do najblizszego uruchomienia (`delay`).
 
-### Prerequisites
+Scheduler w `core.c` cyklicznie:
 
-#### For ncurses (Linux/Unix):
-```bash
-# Ubuntu/Debian
-sudo apt-get install libncurses5-dev libncursesw5-dev
+- odlicza opoznienia zadan,
+- wybiera gotowe rekordy,
+- przenosi je do kolejki wykonania,
+- uruchamia przypisany modul RT.
 
-# Fedora/RHEL
-sudo dnf install ncurses-devel
+W praktyce system pozwala:
 
-# macOS
-brew install ncurses
-```
+- definiowac zadania czasowe,
+- obserwowac ich stan,
+- modyfikowac rekordy przez formularze tekstowe,
+- sprawdzac stan pracy schedulera w raporcie systemowym.
 
-#### For Windows:
-Use Visual Studio or compatible Windows compiler with the project files (.vcxproj, .sln)
+## Aktualny widok programu
 
-### Compilation
+Repo jest obecnie ustawione w tryb prezentacyjny. W menu glownym widoczne sa tylko:
 
-#### ncurses version (Linux/Unix):
+- `Budzik`
+- `-- Stan systemu --`
+- przelacznik `GRAFICZNY/TEKSTOWY`
+
+Pozostale moduly pozostaja w kodzie, ale nie sa eksponowane w glownym menu prezentacyjnym.
+
+## Glowny scenariusz uzycia
+
+Najwazniejszy aktywny modul to `Budzik`.
+
+Umozliwia on:
+
+- dodawanie nowych budzikow,
+- edycje istniejacych wpisow,
+- usuwanie wpisow,
+- podglad czasu pozostalego do uruchomienia,
+- obserwacje odliczania na zywo na liscie budzikow.
+
+Raport `-- Stan systemu --` sluzy do pokazania:
+
+- jakie rekordy sa aktywne,
+- jaki maja okres,
+- jaki maja priorytet,
+- jakie jest ich biezace opoznienie.
+
+To jest podstawowy ekran diagnostyczny systemu RT.
+
+## Architektura
+
+Projekt sklada sie z czterech warstw:
+
+### 1. Scheduler i stan systemu
+
+Pliki:
+
+- `core.c`
+- `konfig.c`
+- `konfig.h`
+- `blank/sys_dekl.h`
+
+Odpowiedzialnosc:
+
+- inicjalizacja uslug,
+- utrzymanie tablicy `SysA`,
+- kolejka zadan gotowych do wykonania,
+- wybor zadania do uruchomienia,
+- wspolne operacje na rekordach `agenda`.
+
+### 2. Silnik formularzy i raportow
+
+Pliki:
+
+- `blank/wewy.c`
+- `rap_bl.c`
+- `blank/konsola.c`
+- `blank/term_ncurses.c`
+
+Odpowiedzialnosc:
+
+- rysowanie okien i kontrolek,
+- obsluga klawiatury,
+- raporty i blankiety,
+- wspolna logika Enter/Esc/decyzji.
+
+### 3. Moduly funkcjonalne
+
+Pliki:
+
+- `budz.c` - budziki i lista odliczania
+- `sys_rap.c` - raport stanu systemu
+- `sprawdz.c` - zadanie nadzorcze
+- `mqtt_pub.c` - publikacja danych do MQTT
+- `sensor_sim.c` - prosty symulator czujnika
+- `admin.c` - ekran informacji o systemie
+
+### 4. Warstwa terminala
+
+Pliki:
+
+- `blank/term_ncurses.c`
+- `blank/term_ncurses.h`
+
+Odpowiedzialnosc:
+
+- inicjalizacja `ncurses`,
+- mapowanie klawiszy,
+- operacje na ekranie,
+- tryb tekstowy dla macOS/Linux/Unix.
+
+## Jak zbudowany jest rekord RT
+
+Kazde aktywne zadanie jest osadzone w strukturze `agenda` zdefiniowanej w `blank/sys_dekl.h`.
+
+Najwazniejsze pola:
+
+- `name` - nazwa zadania,
+- `mode` - typ pracy,
+- `Interval` - okres uruchamiania,
+- `delay` - czas do najblizszego uruchomienia,
+- `prior` - priorytet bazowy,
+- `prior_plus` - wzrost priorytetu przy oczekiwaniu,
+- `number_of_calls` - licznik wywolan,
+- `S` - wskaznik do definicji uslugi.
+
+Na tej strukturze opieraja sie:
+
+- scheduler,
+- lista uslug,
+- raport `Stan systemu`,
+- moduly takie jak `Budzik` i `MQTT Publisher`.
+
+## Budowanie
+
+Wymagania:
+
+- kompilator `gcc`
+- biblioteka `ncurses`
+
+Budowanie podstawowe:
+
 ```bash
 make
 ```
 
-Or manually:
+Budowanie z obsluga MQTT:
+
 ```bash
-gcc -D_NCURSES_ -o stud_sys core.c blank/term_ncurses.c blank/konsola.c \
-    blank/wewy.c konfig.c randf.c rap_bl.c -lncurses -lm
+make MQTT=1
 ```
 
-#### Windows version:
-Open `stud_sys.sln` in Visual Studio and build.
+Uruchomienie:
 
-### Running
-
-#### ncurses version:
 ```bash
 ./stud_sys
 ```
 
-#### Windows version:
-Run the compiled executable from Visual Studio or command prompt.
+## MQTT
 
-## Architecture
+Modul `MQTT Publisher` pozostaje w projekcie i moze publikowac stan aktywnych uslug do brokera MQTT. W trybie prezentacyjnym nie jest pokazany w menu glownym, ale kod i konfiguracja nadal sa obecne.
 
-### Terminal Abstraction Layer
-The system uses a terminal abstraction layer that allows switching between platforms:
+Aby budowac z obsluga MQTT, potrzebna jest biblioteka `paho-mqtt-c`.
 
-- **blank/moje.h** - Platform selection (define `_NCURSES_`, `_DOS_`, or `_QNX_`)
-- **blank/term_ncurses.c/h** - ncurses implementation
-- **blank/term_wint.c** - Windows implementation
-- **blank/konsola.c** - Console initialization wrapper
-
-### Key Functions Abstracted
-- `term_type()` - Output text at position
-- `term_printf()` - Formatted output
-- `term_color()` - Set colors
-- `GET_char()` - Get keyboard input
-- `MessageBox()` - Dialog boxes (ncurses uses text-based dialogs)
-- `sound()` / `nosound()` - Audio feedback
-
-### Color Support
-The system maps Windows color attributes to ncurses color pairs:
-- 8 foreground colors × 8 background colors = 64 color pairs
-- Supports attributes: bold (hilight), blink, reverse
-
-### Keyboard Mapping
-Function keys and special keys are mapped consistently:
-- F1-F12 function keys
-- Arrow keys (up, down, left, right)
-- Page Up/Down, Home/End
-- Insert, Delete
-- Escape, Enter, Backspace, Tab
-
-## Files Modified for ncurses Support
-
-1. **blank/term_ncurses.h** - New: ncurses function declarations
-2. **blank/term_ncurses.c** - New: ncurses implementation
-3. **blank/moje.h** - Updated: Added `_NCURSES_` platform support
-4. **blank/konsola.c** - Updated: Conditional compilation for ncurses
-5. **Makefile** - New: Build system for ncurses
-
-## MQTT Publisher
-
-Usługa RT publikująca dane ze wszystkich aktywnych usług do brokera MQTT.
-
-### Wymagania
+Przyklad:
 
 ```bash
 # macOS
 brew install paho-mqtt-c
 
-# Ubuntu/Debian (embedded)
-sudo apt-get install libpaho-mqtt-dev
-
-# Raspberry Pi
+# Debian/Ubuntu
 sudo apt-get install libpaho-mqtt-dev
 ```
 
-Broker MQTT (lokalny do testów):
+## Najwazniejsze pliki
 
-```bash
-# macOS
-brew install mosquitto
-brew services start mosquitto
+- `core.c` - scheduler, start systemu, menu glowne
+- `konfig.c` - rejestracja uslug
+- `budz.c` - glowny modul demonstracyjny
+- `sys_rap.c` - raport diagnostyczny
+- `presentation_budzik.md` - scenariusz prezentacji
+- `user_guide.md` - instrukcja obslugi dla uzytkownika
 
-# Ubuntu/Debian / Raspberry Pi
-sudo apt-get install mosquitto mosquitto-clients
-sudo systemctl start mosquitto
-```
+## Ograniczenia
 
-### Budowanie z MQTT
+- interfejs jest terminalowy i oparty na starym modelu formularzy,
+- tryb graficzny jest historyczny i ma ograniczone znaczenie w wersji `ncurses`,
+- projekt nie jest nowoczesnym frameworkiem RT; to lekki system demonstracyjny z wlasnym schedulerem i formularzami.
 
-```bash
-make MQTT=1
-```
+## Dokumenty pomocnicze
 
-Bez flagi (`make`) system kompiluje się bez MQTT — usługa jest widoczna w menu ale nie łączy się.
-
-### Uruchomienie
-
-```bash
-# Terminal 1 — broker
-mosquitto
-
-# Terminal 2 — podglad wiadomosci
-mosquitto_sub -h localhost -t "stud_sys/#" -v
-
-# Terminal 3 — system
-./stud_sys
-```
-
-### Konfiguracja w systemie
-
-1. Menu główne → **MQTT Publisher**
-2. Ustaw pola (strzałki góra/dół, Enter = edytuj):
-   - **Broker** — adres hosta, np. `localhost` lub `192.168.1.100`
-   - **Port** — domyślnie `1883`
-   - **Topic** — temat bazowy, np. `stud_sys`
-   - **Node ID** — identyfikator węzła (przydatne przy wielu urządzeniach)
-   - **QoS** — jakość usług: `0` (fire & forget), `1` (at least once), `2` (exactly once)
-   - **Interwal** — co ile sekund publikować dane (np. `30`)
-3. Wybierz **>>> Polacz / Zapisz <<<**
-4. Konfiguracja zapisuje się do `~/.stud_sys_mqtt.cfg` — przy następnym uruchomieniu połączenie nawiązywane automatycznie
-
-### Format wiadomości
-
-Każda aktywna usługa RT publikowana jest osobno:
-
-```
-Topic:   stud_sys/{node_id}/{nazwa_uslugi}
-Payload: {
-  "ts": 1700000000,
-  "node": 1,
-  "service": "Czujnik Sim",
-  "state": 0,
-  "alarm": 0,
-  "dana": 1.2300,
-  "wart_min": -1.0000,
-  "wart_max": 2.5000,
-  "czas": 42.0
-}
-```
-
-Przykładowe tematy przy domyślnej konfiguracji:
-
-```
-stud_sys/1/pomiar_ekg
-stud_sys/1/budzik
-stud_sys/1/sprawdz_otoczenia
-```
-
-### Konfiguracja ręczna
-
-Plik `~/.stud_sys_mqtt.cfg` (tworzony automatycznie po pierwszym połączeniu):
-
-```ini
-broker=localhost
-port=1883
-topic=stud_sys
-client_id=stud_sys_1
-user=
-password=
-qos=0
-node_id=1
-interval=30
-```
-
-### Embedded (Raspberry Pi i inne)
-
-Kompilacja na Raspberry Pi OS:
-
-```bash
-sudo apt-get install libpaho-mqtt-dev libncurses5-dev
-make MQTT=1
-```
-
-Połączenie z zewnętrznym brokerem (np. HiveMQ Cloud, AWS IoT, mosquitto na serwerze):
-
-```ini
-broker=twoj-broker.example.com
-port=1883
-topic=dom/czujniki
-node_id=1
-interval=10
-```
-
----
-
-## Known Limitations
-
-1. **Graphics Mode**: The original system has a graphics mode that is not fully supported in ncurses (limited to text-mode rendering)
-2. **Sound**: ncurses uses the system beep instead of frequency-specific sounds
-3. **Mouse**: Mouse support is basic in the ncurses version
-4. **MessageBox**: Replaced with simple text-based dialog boxes
-
-## Features
-
-- Real-time task scheduler (agenda system)
-- Service queue management  
-- Interactive forms and data entry
-- Report generation
-- User authentication
-- EKG signal measurement interface
-- Database management
-
-## Original System Information
-
-- **Title**: System czasu rzeczywistego w srodowisku Windows NT (Real-time system in Windows NT environment)
-- **Purpose**: Pomiar sygnału EKG (EKG signal measurement)
-- **Author**: Paweł Kisielewicz
-- **Supervisor**: Jan T. Duda
-- **Institution**: Master's thesis project
-- **Version**: 1.0
-- **Date**: 29.10.2001
-
-## License
-
-MIT License - See LICENSE.txt for details
-
-## Contact
-
-Original: gonzo77@poczta.fm
+- opis prezentacji: `presentation_budzik.md`
+- instrukcja obslugi: `user_guide.md`
