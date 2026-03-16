@@ -1,5 +1,7 @@
 # Dokumentacja `stud_sys`
 
+**Wersja dokumentacji:** `0384673`
+
 To jest strona startowa dokumentacji projektu.
 
 ## Dla kogo są te materiały
@@ -20,6 +22,7 @@ To jest strona startowa dokumentacji projektu.
 - `docs/operator_cheatsheet.md` - skrócona ściąga operatora
 - `docs/presentation_budzik.md` - scenariusz prezentacji `Budzik`
 - `docs/pdf/stud_sys_presentation_pack.pdf` - krótki pakiet PDF do samej prezentacji
+- `docs/pdf/stud_sys_defense_pack.pdf` - bardzo krótki pakiet pod obronę / pokaz 2-4 min
 
 ### Techniczne
 

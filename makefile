@@ -84,11 +84,13 @@ docs-pdf:
 	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/pdf_header.tex.in > docs/.pdf_header.generated.tex
 	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/title_page.md.in > docs/.title_page.generated.md
 	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/presentation_title_page.md.in > docs/.presentation_title_page.generated.md
+	sed -e 's/@DOC_VERSION@/$(DOC_VERSION)/g' -e 's/@DOC_DATE@/$(DOC_DATE)/g' docs/defense_title_page.md.in > docs/.defense_title_page.generated.md
 	pandoc docs/user_guide.md -o docs/pdf/user_guide.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	pandoc docs/presentation_budzik.md -o docs/pdf/presentation_budzik.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	pandoc docs/operator_cheatsheet.md -o docs/pdf/operator_cheatsheet.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	pandoc docs/.title_page.generated.md docs/quick_start.md docs/user_guide.md docs/operator_cheatsheet.md docs/presentation_budzik.md -o docs/pdf/stud_sys_docs_bundle.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	pandoc docs/.presentation_title_page.generated.md docs/operator_cheatsheet.md docs/presentation_budzik.md -o docs/pdf/stud_sys_presentation_pack.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
+	pandoc docs/.defense_title_page.generated.md docs/operator_cheatsheet.md docs/defense_pack.md -o docs/pdf/stud_sys_defense_pack.pdf --pdf-engine=xelatex -H docs/.pdf_header.generated.tex
 	@echo "PDF export complete: docs/pdf/"
 
 .SUFFIXES: .c .C .o

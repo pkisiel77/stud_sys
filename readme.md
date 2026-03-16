@@ -1,5 +1,7 @@
 # stud_sys
 
+**Wersja dokumentacji:** `0384673`
+
 `stud_sys` to terminalowy system czasu rzeczywistego z prostym harmonogramem RT, formularzami typu `blankiet` i raportem stanu pracy. Projekt wywodzi się ze starszego systemu badawczego, ale aktualna wersja została uproszczona i dostosowana do pracy w terminalu `ncurses`.
 
 Obecny wariant repo jest przygotowany głównie do prezentacji zadania `Budzik`, przy zachowaniu pełnego silnika harmonogramu i raportowania.

@@ -1,0 +1,48 @@
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\includegraphics[width=0.34\textwidth]{docs/assets/stud_sys_logo.pdf}
+\end{center}
+
+\vspace{0.7cm}
+
+\color{studblue}
+\rule{\textwidth}{1.6pt}
+
+\vspace{1.0cm}
+
+{\Huge\bfseries stud\_sys \par}
+\vspace{0.3cm}
+{\Large Pakiet obronowy \par}
+
+\vspace{0.8cm}
+\color{studaccent}
+\rule{0.28\textwidth}{4pt}
+\color{black}
+
+\vspace{1.3cm}
+
+{\large Skrócony zestaw materiałów do prezentacji działania systemu w 2-4 minuty. \par}
+
+\vspace{1.4cm}
+
+\begin{tabular}{rl}
+\textbf{Wersja dokumentacji:} & @DOC_VERSION@ \\
+\textbf{Data eksportu:} & @DOC_DATE@ \\
+\end{tabular}
+
+\vfill
+
+Zawartość pakietu:
+
+- Operator Cheatsheet
+- Pakiet obronowy
+
+\vspace{1.1cm}
+\color{studblue}
+\rule{\textwidth}{1.6pt}
+\end{titlepage}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
