@@ -7947,6 +7947,21 @@ int dana_koment(int yo, int xo, char* format, ...)
 }
 
 /* -------------------------------------------------------------------- */
+static int blankiet_ret_no_save(int ret)
+{
+    return (ret == Esc || ret == -CR || ret == UNDO || ret == TAB);
+}
+
+static int blankiet_ret_read_only(int ret)
+{
+    return (ret == -CR);
+}
+
+static int blankiet_ret_error(int ret)
+{
+    return (ret == -1);
+}
+
 int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
              int yp, int ym, int xm, char czynny, signed char kolor,
              signed char ramka, char* poziom, char* zapis, int* y_danej)
@@ -7976,7 +7991,7 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
         *zapis = 1;
         if (Ret != FONT6)
         {
-            if (Ret == Esc || Ret == -CR || Ret == UNDO || Ret == TAB) *zapis = 0; /* juz zapisano */
+            if (blankiet_ret_no_save(Ret)) *zapis = 0; /* juz zapisano */
             if (Ret == UNDO) return UNDO;
             if (nr_blank < 0) break;
             if ((*kod_raportu) < 0)
@@ -7984,7 +7999,7 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
                 Ret = -CR;
                 break;
             }
-            if (Ret == -1)
+            if (blankiet_ret_error(Ret))
             {
                 /* Wyjscie z bledami */
                 /* przepisz(d+(*nr_ob)*rozmiar_ob, Dr, rozmiar_ob); */
@@ -8014,7 +8029,7 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
                     term_printf(MY_MAX, X_L0 + 35, ATTR_A, "%s%s", format_inny_rek, "�");
                 }
       }
-                if (Ret == -CR)
+                if (blankiet_ret_read_only(Ret))
                     komun_text(MY_MAX, 0, "�PREZENTACJA DANYCH bez prawa zmian", 0, TERM_CYAN | INVERSE | TERM_FLUSH);
 #else
                 if (*zapis == 1)
@@ -8032,7 +8047,7 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
                     term_printf(MY_MAX, X_L0 + 35,ATTR_A, "%s%s", format_inny_rek, "�");
                 }
             }
-            if (Ret == -CR)
+            if (blankiet_ret_read_only(Ret))
                 komun_text(MY_MAX, 0, "�PREZENTACJA DANYCH bez prawa zmian", 0,TERM_CYAN | INVERSE | TERM_FLUSH);
 #endif
         }
@@ -8091,7 +8106,7 @@ int Esc_Tab_wybor_toru(int Ret, signed char* kod_raportu, int* nr_ob,
             if (nr_blank >= 0) *nr_ob = BL[nr_blank]->nr_rekordu;
             if (*nr_ob < 0 || *kod_raportu < 0) return -Esc; /* KONIEC */
             return Esc; /* wychodzimy do raportu nizszego */
-        case TAB: if (Ret == -CR) continue;
+        case TAB: if (blankiet_ret_read_only(Ret)) continue;
             return TAB;
         /*        case CR:  goto F2;  */
         case BS: if (ob_pocz == ob_konc) continue;
@@ -8130,7 +8145,7 @@ int Esc_Tab_wybor_toru(int Ret, signed char* kod_raportu, int* nr_ob,
                 ret = 1;
                 break;
             case FONT2:
-                if (Ret == -CR) continue;
+                if (blankiet_ret_read_only(Ret)) continue;
                 if (*zapis == 0) continue;
                 zapis_raportu(NULL, 0, 0);
                 *zapis = 0;
