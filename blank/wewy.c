@@ -5910,7 +5910,7 @@ int zamkniecie_raportow(char kontr_spojnosci)
         lwmall--;
         RAP[i] = NULL;
     }
-    if (lwmall != lwmallp)
+    if (lwmall > lwmallp)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Przybylo alokacji pamieci w tej sesji: bylo %d jest %d <Ent>  ",
                   lwmallp, lwmall);
