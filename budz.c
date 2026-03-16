@@ -33,7 +33,9 @@ int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
 void ustaw_typ_uslugi(struct agenda *A, int decyzja);
 static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
 static float budz_pozostalo_teraz(struct agenda *A);
-static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul);
+static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *tytul);
+static struct agenda *budz_kopia_robocza(struct agenda *A);
+static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src);
 /* ============ Persystencja budzikow ================================ */
 
 struct budz_rekord_pliku {
@@ -274,9 +276,8 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 {
     struct agenda *lista[AG_SIZE];
     struct agenda *A;
+    struct agenda *Awrk;
     struct budzik *B;
-    char mstr[AG_SIZE + 3][80];
-    char *menu_l[AG_SIZE + 3];
     static int lw = 0;
     int n, i, w;
     (void)nr_rekordu; (void)ob_pocz; (void)ob_konc;
@@ -286,25 +287,15 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         /* --- Zbierz aktywne budziki z agendy --- */
         n = 0;
         for (i = 1; i <= AgendaMax && n < AG_SIZE; i++) {
-            char pozostal[20];
             A = SysA[i];
             if (A == NULL || A->number_of_calls == 0) continue;
             if ((A->S)->decyzje != dec_budz) continue;
             lista[n] = A;
-            B = (struct budzik *)(A->data);
-            budz_format_pozostalo(budz_pozostalo_teraz(A), pozostal, sizeof(pozostal));
-            snprintf(mstr[n], 80, "  %02d:%02d  [%8s]  %-33s",
-                     B->godz, B->min, pozostal, B->nazwa);
-            menu_l[n] = mstr[n];
             n++;
         }
-        snprintf(mstr[n],     80, "  +++ Dodaj nowy budzik +++");
-        snprintf(mstr[n + 1], 80, "  Wyjdz");
-        menu_l[n]     = mstr[n];
-        menu_l[n + 1] = mstr[n + 1];
         if (lw > n + 1) lw = 0;
 
-        w = budz_menu_live(menu_l, n + 2, lw, " LISTA BUDZIKOW ");
+        w = budz_menu_live(lista, n, lw, " LISTA BUDZIKOW ");
         lw = (w >= 0) ? w : 0;
 
         if (w < 0 || w == n + 1) return BLANKIET_UI_EXIT;
@@ -341,17 +332,21 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                            "  >>> Usun budzik <<<",
                            "  Wyjdz (bez zmian)"};
             A = lista[w];
-            B = (struct budzik *)(A->data);
+            Awrk = budz_kopia_robocza(A);
+            if (Awrk == NULL) continue;
+            B = (struct budzik *)(Awrk->data);
 
-            w = budz_formularz(A, B, " BUDZIK ", me, 6);
+            w = budz_formularz(Awrk, B, " BUDZIK ", me, 6);
             if (w == 3) {
-                ustaw_czas_budzika(A, B);
+                ustaw_czas_budzika(Awrk, B);
+                budz_przepisz_zmiany(A, Awrk);
                 budz_zapisz_do_pliku();
             } else if (w == 4) {
                 A->number_of_calls = 0;
                 budz_zapisz_do_pliku();
                 if (lw >= n - 1) lw = 0;
             }
+            Free(Awrk);
         }
     }
 }
@@ -383,13 +378,15 @@ static float budz_pozostalo_teraz(struct agenda *A)
     return left;
 }
 
-static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
+static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *tytul)
 {
     int yp = Y_G0 + 1, xp = X_L0;
+    int count = nbudz + 2;
     int ym, xm, i, maxlen, ch, sel, need_redraw;
     unsigned int att;
     char *koniec = "<Esc>";
     time_t last_refresh;
+    char rows[AG_SIZE + 3][80];
     char prev[AG_SIZE + 3][80];
 
     if (count <= 0) return -1;
@@ -401,7 +398,21 @@ static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
     if (tytul != NULL && (int)strlen(tytul) > maxlen) maxlen = (int)strlen(tytul);
     for (i = 0; i < count; i++)
     {
-        int len = (opcje[i] != NULL) ? (int)strlen(opcje[i]) : 0;
+        int len;
+        if (i < nbudz)
+        {
+            struct budzik* B = (struct budzik*)(lista[i]->data);
+            len = snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33s",
+                           B->godz, B->min, "00:00", B->nazwa);
+        }
+        else if (i == nbudz)
+        {
+            len = snprintf(rows[i], sizeof(rows[i]), "  +++ Dodaj nowy budzik +++");
+        }
+        else
+        {
+            len = snprintf(rows[i], sizeof(rows[i]), "  Wyjdz");
+        }
         if (len > maxlen) maxlen = len;
     }
     xm = xp + maxlen + 3;
@@ -418,7 +429,26 @@ static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
             last_refresh = now;
             for (i = 0; i < count; i++)
             {
-                const char *txt = (opcje[i] != NULL) ? opcje[i] : "";
+                const char *txt = "";
+                if (i < nbudz)
+                {
+                    char pozostal[20];
+                    struct budzik* B = (struct budzik*)(lista[i]->data);
+                    budz_format_pozostalo(budz_pozostalo_teraz(lista[i]), pozostal, sizeof(pozostal));
+                    snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33s",
+                             B->godz, B->min, pozostal, B->nazwa);
+                    txt = rows[i];
+                }
+                else if (i == nbudz)
+                {
+                    snprintf(rows[i], sizeof(rows[i]), "  +++ Dodaj nowy budzik +++");
+                    txt = rows[i];
+                }
+                else
+                {
+                    snprintf(rows[i], sizeof(rows[i]), "  Wyjdz");
+                    txt = rows[i];
+                }
                 if (strncmp(prev[i], txt, sizeof(prev[i])) != 0)
                 {
                     snprintf(prev[i], sizeof(prev[i]), "%s", txt);
@@ -492,6 +522,37 @@ static int budz_menu_live(char *opcje[], int count, int opcja0, char *tytul)
             break;
         }
     }
+}
+
+static struct agenda *budz_kopia_robocza(struct agenda *A)
+{
+    int size;
+    struct agenda *Acopy;
+    if (A == NULL || A->S == NULL || A->S->str_size < (int)sizeof(struct agenda))
+        return NULL;
+    size = A->S->str_size;
+    Acopy = (struct agenda*)Malloc(size);
+    if (Acopy == NULL) return NULL;
+    memcpy(Acopy, A, size);
+    Acopy->data = (char*)(Acopy + 1);
+    memcpy(Acopy->data, A->data, (size_t)(size - (int)sizeof(struct agenda)));
+    return Acopy;
+}
+
+static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src)
+{
+    char *data_dst;
+    struct Service *service_dst;
+    char *name_dst;
+    if (dst == NULL || src == NULL) return;
+    data_dst = dst->data;
+    service_dst = dst->S;
+    name_dst = dst->name;
+    memcpy(dst, src, sizeof(struct agenda));
+    dst->data = data_dst;
+    dst->S = service_dst;
+    dst->name = name_dst;
+    memcpy(dst->data, src->data, sizeof(struct budzik));
 }
 
 extern time_t sek_akt;
