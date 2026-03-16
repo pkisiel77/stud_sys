@@ -8730,14 +8730,12 @@ D:
         {
             term_type(MY_MAX, X_L0,
                       " Nie mozna otworzyc blankietu !! <Ent> ", 0,ATTR_A);
-            zamknij_raporty();
             GET_char();
-            return NULL;
+            return (char*)-1;
         }
         if (ret == 0)
         {
-            zamknij_raporty();
-            return NULL;
+            return (char*)-1;
         }
         if (ret == -2)
         {
@@ -8782,8 +8780,7 @@ D:
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak danych w blankiecie %d: nr_danej=%d nr_ob=%d . <Ent> ",
                   nr_blank, nr_danej, *nr_ob);
         GET_char();
-        zamknij_raporty();
-        return NULL;
+        return (char*)-1;
     }
     Czy_Blankiet_otwarty = 2;
     if (nrdan >= 0)
