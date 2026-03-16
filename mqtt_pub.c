@@ -426,6 +426,7 @@ char *dane_mqtt(int ob_pocz, int ob_konc, int *rozmiar_ob)
     *rozmiar_ob = sizeof(struct agenda) + sizeof(struct mqtt_cfg);
     A = (struct agenda *)Malloc(*rozmiar_ob);
     if (A == NULL) return NULL;
+    lwmall++;
     A->S    = Service;
     A->data = (A + 1);
     return (char *)A;
