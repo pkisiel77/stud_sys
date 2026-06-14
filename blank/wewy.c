@@ -71,6 +71,7 @@ char real_time;
 //#include "../aj/dim.h"
 
 #include "moje.h"
+#include "../loc.h"
 
 // extern unsigned int cursor = 0x0A0C, nocursor = 0x2000;
 
@@ -415,7 +416,7 @@ D:
                 {
                     yplus();
                     term_printf(y_akt, x_akt0, attryb,
-                                "Bledna dana (%s) typu %c", sl, f);
+                                L_WEWY_BAD_DATA, sl, f);
                     yplus();
                     x_akt = x_akt0;
                 }
@@ -440,7 +441,7 @@ D:
                 if (BLAD == 1)
                 {
                     yplus();
-                    komunikat(MY_MAX, X_L0, attryb, "Bledna dana (%s) typu %c", sl, f);
+                    komunikat(MY_MAX, X_L0, attryb, L_WEWY_BAD_DATA, sl, f);
                 }
                 else
                 {
@@ -464,7 +465,7 @@ D:
                 if (BLAD == 1)
                 {
                     yplus();
-                    term_printf(y_akt, x_akt0, attryb, "Bledna dana (%s) typu %c", sl, f);
+                    term_printf(y_akt, x_akt0, attryb, L_WEWY_BAD_DATA, sl, f);
                     yplus();
                     x_akt = x_akt0;
                 }
@@ -688,7 +689,7 @@ D:
                 {
                     yplus();
                     komunikat(MY_MAX, X_L0, attryb,
-                              "Bledna dana (%s) typu %c", sl, f);
+                              L_WEWY_BAD_DATA, sl, f);
                     yplus();
                     x_akt = x_akt0;
                 }
@@ -715,7 +716,7 @@ D:
                 if (BLAD == 1)
                 {
                     yplus();
-                    komunikat(MY_MAX, X_L0, attryb, "Bledna dana (%s) typu %c", sl, f);
+                    komunikat(MY_MAX, X_L0, attryb, L_WEWY_BAD_DATA, sl, f);
                 }
                 else
                 {
@@ -740,7 +741,7 @@ D:
                 if (BLAD == 1)
                 {
                     yplus();
-                    term_printf(y_akt, x_akt0, attryb, "Bledna dana (%s) typu %c", sl, f);
+                    term_printf(y_akt, x_akt0, attryb, L_WEWY_BAD_DATA, sl, f);
                     yplus();
                     x_akt = x_akt0;
                 }
@@ -1500,7 +1501,7 @@ void mAbort()
     yplus();
     x_akt = x_akt0;
     if (Get_Char() == 't') exit(0);
-    term_printf(y_akt, x_akt, attryb, "Wpisz odpowiedz na poprzednie pytanie");
+    term_printf(y_akt, x_akt, attryb, L_WEWY_ENTER_REPLY);
 }
 
 /*------------------------------------------------------------------------*/
@@ -1681,7 +1682,7 @@ int GET_char(void) /* ======= odczyt znaku z myszki lub klawiatury === */
                         if (nr_komunik == TIMEOUT)
                         {
                             komunikat(MY_MAX, X_L0, ATTR_A,
-                                      " Brak zadania synchronizowanego z klawiatura !!! <q - exit> ");
+                                      L_WEWY_NO_SYNC_TASK);
                             if (getchar() == 'q') exit(1);
                             else
                             {
@@ -2609,7 +2610,7 @@ int otworz_raporty(char nr_op)
     blokada_zapisu = ZAPIS_DOWOLNY;
     if (Klucz != -1)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Nie zamkniete raporty poprzedniej sesji    <Ent>    ");
+        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_REPORTS_OPEN);
         GET_char();
         return -1;
     }
@@ -2620,7 +2621,7 @@ int otworz_raporty(char nr_op)
     }
     if (lwmall > 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Pozostaly alokacje pamieci z poprzedniej sesji (%d) <Ent>  ",
+        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_ALLOCS_LEFT,
                   lwmall);
         GET_char();
     }
@@ -2628,7 +2629,7 @@ int otworz_raporty(char nr_op)
     if (nr_blank >= 0 || Czy_Blankiet_otwarty != 0)
     {
         komunikat(MY_MAX, 1,ATTR_A,
-                  "Nie zamkniete blankiety (ostatni %d, stan %d) z poprzedniej sesji: <q> - koniec; <d> - dalej ?? ",
+                  L_WEWY_PREV_BLANKS_OPEN,
                   nr_blank, Czy_Blankiet_otwarty);
         do
         {
@@ -2651,7 +2652,7 @@ int otworz_raporty(char nr_op)
         RAP[i] = NULL;
         if (RAP[i] != NULL)
         {
-            komunikat(MY_MAX, 1,ATTR_A, "Nie zamkniety raport %d z poprzedniej sesji: <q> - koniec; <d> - dalej ?? ",
+            komunikat(MY_MAX, 1,ATTR_A, L_WEWY_PREV_REPORT_OPEN,
                       i);
             do
             {
@@ -4332,7 +4333,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
         skok = ustal_skok_adr(R, ind, Skok, &err);
         if (err > 0)
         {
-            Term_Typef(y, x, " Brak !! ", 0, attr);
+            Term_Typef(y, x, L_WEWY_MISSING_LONG, 0, attr);
             return m_wherex();
         }
     }
@@ -4829,13 +4830,13 @@ WPIS:
                         i += snprintf(&text[i], 80 - i, format_wyn, baza * wartn[nrkol]);
                     }
                     if (zakr[ll][0] == EOS)
-                        snprintf(&text[i], 80 - i, " ZAKRES !! <ENT>-popraw ");
+                        snprintf(&text[i], 80 - i, L_WEWY_OUT_OF_RANGE);
                     else
                     {
                         if (ll == 0)
                             snprintf(&text[i], 80 - i, zakres, " poza ", wmin, wmax, " <ENT> ");
                         if (ll == 1)
-                            snprintf(&text[i], 80 - i, " poza%s <ENT> ", zakr_abs);
+                            snprintf(&text[i], 80 - i, L_WEWY_OUT_OF_FMT, zakr_abs);
                     }
                     i = strlen(text) + 1;
                     if (x0 + i > X_maxBlank)
@@ -5293,7 +5294,7 @@ void def_haslo(char* hasl, char* kod)
     char l;
     if (Klucz != 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Nie otwarte raporty. Uzyj funkcji otworz_raporty() !!!!!  <Ent>   ");
+        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
         GET_char();
         return;
     }
@@ -5330,7 +5331,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
     poziom_upr = 0;
     if ((potrzebne_uprawn % 2) == 1 && nr_oper != 0)
     {
-        komun_text(MY_MAX, X_L0, " Zmiany mozna wprowadzic tylko Z TERMINALA GLOWNEGO !! Zostana ANULOWANE. <Ent> ", 0,
+        komun_text(MY_MAX, X_L0, L_WEWY_ONLY_MAIN_TERM, 0,
                    ATTR_A);
         GET_char();
         return 0;
@@ -5342,7 +5343,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
         Okno(MY_MAX, X_L0, MY_MAX, MXR_MAX, attrtx);
         clr_Okno(); /*term_flush(); */
         komun_text(MY_MAX, X_L0, tytul, 0,TERM_WHITE | INVERSE | TERM_BLACK_BG);
-        form = "  <Ent> - zapis danych; <Esc> - anulowanie zmian: ??     ";
+        form = L_WEWY_SAVE_OR_CANCEL;
         i = strlen(form) + 1;
         Term_Typef(MY_MAX, MXR_MAX - i, form, i,TERM_WHITE | MTERM_HILIGHT | TERM_MAGENTA_BG);
         term_flush();
@@ -5361,7 +5362,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
             Okno(MY_MAX, X_L0, MY_MAX, MXR_MAX, attrtx);
             clr_Okno();
             komun_text(MY_MAX, X_L0, tytul, 0,TERM_WHITE | INVERSE | TERM_BLACK_BG);
-            form = " WPISZ HASLO i zatwierdz je <Ent>: ?? ";
+            form = L_WEWY_ENTER_PASSWORD;
             l = strlen(form);
             i = MXR_MAX - 10 - l;
             Term_Typef(MY_MAX, i, form, l, attrtx);
@@ -5394,7 +5395,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
             if (sukces == 0)
             {
                 komun_text(MY_MAX, X_L0,
-                           " NIEWLASCIWE HASLO: <Ent> - powtorka; <Esc> - wyjscie z anulowaniem zmian: ??  ", 0,ATTR_A);
+                           L_WEWY_BAD_PASSWORD_1, 0,ATTR_A);
                 do
                 {
                     znak = GET_char();
@@ -5410,7 +5411,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
         if (ret + poziom_upr < potrzebne_uprawn)
         {
             komun_text(MY_MAX, X_L0,
-                       "  ZA NISKIE UPRAWNIENIA: <Ent> -powtorka; <Esc> -wyjscie z anulow.zmian ?? ", 0,ATTR_A);
+                       L_WEWY_LOW_PERMS_1, 0,ATTR_A);
             do
             {
                 znak = GET_char();
@@ -5437,7 +5438,7 @@ int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
     poziom_upr = 0;
     if ((potrzebne_uprawn % 2) == 1 && nr_oper != 0)
     {
-        komun_text(MY_MAX, X_L0, " Poziom uprawnien %d wymaga TERMINALA GLOWNEGO !! <Ent> ", 0,ATTR_A);
+        komun_text(MY_MAX, X_L0, L_WEWY_NEED_MAIN_TERM, 0,ATTR_A);
         GET_char();
         return -1;
     }
@@ -5451,7 +5452,7 @@ int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
             Okno(MY_MAX, X_L0, MY_MAX, MXR_MAX, attrtx);
             clr_Okno();
             komun_text(MY_MAX, X_L0, tytul, 0,TERM_WHITE | INVERSE | TERM_BLACK_BG);
-            form = " WPISZ HASLO i zatwierdz je <Ent>: ?? ";
+            form = L_WEWY_ENTER_PASSWORD;
             l = strlen(form);
             i = MXR_MAX - 11 - l;
             Term_Typef(MY_MAX, i, form, l, attrtx);
@@ -5485,7 +5486,7 @@ int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
             if (sukces == 0)
             {
                 komun_text(MY_MAX, X_L0,
-                           " NIEWLASCIWE HASLO: <Ent> - powtorka; <Esc> - wyjscie z procedury: ??   ", 0,ATTR_A);
+                           L_WEWY_BAD_PASSWORD_2, 0,ATTR_A);
                 do
                 {
                     znak = GET_char();
@@ -5501,7 +5502,7 @@ int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
         if (ret + poziom_upr < potrzebne_uprawn)
         {
             komun_text(MY_MAX, X_L0,
-                       "ZA NISKIE UPRAWNIEN: <Ent> -powtorka; <Esc> -wyjscie z anulowaniem zmian: ?? ", 0,ATTR_A);
+                       L_WEWY_LOW_PERMS_2, 0,ATTR_A);
             do
             {
                 znak = GET_char();
@@ -5549,7 +5550,7 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
     struct reports* R;
     if (Klucz != 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Nie otwarte raporty. Uzyj funkcji otworz_raporty() !!!!!  <Ent>    ");
+        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
         GET_char();
         return -1;
     }
@@ -5912,7 +5913,7 @@ int zamkniecie_raportow(char kontr_spojnosci)
     }
     if (lwmall > lwmallp)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Przybylo alokacji pamieci w tej sesji: bylo %d jest %d <Ent>  ",
+        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NEW_ALLOCS_SESS,
                   lwmallp, lwmall);
         GET_char();
     }
@@ -6028,7 +6029,7 @@ char* podaj_adres_rap(int kod_raportu)
         R = RAP[i];
         if (R == NULL)
         {
-            komunikat(MY_MAX, X_L0,ATTR_A, " Brak raportu %d !!!!!!!!!!!!!!! <Ent> ", kod_raportu);
+            komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORT, kod_raportu);
             //			term_color(TERM_WHITE|TERM_BLACK_BG);
             return NULL;
         }
@@ -6105,10 +6106,10 @@ char* ustal_adres_rek(int kod_raportu, int rek_no)
         return D;
     }
 ERR_DANE:
-    komunikat(MY_MAX, X_L0,ATTR_A, " Brak danych raportu %d !!!!!!!!!!!!!!! <Ent> ", kod_raportu);
+    komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORT_DATA, kod_raportu);
     return NULL;
 ERR_BRAK_RAP:
-    komunikat(MY_MAX, X_L0,ATTR_A, " Brak raportu %d !!!!!!!!!!!!!!! <Ent> ", kod_raportu);
+    komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORT, kod_raportu);
     return NULL;
 }
 
@@ -6419,7 +6420,7 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
         return NULL;
     }
     /*  if((R->free_mem&0x02)!=0x02)
-         {komunikat(MY_MAX,X_L0,ATTR_A," Raport %d nie zwalnia pamieci - alokacja %s(%d) niemozliwa " ,
+         {komunikat(MY_MAX,X_L0,ATTR_A,L_WEWY_REPORT_NO_FREE ,
                                     kod_raportu, txt, size);
             GET_char(); if(znak!=0) txt[TXM]=znak; return NULL;
          }
@@ -6615,7 +6616,7 @@ int Zapisz_raport(int kod_raportu)
 int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
 {
     signed char nr_raportu, i;
-    char zmiany = 0, *kod_operatora, *text = " WSZYSTKIE RAPORTY !!!!!!!   ";
+    char zmiany = 0, *kod_operatora, *text = L_WEWY_ALL_REPORTS;
     struct reports* R;
     int lrek, ret = 0;
     if (Uprawn < 1 && wymag_uprawn > 0)
@@ -8938,7 +8939,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                 } /* ### dodane 22.01.98 */
                 else
                 {
-                    term_type(MY_MAX, X_L0 + 1, "  Wpis danej ", 0, attr_o[2]);
+                    term_type(MY_MAX, X_L0 + 1, L_WEWY_DATA_ENTRY, 0, attr_o[2]);
                     wp = 1;
                     mod = 2;
                     z_menu = ret;
@@ -9201,7 +9202,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                                 "�  Wpis danej: <Esc> - wyjscie�  <Ent> - akceptacja � <%c, %c> - inkrementacja  �",
                                 24, 25);
 #endif
-                    term_type(MY_MAX, X_L0 + 1, "  Wpis danej ", 0, attr_o[2]);
+                    term_type(MY_MAX, X_L0 + 1, L_WEWY_DATA_ENTRY, 0, attr_o[2]);
                     break;
                 }
                 if (znak == BS) goto W_LEWO;
@@ -9557,12 +9558,12 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
     struct okno* ok;
     struct reports* R;
     char* kod_upr[6] = {
-        "0 tylko pokaz danych",
-        "1 zapis z termin.glown.",
-        "2 zapis po podaniu hasla",
-        "3 zapis z term.gl.+haslo",
-        "4 operator glowny",
-        "5 oper.glowny i term.gl."
+        L_WEWY_PERM_0,
+        L_WEWY_PERM_1,
+        L_WEWY_PERM_2,
+        L_WEWY_PERM_3,
+        L_WEWY_PERM_4,
+        L_WEWY_PERM_5
     };
     char znak, zakres[] = "0-4";
     for (i = 0; i < LRAP_BL; i++)
@@ -9614,7 +9615,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
                     term_type(MY_MAX, X_L0, R->tytul, 0, attr | TERM_FLUSH);
                     ret = okno_znak(1, MY_MAX, 40, attr, attr/*TERM_MAGENTA*/ | TERM_FLUSH,
                                     attr_bl | tlo/*TERM_WHITE*/ | INVERSE | TERM_FLUSH, &znak,
-                                    " Podaj kod uprawn [%s] ?? ", zakres, kod_upr, 6);
+                                    L_WEWY_ASK_PERM_CODE, zakres, kod_upr, 6);
                     if (ret < 0) return 0;
                     Uprawn = znak - '0';
                 }
@@ -10019,7 +10020,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
             snprintf(text, 80, format, wartn);
             i = strlen(text) + 1;
             if (zakres[0] == EOS)
-                snprintf(&text[i], 80 - i, " ZAKRES !! <ENT>-popraw ");
+                snprintf(&text[i], 80 - i, L_WEWY_OUT_OF_RANGE);
             else
                 snprintf(&text[i], 80 - i, zakres, " poza ", w_min, w_max, " <ENT> ");
             i = strlen(text) + 1;
