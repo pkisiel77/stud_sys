@@ -562,7 +562,7 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
 	static struct agenda *A;
 	struct budzik *Bu;
-	int x,y, i;
+	int x,y;
 	int min, sek, godz;
 	S=Service;
 	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct budzik);
@@ -570,8 +570,8 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
 	lwmall++;
 	A->S=S; A->data=(A+1);
 	Bu=(struct budzik *)(A->data);
+	memset(Bu, 0, sizeof(struct budzik));
 	A->mode='s'; A->prior=1;
-	for(i=0;i<10;i++) Bu->nazwa[i]=0; Bu->nazwa[i]=0;
 	czas_zegarowy(&godz, &min, &sek);  /* oddaje minute od godz.0.0 (stud_sys.c) */
 	Bu->min=min; Bu->godz=godz+1;
 	if(Bu->godz>=24) Bu->godz-=24;
