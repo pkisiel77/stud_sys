@@ -6,6 +6,7 @@ Autor: gonzo77@poczta.fm
 
 #include "blank/moje.h"
 #include "admin.h"
+#include "loc.h"
 
 void chk_time(void);
 void PrzegladajLog(void);//char *buffor[20]);
@@ -33,14 +34,14 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
   dp=d0+nr_rek;
   d=(struct admin *)dane_raportowanego_rekordu(admin_blankiet,&nr_rek);
 	if(d==NULL || d!=dp)
-	 {term_printf(MY_MAX,X_L0,ATTR_A," Niezgodnosc adresow w RAP_ZM(d=%p dp=%p). <Ent> ",d,dp);
+	 {term_printf(MY_MAX,X_L0,ATTR_A,L_ADMIN_ERR_ADDR_MISMATCH,d,dp);
 		GET_char();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_rek);
     ret=dana_koment(-1,-1,"+ ");
-	{ char *admin_menu[]={"Przegladanie pliku log.dat","Informacje o systemie"};
+	{ char *admin_menu[]={L_ADMIN_MENU_BROWSE_LOG,L_ADMIN_MENU_SYS_INFO};
 	  int l_poz_menu = 2;
-      nr_poz=okno_menu(admin_menu,l_poz_menu,nr_poz,attr, at_wpis, 10,25,-1," WYBIERZ OPCJE ",1);
+      nr_poz=okno_menu(admin_menu,l_poz_menu,nr_poz,attr, at_wpis, 10,25,-1,L_ADMIN_MENU_TITLE,1);
 	}
 	switch(nr_poz)
 	{ case 0: PrzegladajLog(); break;
@@ -92,10 +93,10 @@ void PrzegladajLog(void)
     fp = fopen(logpath, "r");
     if (fp == NULL)
     {
-        dana_koment(MY_MAX, X_L0, "+ Blad otwarcia logu: %s", logpath);
+        dana_koment(MY_MAX, X_L0, L_ADMIN_ERR_LOG_OPEN, logpath);
         return;
     }
-    dana_koment(-1, -1, "+ --- Log: %s ---", logpath);
+    dana_koment(-1, -1, L_ADMIN_LOG_HEADER, logpath);
     while (fgets(line, sizeof(line), fp) != NULL)
     {
         size_t len = strlen(line);
@@ -114,9 +115,9 @@ void PrzegladajLog(void)
 
 int InfoSystem(int ret)
 {
-	ret=dana_koment(-1,20,"+ Informacje o systemie");
+	ret=dana_koment(-1,20,L_ADMIN_SYS_INFO_TITLE);
 	ret=dana_koment(-1,-1,"+ ");
-	ret=dana_koment(-1,-1,"+ System: Linux/Unix (ncurses)");
+	ret=dana_koment(-1,-1,L_ADMIN_SYS_INFO_LINE);
 	ret=dana_koment(-1,-1,"+ ");
 	return ret;
 }
