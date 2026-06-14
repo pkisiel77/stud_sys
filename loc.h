@@ -184,6 +184,49 @@
 #define L_MQTT_OK_MSG             " Connected to %s:%d  (topic: %s/%d/...)"
 #define L_MQTT_ERR_MSG            " Connection error to %s:%d  (err: %d) <Ent>"
 
+/* ===== Wewy (form engine: passwords, session start, common errors) ===== */
+/* Password / permission flow */
+#define L_WEWY_SAVE_OR_CANCEL    "  <Ent> - save data; <Esc> - discard changes: ??     "
+#define L_WEWY_ENTER_PASSWORD    " ENTER PASSWORD and confirm with <Ent>: ?? "
+#define L_WEWY_BAD_PASSWORD_1    " WRONG PASSWORD: <Ent> - retry; <Esc> - exit discarding changes: ??  "
+#define L_WEWY_BAD_PASSWORD_2    " WRONG PASSWORD: <Ent> - retry; <Esc> - exit procedure: ??   "
+#define L_WEWY_LOW_PERMS_1       "  PERMISSIONS TOO LOW: <Ent> - retry; <Esc> - exit discarding changes ?? "
+#define L_WEWY_LOW_PERMS_2       "PERMISSIONS TOO LOW: <Ent> - retry; <Esc> - exit discarding changes: ?? "
+#define L_WEWY_NEED_MAIN_TERM    " Permission level %d requires MAIN TERMINAL !! <Ent> "
+#define L_WEWY_ONLY_MAIN_TERM    " Changes only allowed from MAIN TERMINAL !! Will be DISCARDED. <Ent> "
+#define L_WEWY_ASK_PERM_CODE     " Enter permission code [%s] ?? "
+/* Permission level labels */
+#define L_WEWY_PERM_0            "0 view only"
+#define L_WEWY_PERM_1            "1 write from main term"
+#define L_WEWY_PERM_2            "2 write with password"
+#define L_WEWY_PERM_3            "3 main term + password"
+#define L_WEWY_PERM_4            "4 main operator"
+#define L_WEWY_PERM_5            "5 main operator + main term"
+/* Session startup */
+#define L_WEWY_PREV_REPORTS_OPEN " Reports from previous session not closed    <Ent>    "
+#define L_WEWY_PREV_ALLOCS_LEFT  " Memory allocations from previous session left (%d) <Ent>  "
+#define L_WEWY_NEW_ALLOCS_SESS   " New memory allocations this session: was %d now %d <Ent>  "
+#define L_WEWY_PREV_BLANKS_OPEN  "Unclosed blankets (last %d, state %d) from previous session: <q> - quit; <d> - continue ?? "
+#define L_WEWY_PREV_REPORT_OPEN  "Unclosed report %d from previous session: <q> - quit; <d> - continue ?? "
+/* Common runtime errors */
+#define L_WEWY_NO_DATA_GENERIC   " No data !! "
+#define L_WEWY_NO_REPORT_DATA    " No data for report %d !!!!!!!!!!!!!!! <Ent> "
+#define L_WEWY_NO_REPORT         " No report %d !!!!!!!!!!!!!!! <Ent> "
+#define L_WEWY_NO_REPORTS_OPEN   " No reports open. Use otworz_raporty() !!!!!  <Ent>    "
+#define L_WEWY_REPORT_NO_FREE    " Report %d not freeing memory - alloc %s(%d) not possible "
+#define L_WEWY_ALL_REPORTS       " ALL REPORTS !!!!!!!   "
+/* Input markers / prompts */
+#define L_WEWY_ENTER_REPLY       "Enter reply to the previous question"
+#define L_WEWY_ABORT_PROMPT      "   ABORT program !!! ?? YES - 't'     "
+#define L_WEWY_OUT_OF_RANGE      " OUT OF RANGE !! <ENT>-fix "
+#define L_WEWY_OUT_OF            " out of "
+#define L_WEWY_OUT_OF_FMT        " out of%s <ENT> "
+#define L_WEWY_MISSING_MARK      " !? "
+#define L_WEWY_MISSING_LONG      " Missing !! "
+#define L_WEWY_DATA_ENTRY        "  Data entry "
+#define L_WEWY_BAD_DATA          "Bad data (%s) of type %c"
+#define L_WEWY_NO_SYNC_TASK      " No task synchronized with keyboard !!! <q - exit> "
+
 #else /* LANG_PL — default */
 
 /* ===== Budzik ===== */
@@ -359,6 +402,49 @@
 #define L_MQTT_PROMPT_INTERVAL    "Interwal [s]"
 #define L_MQTT_OK_MSG             " Polaczono z %s:%d  (topic: %s/%d/...)"
 #define L_MQTT_ERR_MSG            " Blad polaczenia z %s:%d  (err: %d) <Ent>"
+
+/* ===== Wewy (silnik blankietow: hasla, startup, najczestsze bledy) ===== */
+/* Hasla / uprawnienia */
+#define L_WEWY_SAVE_OR_CANCEL    "  <Ent> - zapis danych; <Esc> - anulowanie zmian: ??     "
+#define L_WEWY_ENTER_PASSWORD    " WPISZ HASLO i zatwierdz je <Ent>: ?? "
+#define L_WEWY_BAD_PASSWORD_1    " NIEWLASCIWE HASLO: <Ent> - powtorka; <Esc> - wyjscie z anulowaniem zmian: ??  "
+#define L_WEWY_BAD_PASSWORD_2    " NIEWLASCIWE HASLO: <Ent> - powtorka; <Esc> - wyjscie z procedury: ??   "
+#define L_WEWY_LOW_PERMS_1       "  ZA NISKIE UPRAWNIENIA: <Ent> -powtorka; <Esc> -wyjscie z anulow.zmian ?? "
+#define L_WEWY_LOW_PERMS_2       "ZA NISKIE UPRAWNIEN: <Ent> -powtorka; <Esc> -wyjscie z anulowaniem zmian: ?? "
+#define L_WEWY_NEED_MAIN_TERM    " Poziom uprawnien %d wymaga TERMINALA GLOWNEGO !! <Ent> "
+#define L_WEWY_ONLY_MAIN_TERM    " Zmiany mozna wprowadzic tylko Z TERMINALA GLOWNEGO !! Zostana ANULOWANE. <Ent> "
+#define L_WEWY_ASK_PERM_CODE     " Podaj kod uprawn [%s] ?? "
+/* Poziomy uprawnien */
+#define L_WEWY_PERM_0            "0 tylko pokaz danych"
+#define L_WEWY_PERM_1            "1 zapis z termin.glown."
+#define L_WEWY_PERM_2            "2 zapis po podaniu hasla"
+#define L_WEWY_PERM_3            "3 zapis z term.gl.+haslo"
+#define L_WEWY_PERM_4            "4 operator glowny"
+#define L_WEWY_PERM_5            "5 oper.glowny i term.gl."
+/* Startup sesji */
+#define L_WEWY_PREV_REPORTS_OPEN " Nie zamkniete raporty poprzedniej sesji    <Ent>    "
+#define L_WEWY_PREV_ALLOCS_LEFT  " Pozostaly alokacje pamieci z poprzedniej sesji (%d) <Ent>  "
+#define L_WEWY_NEW_ALLOCS_SESS   " Przybylo alokacji pamieci w tej sesji: bylo %d jest %d <Ent>  "
+#define L_WEWY_PREV_BLANKS_OPEN  "Nie zamkniete blankiety (ostatni %d, stan %d) z poprzedniej sesji: <q> - koniec; <d> - dalej ?? "
+#define L_WEWY_PREV_REPORT_OPEN  "Nie zamkniety raport %d z poprzedniej sesji: <q> - koniec; <d> - dalej ?? "
+/* Najczestsze bledy runtime */
+#define L_WEWY_NO_DATA_GENERIC   " Brak danych !! "
+#define L_WEWY_NO_REPORT_DATA    " Brak danych raportu %d !!!!!!!!!!!!!!! <Ent> "
+#define L_WEWY_NO_REPORT         " Brak raportu %d !!!!!!!!!!!!!!! <Ent> "
+#define L_WEWY_NO_REPORTS_OPEN   " Nie otwarte raporty. Uzyj funkcji otworz_raporty() !!!!!  <Ent>    "
+#define L_WEWY_REPORT_NO_FREE    " Raport %d nie zwalnia pamieci - alokacja %s(%d) niemozliwa "
+#define L_WEWY_ALL_REPORTS       " WSZYSTKIE RAPORTY !!!!!!!   "
+/* Prompty / markery */
+#define L_WEWY_ENTER_REPLY       "Wpisz odpowiedz na poprzednie pytanie"
+#define L_WEWY_ABORT_PROMPT      "   ABORT programu !!! ?? TAK - 't'     "
+#define L_WEWY_OUT_OF_RANGE      " ZAKRES !! <ENT>-popraw "
+#define L_WEWY_OUT_OF            " poza "
+#define L_WEWY_OUT_OF_FMT        " poza%s <ENT> "
+#define L_WEWY_MISSING_MARK      " !? "
+#define L_WEWY_MISSING_LONG      " Brak !! "
+#define L_WEWY_DATA_ENTRY        "  Wpis danej "
+#define L_WEWY_BAD_DATA          "Bledna dana (%s) typu %c"
+#define L_WEWY_NO_SYNC_TASK      " Brak zadania synchronizowanego z klawiatura !!! <q - exit> "
 
 #endif
 
