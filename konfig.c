@@ -22,17 +22,12 @@ struct Service          / * deklaracja w sys_dekl.h * /
 #include "konfig.h"
 #include "loc.h"
 #include "sprawdz.h"   /* plik zrodlowy sprawdz.c */
-//#include "baza_stu.h"  /* plik zrodlowy stud_baz.c */
-//#include "dekl_obl.h"  /* plik zrodlowy oblicz.c */
 #include "dek_budz.h"  /* plik zrodlowy budz.c */
 #include "sys_rep.h"   /* plik zrodlowy sys_rap.c */
 #include "admin.h"     /* plik zrodlowy admin.c */
 #include "mqtt_pub.h"   /* plik zrodlowy mqtt_pub.c */ // MQTT publisher
 #include "sensor_sim.h" /* plik zrodlowy sensor_sim.c */ // symulowany czujnik RT
 #include <string.h>
-// #include "pacjent.h"
-// #include "baza.h"     /* plik zrodlowy baza.c */   // dodaj,usun,przegladaj pacjent�w
-// #include "ustaw.h"    /* plik zrodlowy ustaw.c */  // ustawienia pomiaru
 
 /* --------------------------------------------------------------- */
 char* Menu[L_SYS + 3];
@@ -61,39 +56,6 @@ int set_services(void)
     S->dane_rap_bl = dane_sprawdz; /* fkcja wczytujaca baze (gdy S->D=NULL) */
     S->wpis_rap_bl = wpis_sprawdz; /* fkcja zapisujaca baze na dysk */
     S->decyzje = dec_sprawdz; /* fkcja obslugujaca decyzje z blankietu */
-    /* --------------- Podstawiamy dane uslugi z stud_baz.c ---------
-        Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
-        Menu[Nr_sys]=" Pacjent";
-        S=(struct Service *)Malloc(sizeof(struct Service));
-        if(S==NULL) goto ERR_MEM;
-        Serv[Nr_sys]=S;
-        S->l_rek_max=20; S->kod_uslugi=Nr_sys+1;
-        S->D=NULL;
-        S->str_size=sizeof(struct pacjent);
-        S->name=Menu[Nr_sys];
-        S->main_modul=NULL;
-        S->typ_bazy=BAZA_SPOJNA;
-        S->def_blankiet=pacjent_blankiet;
-        S->dane_rap_bl=dane_pacjent;
-        S->wpis_rap_bl=wpis_pacjent;
-        S->decyzje=dec_pacjent;
-    /* --------------- Podstawiamy dane uslugi z pliku oblicz.c ---------
-        Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
-        Menu[Nr_sys]=" Obliczenia ";
-        S=(struct Service *)Malloc(sizeof(struct Service));
-        if(S==NULL) goto ERR_MEM;
-        Serv[Nr_sys]=S;
-        S->kod_uslugi=Nr_sys+1;
-        S->l_rek_max=AG_SIZE;
-        S->str_size=sizeof(struct oblicz);
-        S->typ_bazy=BAZA_WEKTOR;
-        S->D=SysA; /*NULL;
-        S->name=Menu[Nr_sys];
-        S->main_modul=obl_main;  // Jest zleceniem RT
-        S->def_blankiet=obl_blankiet;
-        S->dane_rap_bl=dane_obl;
-        S->wpis_rap_bl=wpis_obl;
-        S->decyzje=dec_obl;
     /* --------------- Podstawiamy dane uslugi z pliku budz.c --------- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
@@ -170,52 +132,7 @@ int set_services(void)
     S->dane_rap_bl = dane_sensor_sim;
     S->wpis_rap_bl = wpis_sensor_sim;
     S->decyzje     = dec_sensor_sim;
-    /* --------------- Podstawiamy dane dalszych uslug z pliku pacjent.c ----
-        Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
-        Menu[Nr_sys]=" Pacjent";
-        S=(struct Service *)Malloc(sizeof(struct Service));
-        if(S==NULL) goto ERR_MEM;
-        Serv[Nr_sys]=S;
-        S->kod_uslugi=Nr_sys+1;
-        S->str_size=sizeof(struct pacjent);
-        S->name=Menu[Nr_sys];
-        S->typ_bazy=BAZA_SPOJNA;
-        S->def_blankiet=pacjent_blankiet;
-        S->dane_rap_bl=dane_pacjent;
-        S->wpis_rap_bl=wpis_pacjent;
-        S->decyzje=dec_pacjent;
-    /* --------------- Podstawiamy dane dalszych uslug z pliku ustaw.c ----
-        Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
-        Menu[Nr_sys]=" Ustawienia pomiaru";
-        S=(struct Service *)Malloc(sizeof(struct Service));
-        if(S==NULL) goto ERR_MEM;
-        Serv[Nr_sys]=S;
-        S->kod_uslugi=Nr_sys+1;
-        S->str_size=sizeof(struct ustaw);
-        S->name=Menu[Nr_sys];
-        S->main_modul=ustaw_main;
-        S->def_blankiet=ustaw_blankiet;
-        S->dane_rap_bl=dane_ustaw;
-        S->wpis_rap_bl=wpis_ustaw;
-        S->decyzje=dec_ustaw;
-    /* --------------- Podstawiamy dane dalszych uslug z plkow ___.c ---- * /
-        Nr_sys++; if(Nr_sys>=L_SYS) goto ERR_SERV;
-        Menu[Nr_sys]=" .....";
-        S=(struct Service *)Malloc(sizeof(struct Service));
-        if(S==NULL) goto ERR_MEM;
-        Serv[Nr_sys]=S;
-        S->kod_uslugi=Nr_sys+1;
-        S->str_size=sizeof(struct ...);
-        S->name=Menu[Nr_sys];
-        S->main_modul=..._main;
-        S->def_blankiet=..._blankiet;
-        S->dane_rap_bl=dane_...;
-        S->wpis_rap_bl=wpis_...;
-        S->decyzje=dec_...;
-    / * ----------------------------------------------------------------- * /
-        .................
-        itd
-    / * --------------------------------------------------------------- */
+    /* --------------------------------------------------------------- */
     if (Nr_sys < L_SYS - 1)
     {
         fprintf(stderr, "\nZa malo zlecen wg L_SYS=%d Nr_sys=%d !!!. Popraw L_SYS w konfig.c ",
