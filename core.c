@@ -24,6 +24,7 @@ int ag_rep, q_rep;
 #include "konfig.h"
 #include "dek_budz.h"   /* budz_blankiet, budz_wczytaj_z_pliku */
 #include "mqtt_pub.h"   /* mqtt_auto_start */
+#include "loc.h"
 #include "randf.c"
 /* ----------------------------------------------------------- */
 void logo(int yg, int xg, unsigned int attr_logo, char* imie, char* nazwisko, signed char mode);
@@ -74,7 +75,7 @@ static int build_presentation_menu(char* menu_view[], int menu_map[], char* grap
 int main(int argc, char* argv[])
 {
     int ret, Ret, l_poz_menu, y_logo = 3;
-    char* graf_text[2] = {"Zmiana trybu na GRAFICZNY", "Zmiana trybu na TEKSTOWY "};
+    char* graf_text[2] = {L_CORE_MODE_GRAPH, L_CORE_MODE_TEXT};
     char* menu_view[L_SYS + 3];
     int menu_map[L_SYS + 3];
     int visible_options;
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
             int y_menu;
             y_menu = MY_MAX - l_poz_menu - 10;
             if (y_menu - (y_logo + 10) > 1) y_menu = y_logo + 11;
-            Ret = okno_menu(menu_view, l_poz_menu, Ret, attr, at_wpis, y_menu, 25, -1, " MENU GLOWNE ", 1);
+            Ret = okno_menu(menu_view, l_poz_menu, Ret, attr, at_wpis, y_menu, 25, -1, L_CORE_MAIN_MENU_TITLE, 1);
         }
         if (Ret < 0)
         {
@@ -314,7 +315,7 @@ int open_sys(void)
                  int godz, min, sek;
                  A->mode='s';
                  Bu=(struct budzik *)(A->data);
-                 snprintf(Bu->nazwa, sizeof(Bu->nazwa), " Budzik %d", i); if(i==1) Bu->nazwa[0]=0;
+                 snprintf(Bu->nazwa, sizeof(Bu->nazwa), L_CORE_DEFAULT_ALARM_NAME, i); if(i==1) Bu->nazwa[0]=0;
                  czas_zegarowy(&godz, &min, &sek);
                  Bu->min=min; Bu->godz=godz+i;
                  if(Bu->godz>=24) Bu->godz-=24;
@@ -345,7 +346,7 @@ def_haslo("st", "Student");
                              Serv[i]->def_blankiet, Serv[i]->dane_rap_bl, Serv[i]->wpis_rap_bl);
         if (rap_idx < 0)
         {
-            komunikat(MY_MAX, X_L0, ATTR_A, " Blad def_Report dla uslugi %d (%s). <Ent> ",
+            komunikat(MY_MAX, X_L0, ATTR_A, L_CORE_ERR_DEF_REPORT,
                       kod_uslugi, Serv[i]->name);
             GET_char();
         }
@@ -361,7 +362,7 @@ def_haslo("st", "Student");
 void naglowek(unsigned int attr_logo)
 {
     int i, len;
-    term_printf(Y_G0, X_L0, attr_logo, " PODSYSTEM");
+    term_printf(Y_G0, X_L0, attr_logo, L_CORE_HDR_SUBSYSTEM);
     X_tyt = m_wherex();
     for (i = 0, podsNameLen = 24; i < Liczba_opcji; i++)
     {
@@ -393,10 +394,10 @@ void logo(int yg, int xg, unsigned int attr_logo, char* imie,
     clr_Okno();
     xtxt = xg + 5;
     term_printf(yg + 2, xtxt, attr_logo, text);
-    term_printf(yg + 8, xtxt, attr_logo, "      STUD_SYS wersja 1.0");
+    term_printf(yg + 8, xtxt, attr_logo, L_CORE_VERSION_BANNER);
     if (nazwisko != NULL || imie != NULL)
     {
-        term_printf(yg + 6, xtxt, attr_logo, "      Uzytkownik: ");
+        term_printf(yg + 6, xtxt, attr_logo, L_CORE_USER_LABEL);
         if (imie != NULL) term_printf(yg + 6, m_wherex(), attr_logo, "%s", imie);
         if (nazwisko != NULL) term_printf(yg + 6, m_wherex(), attr_logo, " %s", nazwisko);
         term_printf(yg + 6, m_wherex(), attr_logo, " (Mode=****)");
@@ -506,7 +507,7 @@ int insert_to_agenda(struct agenda* A)
             x = m_wherex();
             y = m_wherey();
             setcursor(nocursor);
-            term_printf(MY_MAX, X_L0,ATTR_A, " Brak miejsca w AGENDZIE na %s <ENT> ",
+            term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_AGENDA_FULL,
                         ((struct Service*)(A->S))->name);
             term_cur(y, x);
             setcursor(cursor);
@@ -525,7 +526,7 @@ int insert_to_agenda(struct agenda* A)
             x = m_wherex();
             y = m_wherey();
             setcursor(nocursor);
-            term_printf(MY_MAX, X_L0,ATTR_A, " Brak pamieci dla zlecenia %s <Ent> ", (A->S)->name);
+            term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_NO_MEM_ORDER, (A->S)->name);
             term_cur(y, x);
             setcursor(cursor);
             GET_char();
@@ -587,7 +588,7 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
         x = m_wherex();
         y = m_wherey();
         setcursor(nocursor);
-        term_printf(MY_MAX, X_L0,ATTR_A, " Brak pamieci dla zlecenia %s <Ent> ", Serv[service_no]->name);
+        term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_NO_MEM_ORDER, Serv[service_no]->name);
         term_cur(y, x);
         setcursor(cursor);
         GET_char();
@@ -740,7 +741,7 @@ int insert_to_queue(struct agenda* A)
             poz = i;
             if (poz >= Q_SIZE)
             {
-                term_printf(MY_MAX, X_L0,ATTR_A, " Brak miejsca w KOLEJCE na %s <ENT> ",
+                term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_QUEUE_FULL,
                             ((struct Service*)(A->S))->name);
                 GET_char();
                 return -1;
@@ -891,7 +892,7 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
     if (A0 != *SA[0])
     {
         *nr_rekordu = -1;
-        term_printf(MY_MAX, X_L0,ATTR_A, " Niespojnosc adsresow %s ", nazwa);
+        term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_ADDR_MISMATCH, nazwa);
         GET_char();
         return 0;
     }
@@ -909,11 +910,11 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
     }
     if (nr == 0 && *Anew == NULL)
     {
-        char *menu_wybor[2] = {"Tak - uruchom nowy", "Nie"};
+        char *menu_wybor[2] = {L_CORE_MENU_LAUNCH_NEW, L_CORE_MENU_NO};
         int wybor;
         dana_koment(-1, -1, "+ ");
-        dana_koment(-1, -1, " Brak %s w agendzie ", nazwa);
-        wybor = okno_menu(menu_wybor, 2, 0, attr, at_wpis, Y_G0+3, X_L0+1, -1, " Uruchomic nowe? ", 1);
+        dana_koment(-1, -1, L_CORE_INFO_NOT_IN_AGENDA, nazwa);
+        wybor = okno_menu(menu_wybor, 2, 0, attr, at_wpis, Y_G0+3, X_L0+1, -1, L_CORE_TITLE_LAUNCH_NEW, 1);
         if (wybor != 0)
         {
             *nr_rekordu = -1;
@@ -947,7 +948,7 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     char typ_form[32];
     static char* opcje = NULL;
 
-    strcpy(typ_form, "* Typ uslugi <%s> ");
+    strcpy(typ_form, L_CORE_FORM_SERVICE_TYPE);
     if (Anew != NULL) /* zadeklarow. w sys_dekl.h */
     {
         l_opcji = 5;
@@ -974,24 +975,24 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     }
     {
         static char* status[] = {
-            " nie wchodzi gdy poprzednie jest jeszcze w kolejce",
-            " wchodzi zawsze do kolejki (wykonuje sie stare i nowe)",
-            " wchodzi do kolejki i usuwa poprzednio wstawione "
+            L_CORE_STATUS_SKIP,
+            L_CORE_STATUS_ALWAYS,
+            L_CORE_STATUS_REPLACE
         };
         static int nmin = 0, nmax = 2;
-        ret = dana_int_menu(-1, -1, "+ Status zlecenia: ", &nmin, &nmax,
+        ret = dana_int_menu(-1, -1, L_CORE_FORM_ORDER_STATUS, &nmin, &nmax,
                             &(A->status), size = 1, ochr, raport = -1, 3, status);
     }
     {
-        static char* typ_usl[] = {"p permanentna (stala)", "s seryjna", "t dorazna", "?  WPISZ TYP !!!!! "};
+        static char* typ_usl[] = {L_CORE_TYP_PERM, L_CORE_TYP_SERIAL, L_CORE_TYP_ONESHOT, L_CORE_TYP_PROMPT};
         ret = dana_decyzyjna(-1, -1, typ_form, "p/s/t", typ_usl, 4,
                              &(A->mode), ochr = 5, DEC_TYP_US);
     }
     {
         static int nmin = 1, nmax = 3000, nmin0 = 0;
-        ret = dana_int(-1, -1, "+ Priorytet (%d-%d)  ?? ", &nmin, &nmax,
+        ret = dana_int(-1, -1, L_CORE_FORM_PRIORITY, &nmin, &nmax,
                        &(A->prior), size = 4, ochr = 5, raport = -1);
-        ret = dana_int(-1, -1, "+ Przyrost prioryt.po 1sek. oczekiwania (%d-%d)  ?? ", &nmin0, &nmax,
+        ret = dana_int(-1, -1, L_CORE_FORM_PRIO_GROWTH, &nmin0, &nmax,
                        &(A->prior_plus), size = 4, ochr = 5, raport = -1);
     }
     {
@@ -1001,29 +1002,29 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
         {
             static int nmin = 1, nmax;
             nmax = cykl_max;
-            ret = dana_int(-1, -1, "+ Okres cyku wywolan [sek] (%d-%d)  ?? ", &nmin, &nmax,
+            ret = dana_int(-1, -1, L_CORE_FORM_CYCLE_PERIOD, &nmin, &nmax,
                            &(A->Interval), size = 4, ochr = 5, raport = -1);
         }
-        ret = dana_float_dec(-1, -1, " Liczba sek.do najblizszego wywolania  ??",
+        ret = dana_float_dec(-1, -1, L_CORE_FORM_NEXT_CALL,
                              &dmin, &dmax, &A->delay, size = 6, prec = 0,
                              ochr = 5, kod_an = 2, DEC_DELAY);
-        if (A->number_of_calls < 0) ret = dana_koment(-1, -1, " Usluga stala ");
+        if (A->number_of_calls < 0) ret = dana_koment(-1, -1, L_CORE_INFO_PERMANENT);
         else
         {
             static int min = 0, max = 32000;
             if (A->number_of_calls == 0)
             {
-                ret = dana_koment(-1, -1, " USLUGA ANULOWANA !!!!! ");
+                ret = dana_koment(-1, -1, L_CORE_INFO_CANCELLED);
             }
             else
             {
                 if (Anew != NULL)
                 {
-                    ret = dana_int(-1, -1, " Liczba wywolan  ??", &min, &max, &A->number_of_calls,
+                    ret = dana_int(-1, -1, L_CORE_FORM_NUM_CALLS, &min, &max, &A->number_of_calls,
                                    size = 5, ochr = 4, raport = -1);
                 }
                 else
-                    ret = dana_int(-1, -1, " Pozostalo wywolan  ", &min, &max, &A->number_of_calls,
+                    ret = dana_int(-1, -1, L_CORE_FORM_CALLS_LEFT, &min, &max, &A->number_of_calls,
                                    size = 5, ochr = -1, raport = -1);
             }
         }
@@ -1031,18 +1032,19 @@ int dane_agendy(struct agenda* A, struct agenda* Anew, int cykl_max)
     ret = dana_koment(-1, -1, "+ ");
     {
         static char *uruch[] = {
-                        "d dane", "n nastepny", "l lista", "m menu glowne", "u USUNAC", "w WPIS do agendy"
+                        L_CORE_RUN_DATA, L_CORE_RUN_NEXT, L_CORE_RUN_LIST,
+                        L_CORE_RUN_MAIN_MENU, L_CORE_RUN_DELETE, L_CORE_RUN_ENTER
                     }, dec = 'd';
         dec = 'd';
-        ret = dana_decyzyjna(-1, -1, " Co dalej <%s>  ?? ", opcje, uruch, l_opcji,
+        ret = dana_decyzyjna(-1, -1, L_CORE_FORM_WHAT_NEXT, opcje, uruch, l_opcji,
                              &dec, ochr = 0, DEC_RUN);
     }
     if (A->mode != 'n' && Anew == NULL)
     {
-        static char *uruch[2] = {"t tak", "n nie"}, dec = 'n';
+        static char *uruch[2] = {L_CORE_YES_SHORT, L_CORE_NO_SHORT}, dec = 'n';
         dec = 'n';
         wpis_danych_bez_potwierdz();
-        ret = dana_decyzyjna(-1, -1, " Uruchomic nowe  <%s> ?? ", "t/n", uruch, 2,
+        ret = dana_decyzyjna(-1, -1, L_CORE_FORM_LAUNCH_NEW, "t/n", uruch, 2,
                              &dec, ochr = 1, DEC_NEW);
         wpis_danych_z_potwierdz();
     }
@@ -1074,12 +1076,12 @@ int pokaz_listy_zlecen(struct agenda* Anew, int kod_uslugi, char* tytul)
             nr++;
         }
     }
-    if (nr == 0) term_printf(m_wherey(), X_L0 + 3, attr, " Brak budzikow w agendzie ");
+    if (nr == 0) term_printf(m_wherey(), X_L0 + 3, attr, L_CORE_INFO_NO_ALARMS);
     else
     {
         ret = okno_menu_rekordow((char**)Ab, nr - 1, ret, attr, at_wpis,
                                  yp = 4, xp = X_L0 + 9, -1, tytul, ramka = 1,
-                                 " %19S typ=%c prio=%d krotn=%d razy",
+                                 L_CORE_LIST_ROW,
                                  &Ab[0]->name, &(Ab[0]->mode),
                                  &(Ab[0]->prior), &(Ab[0]->number_of_calls));
     }
@@ -1198,8 +1200,8 @@ int SprawdzLog(char* uzytkownik, char* haslo)
     fp = fopen(PATH_HASLA, "r");
     if (fp == NULL)
     {
-        char* menu_blad[] = {"Blad otwarcia pliku"};
-        okno_menu(menu_blad, 1, 0, attr, at_wpis, 10, 25, -1, " BLAD", 1);
+        char* menu_blad[] = {L_CORE_ERR_OPEN_FILE};
+        okno_menu(menu_blad, 1, 0, attr, at_wpis, 10, 25, -1, L_CORE_TITLE_ERROR, 1);
         return -1;
     }
     else
