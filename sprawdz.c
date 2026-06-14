@@ -1,6 +1,7 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
 #include "sprawdz.h"
+#include "loc.h"
 void chk_time(void);
 extern struct Service* Service;
 /* extern struct agenda *Agenda, *SysA[]; */
@@ -9,7 +10,8 @@ extern time_t sek_akt;
 extern unsigned int attr_title, attryb, attr_time;
 extern unsigned int cursor, nocursor;
 
-char* dni[] = {"Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota"};
+char* dni[] = {L_RAP_DAY_SUNDAY, L_RAP_DAY_MONDAY, L_RAP_DAY_TUESDAY, L_RAP_DAY_WEDNESDAY,
+               L_RAP_DAY_THURSDAY, L_RAP_DAY_FRIDAY, L_RAP_DAY_SATURDAY};
 extern struct agenda* SysA[];
 
 int sprawdz(void* DA)
@@ -27,9 +29,9 @@ int sprawdz(void* DA)
     ykursora = m_wherey();
     setcursor(nocursor);
     old_attr = attryb;
-    term_printf(Y_G0, X_time, attr_time, " Dnia %02d.%02d.%02d ",
+    term_printf(Y_G0, X_time, attr_time, L_RAP_DATE_PREFIX,
                 Time->tm_mday, Time->tm_mon + 1, (Time->tm_year % 100));
-    term_printf(Y_G0, m_wherex(), attr_time, "Godz.%02d:%02d.%02d (%s)",
+    term_printf(Y_G0, m_wherex(), attr_time, L_RAP_TIME_FMT,
                 Time->tm_hour, Time->tm_min, Time->tm_sec, dni[Time->tm_wday]);
     /*	term_printf(Y_G0,X_time,attr_time," Dnia %02d.%02d.%02d  Godz.%02d:%02d.%02d (%s)",
                                 Time->tm_mday,Time->tm_mon+1,(Time->tm_year%100),
@@ -102,7 +104,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     A = (struct agenda*)dane_raportowanego_rekordu(sprawdz_blankiet, &nr_rek);
     if (A == NULL)
     {
-        term_printf(MY_MAX, X_L0,ATTR_A, " Blad adresu w Sprawdz (A=%p). <Ent> ", A);
+        term_printf(MY_MAX, X_L0,ATTR_A, L_RAP_ERR_ADDR_SPRAWDZ, A);
         GET_char();
         return -1;
     }
@@ -116,47 +118,47 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
             if (SysA[i] != NULL) ls++;
         }
     }
-    ret = dana_koment(-1, 16, "+ Raport zlecen podstawowych SPRAWDZ (jest razem %d)", ls);
+    ret = dana_koment(-1, 16, L_RAP_TITLE_BASIC, ls);
 
     if (A == NULL)
     {
-        ret = dana_koment(-1, 10, "+ Brak zlecenia na poz.%d w agendzie", nr_ag);
+        ret = dana_koment(-1, 10, L_RAP_NO_ORDER_AT_POS, nr_ag);
         return ret;
     }
     /* ------------------------------------------------------- */
     {
         static int z_min = 0, z_max = 0;
-        ret = dana_rekord_str_dec(-1, -1, "+ Zlecenie glowne:", &z_min, &z_max, (int*)A,
+        ret = dana_rekord_str_dec(-1, -1, L_RAP_MAIN_ORDER, &z_min, &z_max, (int*)A,
                                   size = 0, ochr = -1, Service->kod_uslugi,
                                   raport = (A->S)->kod_uslugi, DEC_NEW,
-                                  " %19S typ=%c prior=%d okres=%d",
+                                  L_RAP_LIST_ROW_PRIOR,
                                   &nazwa_w, &(A->mode),
                                   &(A->prior), &(A->Interval));
     }
     {
-        static char* typ_usl[3] = {"p permanentna (stala)", "s seryjna", "t dorazna"};
-        ret = dana_znak(-1, -1, " Typ uslugi <%s> ", "p/s/t", typ_usl, 3,
+        static char* typ_usl[3] = {L_CORE_TYP_PERM, L_CORE_TYP_SERIAL, L_CORE_TYP_ONESHOT};
+        ret = dana_znak(-1, -1, L_RAP_TYP_USL_NO_PREFIX, "p/s/t", typ_usl, 3,
                         &(A->mode), ochr = -1);
     }
     {
         if (A->mode == 'p') ochr = -1;
         else ochr = 2;
-        ret = dana_koment(-1, -1, "+   Zlecenie stale nieusuwlne !!!! ");
+        ret = dana_koment(-1, -1, L_RAP_PERMANENT_NOREM);
     }
     {
         static int nmin = 1, nmax = 3000, del_min, del_sek;
         del_min = (long int)A->delay / 60l;
         del_sek = ((long int)A->delay) % 60l;
-        ret = dana_int(-1, -1, " Okres wywolan [sek](%d-%d) ?? ", &nmin, &nmax,
+        ret = dana_int(-1, -1, L_RAP_PERIOD_BR, &nmin, &nmax,
                        &(A->Interval), size = 4, ochr = 5, raport = -1);
-        ret = dana_koment(-1, -1, " Czas do nastepnego wywolania %dmin %dsek",
+        ret = dana_koment(-1, -1, L_RAP_TIME_TO_NEXT,
                           del_min, del_sek);
     }
     {
         static int nmin = 1, nmax = 3000, stmin = -999;
-        ret = dana_int(-1, -1, " Priorytet (%d-%d) ?? ", &nmin, &nmax,
+        ret = dana_int(-1, -1, L_RAP_PRIORITY, &nmin, &nmax,
                        &(A->prior), size = 4, ochr = 5, raport = -1);
-        ret = dana_int(-1, -1, " Stan realizacji ", &stmin, &nmax,
+        ret = dana_int(-1, -1, L_RAP_STATE_PROGRESS, &stmin, &nmax,
                        &(A->state), size = 4, ochrf, raport = -1);
     }
 
@@ -165,8 +167,8 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         ret = dana_koment(-1, -1, "+ ");
     }
     {
-        static char *usun[3] = {"d wpis danych", "m menu glowne", "a dane algorytmow"}, dec = 'm';
-        ret = dana_decyzyjna(-1, -1, " Co robimy <%s>  ?? ", "d/m/a", usun, 3,
+        static char *usun[3] = {L_RAP_MENU_DATA_ENTRY, L_CORE_RUN_MAIN_MENU, L_RAP_MENU_ALG_DATA}, dec = 'm';
+        ret = dana_decyzyjna(-1, -1, L_RAP_PROMPT_ACTION, "d/m/a", usun, 3,
                              &dec, ochr = 0, DEC_DALEJ);
     }
 

@@ -1,6 +1,7 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
 #include "sys_rep.h"
+#include "loc.h"
 void chk_time(void);
 extern struct Service *Service;
 extern struct agenda *Agenda;
@@ -37,57 +38,57 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	A=(struct agenda *)dane_raportowanego_rekordu(sys_blankiet,&nr_rek);
 	nr_ag=nr_rek;
 	if(A==NULL && nr_rek>=0)
-	 {term_printf(MY_MAX,X_L0,ATTR_A," Brak rekordu w RAP_SYS nr=%d. <Ent> ",nr_rek);
+	 {term_printf(MY_MAX,X_L0,ATTR_A,L_RAP_NO_RECORD_SYS,nr_rek);
 		GET_char();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_ag);
 	for(z_min=0;z_min<lsa;z_min++) {if(SA[z_min]!=NULL) break;}
 	for(i=0,ls=0;i<lsa;i++) {if(SA[i]!=NULL) {ls++; z_max=i;}}
 	if(ls==0)
-	 {ret=dana_koment(-1, 26," Brak zlecen w agendzie ");
+	 {ret=dana_koment(-1, 26,L_RAP_NO_ORDERS_AGENDA);
 		return ret;
 	 }
 	ustaw_rek_max_raportu(sys_blankiet, z_max);
 /* ------------------------------------------------------- */
-	ret=dana_koment(-1,16,"+ Raport zlecen okresowych w agendzie (jest razem %d)",ls);
-	ret=dana_int_dec(-1,-1,"+ Zlec. (%d-%d) ", &z_min,&z_max,
+	ret=dana_koment(-1,16,L_RAP_TITLE_PERIODIC,ls);
+	ret=dana_int_dec(-1,-1,L_RAP_ORDER_RANGE, &z_min,&z_max,
 									 &nr_ag, size=2, ochr=2, raport=-1, DEC_NEW);
 	if(A==NULL)
-	 {ret=dana_koment(-1,10,"+ Brak zlecenia na poz.%d w agendzie",nr_ag);}
+	 {ret=dana_koment(-1,10,L_RAP_NO_ORDER_AT_POS,nr_ag);}
 	else
 	 {const char *nazwa;
 	  nazwa=(A->name!=NULL)?A->name:(((A->S)!=NULL && (A->S)->name!=NULL)?(A->S)->name:"");
-	  ret=dana_koment(-1,-1,"+ Usluga: %19s typ=%c prior=%d Cykl=%d Opozn=%5.0f",
+	  ret=dana_koment(-1,-1,L_RAP_SERVICE_LINE,
 										nazwa, A->mode, A->prior, A->Interval, A->delay);
-	 {static char *typ_usl[3]={"p permanentna (stala)", "s seryjna", "t dorazna"};
-		ret=dana_decyzyjna(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3,
+	 {static char *typ_usl[3]={L_CORE_TYP_PERM, L_CORE_TYP_SERIAL, L_CORE_TYP_ONESHOT};
+		ret=dana_decyzyjna(-1,-1,L_RAP_TYP_USL_NO_PREFIX, "p/s/t", typ_usl, 3,
 											 &(A->mode), ochr=5, DEC_TYP_US);
 	 }
 	 {static int nmin=1, nmax=3000;
 		ochr=-1;
 		if(A->mode=='p')
-		 {ret=dana_koment(-1, -1, "  Zlecenie stale !! ");}
+		 {ret=dana_koment(-1, -1, L_RAP_PERMANENT_SHORT);}
 		else
-		 {ret=dana_int(-1,-1," Liczba wywolan  ", &nmin,&nmax,
+		 {ret=dana_int(-1,-1,L_RAP_NUM_CALLS, &nmin,&nmax,
 										 &(A->number_of_calls), size=4, ochr, raport=-1);
 		 }
 	 }
 	 {static int nmin=1, nmax=3000, del_min, del_sek;
 		del_min=(long int)A->delay/60l; del_sek=((long int)A->delay)%60l;
-		ret=dana_int(-1,-1," Okres wywolan (%d-%d)  ?? ", &nmin,&nmax,
+		ret=dana_int(-1,-1,L_RAP_PERIOD_BR_QQ, &nmin,&nmax,
 			&(A->Interval), size=4, ochr=5, raport=-1);
-		ret=dana_koment(-1,-1," Czas do nastepnego wywolania %dmin %dsek",
+		ret=dana_koment(-1,-1,L_RAP_TIME_TO_NEXT,
 			del_min, del_sek);
 	 }
 	 {static int nmin=1, nmax=3000, stmin=-999;
-		ret=dana_int(-1,-1," Priorytet (%d-%d) ?? ", &nmin,&nmax,
+		ret=dana_int(-1,-1,L_RAP_PRIORITY, &nmin,&nmax,
 			&(A->prior), size=4, ochr=5, raport=-1);
-		ret=dana_int(-1,-1," Stan realizacji ", &stmin,&nmax,
+		ret=dana_int(-1,-1,L_RAP_STATE_PROGRESS, &stmin,&nmax,
 			&(A->state), size=4, ochrf, raport=-1);
 	 }
 	}
-	{static char *usun[3]={"d wpis danych","m menu glowne","u usuwamy"}, dec='d';
-	 ret=dana_decyzyjna(-1,-1," Co robimy <%s>  ?? ", "d/m/u", usun, 3,
+	{static char *usun[3]={L_RAP_MENU_DATA_ENTRY,L_CORE_RUN_MAIN_MENU,L_RAP_MENU_DELETE}, dec='d';
+	 ret=dana_decyzyjna(-1,-1,L_RAP_PROMPT_ACTION, "d/m/u", usun, 3,
 										 &dec, ochr=0, DEC_USUN);
 	}
 /*    ret=dana_znak(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3, &(A->mode), ochr=5);  */
