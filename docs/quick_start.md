@@ -25,6 +25,12 @@ Lub z MQTT:
 make MQTT=1
 ```
 
+Język interfejsu (domyślnie `PL`):
+
+```bash
+make TUI_LANG=EN
+```
+
 ## Start
 
 ```bash

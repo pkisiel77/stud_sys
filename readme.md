@@ -164,6 +164,14 @@ Budowanie z obsługą MQTT:
 make MQTT=1
 ```
 
+Wybór języka interfejsu TUI (domyślnie `PL`, aktualnie obsługiwany jest też `EN`):
+
+```bash
+make TUI_LANG=EN
+```
+
+Flagi można łączyć, np. `make MQTT=1 TUI_LANG=EN`. Stringi zlokalizowane są w `loc.h` — nowy język dodaje się przez kolejny blok `#if defined(LANG_XX)`.
+
 Uruchomienie:
 
 ```bash

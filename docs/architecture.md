@@ -245,6 +245,20 @@ To były źródła migania i problemów z interfejsem w ostatnich iteracjach.
 - `rap_bl.c` - przepływ raportu
 - `budz.c` - główny moduł demonstracyjny
 - `sys_rap.c` - raport diagnostyczny
+- `loc.h` - tablica stringów TUI dla PL/EN, wybór przez `make TUI_LANG=...`
+
+## Lokalizacja TUI
+
+Wszystkie literały widoczne dla użytkownika żyją w `loc.h` jako makra
+`L_<MODUL>_<KLUCZ>`. Makefile mapuje zmienną `TUI_LANG` na `-DLANG_XX`,
+a `loc.h` rozgałęzia się po `#if defined(LANG_EN)` / `#else` (domyślnie
+PL). Komunikaty `fprintf(stderr, ...)` używane do debugu są celowo poza
+tym mechanizmem.
+
+Dodanie nowego języka:
+
+1. dorzucić blok `#elif defined(LANG_XX)` w `loc.h`,
+2. zbudować `make TUI_LANG=XX`.
 
 ## Zależności runtime
 
