@@ -12,6 +12,7 @@
 #include "blank/moje.h"
 #include "blank/sys_dekl.h"
 #include "sensor_sim.h"
+#include "loc.h"
 
 /* forward declarations — funkcje zaimplementowane w core.c */
 int  dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
@@ -104,7 +105,7 @@ int sensor_sim_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     int    ret, ochr, nr_rek;
     int    cykl_max = 86400;   /* maks. 24h ciaglej pracy */
 
-    static char *menu_wave[4] = {"Sinus", "Prostokat", "Pila", "Szum"};
+    static char *menu_wave[4] = {L_SIM_WAVE_SINE, L_SIM_WAVE_SQUARE, L_SIM_WAVE_SAW, L_SIM_WAVE_NOISE};
     static int   nr_wave = 0, w_min = 0, w_max = 3;
     static float f0 = 0.0f, f100 = 100.0f, f_pos = 1000.0f, f_neg = -1000.0f;
 
@@ -112,7 +113,7 @@ int sensor_sim_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 
     ret = pobierz_rekord_uslugi(&nr_rek, kod_uslugi, ob_konc,
                                 &A, &Anew, &SA,
-                                adres_rek0_uslugi, "czujnik symulowany");
+                                adres_rek0_uslugi, L_SIM_SERVICE_NAME);
     Aserv = A;
     if (A == NULL) { if (nr_rek < 0) return ret; return BLANKIET_UI_EXIT; }
 
@@ -123,20 +124,20 @@ int sensor_sim_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     ochr = (Anew == NULL) ? -2 : 4;
 
     if (Anew == NULL)
-        ret = dana_koment(-1, 13, "+ Podglad na zywo (tylko odczyt)");
+        ret = dana_koment(-1, 13, L_SIM_LIVE_READONLY);
     else
         ret = dana_koment(-1, -1, "+  ");
 
-    ret = dana_koment(-1, -1, "+ ===== Czujnik Symulowany =====");
-    ret = dana_koment(-1, -1, "+  Wartosc  : %d", (int)A->rt.value);
+    ret = dana_koment(-1, -1, L_SIM_HEADER);
+    ret = dana_koment(-1, -1, L_SIM_VALUE, (int)A->rt.value);
     { char vbuf[32]; snprintf(vbuf, sizeof(vbuf), "%10.4f", (double)A->rt.value);
-      ret = dana_koment(-1, -1, "+  Wartosc2 : %s", vbuf); }
-    ret = dana_koment(-1, -1, "+  Wartosc3 : %10.4f", A->rt.value);
-    ret = dana_koment(-1, -1, "+  Min/Max  : %10.4f / %10.4f", A->rt.val_min, A->rt.val_max);
-    ret = dana_koment(-1, -1, "+  Probki   : %.0f",  A->rt.elapsed);
-    ret = dana_koment(-1, -1, "+  Alarm    : %s",
-                      A->rt.alarm == RT_ALARM_OK    ? "OK" :
-                      A->rt.alarm == RT_ALARM_RANGE ? "ZAKRES !!!" : "CZAS !!!");
+      ret = dana_koment(-1, -1, L_SIM_VALUE2, vbuf); }
+    ret = dana_koment(-1, -1, L_SIM_VALUE3, A->rt.value);
+    ret = dana_koment(-1, -1, L_SIM_MIN_MAX, A->rt.val_min, A->rt.val_max);
+    ret = dana_koment(-1, -1, L_SIM_SAMPLES,  A->rt.elapsed);
+    ret = dana_koment(-1, -1, L_SIM_ALARM_LABEL,
+                      A->rt.alarm == RT_ALARM_OK    ? L_SIM_ALARM_OK :
+                      A->rt.alarm == RT_ALARM_RANGE ? L_SIM_ALARM_RANGE : L_SIM_ALARM_TIME);
     ret = dana_koment(-1, -1, "+ -------------------------------");
 
     /* typ przebiegu */
@@ -146,7 +147,7 @@ int sensor_sim_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         case 'w': nr_wave = 2; break;
         default:  nr_wave = 3; break;
     }
-    ret = dana_int_menu(-1, -1, "+ Przebieg        ",
+    ret = dana_int_menu(-1, -1, L_SIM_FIELD_WAVE,
                         &w_min, &w_max, &nr_wave, 12, ochr, -1, 4, menu_wave);
     switch (nr_wave) {
         case 0: S->waveform = 's'; break;
@@ -155,15 +156,15 @@ int sensor_sim_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         default: S->waveform = 'n'; break;
     }
 
-    ret = dana_float_dec(-1, -1, "+ Amplituda       ", &f0,    &f100,
+    ret = dana_float_dec(-1, -1, L_SIM_FIELD_AMP, &f0,    &f100,
                          &S->amplitude, 8, 3, ochr, 0, DEC_SIM_AMP);
-    ret = dana_float_dec(-1, -1, "+ Czestotliwosc   ", &f0,    &f100,
+    ret = dana_float_dec(-1, -1, L_SIM_FIELD_FREQ, &f0,    &f100,
                          &S->frequency, 8, 3, ochr, 0, DEC_SIM_FREQ);
-    ret = dana_float_dec(-1, -1, "+ Przesuniecie DC ", &f_neg, &f_pos,
+    ret = dana_float_dec(-1, -1, L_SIM_FIELD_OFFS, &f_neg, &f_pos,
                          &S->offset,    8, 3, ochr, 0, DEC_SIM_OFFS);
-    ret = dana_float_dec(-1, -1, "+ Prog alarmu MAX ", &f_neg, &f_pos,
+    ret = dana_float_dec(-1, -1, L_SIM_FIELD_TMAX, &f_neg, &f_pos,
                          &S->thr_max,   8, 3, ochr, 0, DEC_SIM_TMAX);
-    ret = dana_float_dec(-1, -1, "+ Prog alarmu MIN ", &f_neg, &f_pos,
+    ret = dana_float_dec(-1, -1, L_SIM_FIELD_TMIN, &f_neg, &f_pos,
                          &S->thr_min,   8, 3, ochr, 0, DEC_SIM_TMIN);
 
     ret = dana_koment(-1, -1, "+ -------------------------------");
@@ -206,7 +207,7 @@ int dec_sensor_sim(int decyzja, int kod_decyzji, int nr_dec,
 
     if (kod_decyzji == DEC_RUN) {
         ret = decyzje_run(decyzja, &A, &Anew, nr_rekordu,
-                          kod_uslugi, " Lista czujnikow ");
+                          kod_uslugi, L_SIM_LIST_TITLE);
         if (ret == -1) return -1;
         Aserv = A;
     }
