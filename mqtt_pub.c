@@ -1,5 +1,6 @@
 #include "blank/moje.h"
 #include "mqtt_pub.h"
+#include "loc.h"
 
 #ifdef _MQTT_
 #include <MQTTClient.h>
@@ -240,7 +241,7 @@ static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
-                    " %s: %-44s  (Enter=zatwierdz  Esc=anuluj)", prompt, tmp);
+                    L_BUDZ_PROMPT_TXT, prompt, tmp);
         ch = getch();
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
@@ -263,7 +264,7 @@ static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
-                    " %s [%d-%d]: %-8s  (Enter=zatwierdz  Esc=anuluj)",
+                    L_BUDZ_PROMPT_INT,
                     prompt, min_v, max_v, buf);
         ch = getch();
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
@@ -308,21 +309,21 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 #endif
 
     /* Statyczne pozycje akcji */
-    menu[7] = "  >>> Polacz / Zapisz <<<";
-    menu[8] = "  >>> Rozlacz         <<<";
-    menu[9] = "  Wyjdz";
+    menu[7] = L_MQTT_MENU_CONNECT;
+    menu[8] = L_MQTT_MENU_DISCONNECT;
+    menu[9] = L_BUDZ_MENU_EXIT;
 
     for (;;) {
         /* Wypelnij dynamiczne pola */
-        snprintf(m0, 80, "  Status   : %s  (pub:%d  err:%d)",
-                 cfg.connected ? "POLACZONY" : "Rozlaczony",
+        snprintf(m0, 80, L_MQTT_STATUS_LINE,
+                 cfg.connected ? L_MQTT_STATE_CONNECTED : L_MQTT_STATE_DISCONNECTED,
                  cfg.pub_count, cfg.err_count);
-        snprintf(m1, 80, "  Broker   : %s", cfg.broker);
-        snprintf(m2, 80, "  Port     : %d", cfg.port);
-        snprintf(m3, 80, "  Topic    : %s", cfg.topic);
-        snprintf(m4, 80, "  Node ID  : %d", cfg.node_id);
-        snprintf(m5, 80, "  QoS      : %d", cfg.qos);
-        snprintf(m6, 80, "  Interwal : %d s", cfg.interval);
+        snprintf(m1, 80, L_MQTT_FIELD_BROKER, cfg.broker);
+        snprintf(m2, 80, L_MQTT_FIELD_PORT, cfg.port);
+        snprintf(m3, 80, L_MQTT_FIELD_TOPIC, cfg.topic);
+        snprintf(m4, 80, L_MQTT_FIELD_NODE_ID, cfg.node_id);
+        snprintf(m5, 80, L_MQTT_FIELD_QOS, cfg.qos);
+        snprintf(m6, 80, L_MQTT_FIELD_INTERVAL, cfg.interval);
         menu[0] = m0;
         menu[1] = m1;
         menu[2] = m2;
@@ -333,19 +334,19 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 
         if (lw > 9) lw = 0;
         w = okno_menu(menu, 10, lw, attr, at_wpis,
-                      Y_G0 + 1, X_L0, -1, " MQTT PUBLISHER ", 1);
+                      Y_G0 + 1, X_L0, -1, L_MQTT_TITLE, 1);
         lw = (w >= 0) ? w : 0;
 
         if (w < 0 || w == 9) return BLANKIET_UI_EXIT;
 
         switch (w) {
         case 0: break; /* Status — tylko podglad */
-        case 1: mqtt_czytaj_text(cfg.broker,    sizeof(cfg.broker),    "Broker"); break;
-        case 2: cfg.port     = mqtt_czytaj_int("Port",    1, 65535, cfg.port);    break;
-        case 3: mqtt_czytaj_text(cfg.topic,     sizeof(cfg.topic),     "Topic");  break;
-        case 4: cfg.node_id  = mqtt_czytaj_int("Node ID", 1, 9999,  cfg.node_id); break;
-        case 5: cfg.qos      = mqtt_czytaj_int("QoS",     0, 2,     cfg.qos);    break;
-        case 6: cfg.interval = mqtt_czytaj_int("Interwal [s]", 1, 3600, cfg.interval); break;
+        case 1: mqtt_czytaj_text(cfg.broker,    sizeof(cfg.broker),    L_MQTT_PROMPT_BROKER); break;
+        case 2: cfg.port     = mqtt_czytaj_int(L_MQTT_PROMPT_PORT,    1, 65535, cfg.port);    break;
+        case 3: mqtt_czytaj_text(cfg.topic,     sizeof(cfg.topic),     L_MQTT_PROMPT_TOPIC);  break;
+        case 4: cfg.node_id  = mqtt_czytaj_int(L_MQTT_PROMPT_NODE_ID, 1, 9999,  cfg.node_id); break;
+        case 5: cfg.qos      = mqtt_czytaj_int(L_MQTT_PROMPT_QOS,     0, 2,     cfg.qos);    break;
+        case 6: cfg.interval = mqtt_czytaj_int(L_MQTT_PROMPT_INTERVAL, 1, 3600, cfg.interval); break;
 
         case 7: /* Polacz i zapisz */
             snprintf(cfg.client_id, sizeof(cfg.client_id), "stud_sys_%d", cfg.node_id);
@@ -379,13 +380,13 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                 }
                 mqtt_zapisz_konfig(&cfg);
                 term_printf(MY_MAX, X_L0, ATTR_A,
-                            " Polaczono z %s:%d  (topic: %s/%d/...)",
+                            L_MQTT_OK_MSG,
                             cfg.broker, cfg.port, cfg.topic, cfg.node_id);
                 GET_char();
                 term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
             } else {
                 term_printf(MY_MAX, X_L0, ATTR_A,
-                            " Blad polaczenia z %s:%d  (err: %d) <Ent>",
+                            L_MQTT_ERR_MSG,
                             cfg.broker, cfg.port, cfg.err_count);
                 GET_char();
                 term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
