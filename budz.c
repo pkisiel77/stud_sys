@@ -1,5 +1,6 @@
 #include "blank/moje.h"
 #include "dek_budz.h"
+#include "loc.h"
 void chk_time(void);
 extern struct Service *Service;
 /* extern struct agenda *Agenda; */
@@ -137,9 +138,9 @@ int budz_main(void *DA)
 	A=(struct agenda *)DA;
 	B=(struct budzik *)(A->data);
 	setalarm(); /* for(i=0;i<10;i++) printf("\a"); */
-	snprintf(tytul,sizeof(tytul)," BUDZIK: <Ent> - wylaczenie sygnalu; <Esc> - usuniecie monitu ");
-	snprintf(text,sizeof(text),"     Zgloszono na godz.%02d.%02d",B->godz,B->min);
-	snprintf(text1,sizeof(text1),"     Najblizszy monit za %dmin.%02dsek.", (int)A->Interval/60,(int)A->Interval%60);
+	snprintf(tytul,sizeof(tytul),L_BUDZ_MAIN_TITLE);
+	snprintf(text,sizeof(text),L_BUDZ_REPORTED,B->godz,B->min);
+	snprintf(text1,sizeof(text1),L_BUDZ_NEXT_PING, (int)A->Interval/60,(int)A->Interval%60);
 	{
 	 setcursor(nocursor);
 	 M[0]=B->nazwa;
@@ -185,7 +186,7 @@ static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int cur
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
-                    " %s [%d-%d]: %-8s  (Enter=zatwierdz  Esc=anuluj)", prompt, min_val, max_val, buf);
+                    L_BUDZ_PROMPT_INT, prompt, min_val, max_val, buf);
         ch = getch();
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
@@ -215,7 +216,7 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
-                    " %s: %-44s  (Enter=zatwierdz  Esc=anuluj)", prompt, tmp);
+                    L_BUDZ_PROMPT_TXT, prompt, tmp);
         ch = getch();
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
@@ -243,9 +244,9 @@ static int budz_formularz(struct agenda *A, struct budzik *B,
     char e0[80], e1[80], e2[80];
     int ew = 0, w;
     for (;;) {
-        snprintf(e0, sizeof(e0), "  Sprawa  : %.52s", B->nazwa);
-        snprintf(e1, sizeof(e1), "  Godzina : %02d:%02d", B->godz, B->min);
-        snprintf(e2, sizeof(e2), "  Co ile  : %d min  (wyprzedz: %d min)",
+        snprintf(e0, sizeof(e0), L_BUDZ_FIELD_NAME, B->nazwa);
+        snprintf(e1, sizeof(e1), L_BUDZ_FIELD_TIME, B->godz, B->min);
+        snprintf(e2, sizeof(e2), L_BUDZ_FIELD_EVERY,
                  B->co_ile, B->wyprzedz);
         menu[0] = e0; menu[1] = e1; menu[2] = e2;
         w = okno_menu(menu, nmenu, ew, attr, at_wpis,
@@ -253,16 +254,16 @@ static int budz_formularz(struct agenda *A, struct budzik *B,
         ew = (w >= 0) ? w : 0;
         switch (w) {
         case 0:
-            budz_czytaj_text(B->nazwa, sizeof(B->nazwa), "Nazwa budzika");
+            budz_czytaj_text(B->nazwa, sizeof(B->nazwa), L_BUDZ_ASK_NAME);
             break;
         case 1:
-            B->godz     = budz_czytaj_int("Godzina", 0, 23, B->godz);
-            B->min      = budz_czytaj_int("Minuta",  0, 59, B->min);
+            B->godz     = budz_czytaj_int(L_BUDZ_ASK_HOUR, 0, 23, B->godz);
+            B->min      = budz_czytaj_int(L_BUDZ_ASK_MIN,  0, 59, B->min);
             B->mod_time = 1;
             break;
         case 2:
-            B->co_ile   = budz_czytaj_int("Co ile minut",       1, 1440, B->co_ile);
-            B->wyprzedz = budz_czytaj_int("Wyprzedzenie [min]", 1, 1440, B->wyprzedz);
+            B->co_ile   = budz_czytaj_int(L_BUDZ_ASK_EVERY, 1, 1440, B->co_ile);
+            B->wyprzedz = budz_czytaj_int(L_BUDZ_ASK_LEAD,  1, 1440, B->wyprzedz);
             break;
         default:
             return w; /* akcja lub Escape */
@@ -295,7 +296,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         }
         if (lw > n + 1) lw = 0;
 
-        w = budz_menu_live(lista, n, lw, " LISTA BUDZIKOW ");
+        w = budz_menu_live(lista, n, lw, L_BUDZ_LIST_TITLE);
         lw = (w >= 0) ? w : 0;
 
         if (w < 0 || w == n + 1) return BLANKIET_UI_EXIT;
@@ -304,8 +305,8 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
             /* ---------- Nowy budzik ---------- */
             int godz, min, sek;
             char *mn[5] = {NULL, NULL, NULL,
-                           "  >>> Wpisz do agendy <<<",
-                           "  Anuluj"};
+                           L_BUDZ_MENU_SAVE_NEW,
+                           L_BUDZ_MENU_CANCEL};
             A = service_default(dec_budz);
             if (A == NULL) continue;
             A->mode = 's';
@@ -314,7 +315,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
             B->godz = (godz + 1) % 24; B->min = min;
             B->co_ile = 2; B->wyprzedz = 15;
 
-            w = budz_formularz(A, B, " NOWY BUDZIK ", mn, 5);
+            w = budz_formularz(A, B, L_BUDZ_NEW_TITLE, mn, 5);
             if (w == 3) {
                 ustaw_czas_budzika(A, B);
                 insert_to_agenda(A);
@@ -328,15 +329,15 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         } else {
             /* ---------- Edytuj istniejacy ---------- */
             char *me[6] = {NULL, NULL, NULL,
-                           "  >>> Zatwierdz zmiany <<<",
-                           "  >>> Usun budzik <<<",
-                           "  Wyjdz (bez zmian)"};
+                           L_BUDZ_MENU_APPLY,
+                           L_BUDZ_MENU_DELETE,
+                           L_BUDZ_MENU_EXIT_NC};
             A = lista[w];
             Awrk = budz_kopia_robocza(A);
             if (Awrk == NULL) continue;
             B = (struct budzik *)(Awrk->data);
 
-            w = budz_formularz(Awrk, B, " BUDZIK ", me, 6);
+            w = budz_formularz(Awrk, B, L_BUDZ_EDIT_TITLE, me, 6);
             if (w == 3) {
                 ustaw_czas_budzika(Awrk, B);
                 budz_przepisz_zmiany(A, Awrk);
@@ -408,11 +409,11 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
         }
         else if (i == nbudz)
         {
-            len = snprintf(rows[i], sizeof(rows[i]), "  +++ Dodaj nowy budzik +++");
+            len = snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_ADD);
         }
         else
         {
-            len = snprintf(rows[i], sizeof(rows[i]), "  Wyjdz");
+            len = snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_EXIT);
         }
         if (len > maxlen) maxlen = len;
     }
@@ -442,12 +443,12 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
                 }
                 else if (i == nbudz)
                 {
-                    snprintf(rows[i], sizeof(rows[i]), "  +++ Dodaj nowy budzik +++");
+                    snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_ADD);
                     txt = rows[i];
                 }
                 else
                 {
-                    snprintf(rows[i], sizeof(rows[i]), "  Wyjdz");
+                    snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_EXIT);
                     txt = rows[i];
                 }
                 if (strncmp(prev[i], txt, sizeof(prev[i])) != 0)
@@ -734,7 +735,7 @@ int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, i
 	if (kod_decyzji == DEC_RUN)
 	{
 		ret = decyzje_run(decyzja, &A, &Anew, nr_rekordu,
-			kod_uslugi, " Lista budzikow ");
+			kod_uslugi, L_BUDZ_AGENDA_TITLE);
 		if (ret == -1) return -1;
 	}
 	if (kod_decyzji == DEC_TYP_US)
