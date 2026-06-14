@@ -20,6 +20,7 @@ struct Service          / * deklaracja w sys_dekl.h * /
  };
  -------------------------------------------------------- */
 #include "konfig.h"
+#include "loc.h"
 #include "sprawdz.h"   /* plik zrodlowy sprawdz.c */
 //#include "baza_stu.h"  /* plik zrodlowy stud_baz.c */
 //#include "dekl_obl.h"  /* plik zrodlowy oblicz.c */
@@ -44,7 +45,7 @@ int set_services(void)
     struct Service* S;
     int Nr_sys = 0;
     /* --------------- Podstawiamy dane uslugi z pliku sprawdz.c --------- */
-    Menu[Nr_sys] = " Sprawdz.otoczenia";
+    Menu[Nr_sys] = L_KONFIG_SRV_SPRAWDZ;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
@@ -96,7 +97,7 @@ int set_services(void)
     /* --------------- Podstawiamy dane uslugi z pliku budz.c --------- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " Budzik";
+    Menu[Nr_sys] = L_KONFIG_SRV_BUDZIK;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
@@ -115,7 +116,7 @@ int set_services(void)
     /* --------------- Podstawiamy dane dalszych uslug z pliku admin.c ---- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " O systemie...";
+    Menu[Nr_sys] = L_KONFIG_SRV_ADMIN;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
@@ -134,7 +135,7 @@ int set_services(void)
     /* --------------- Podstawiamy dane uslugi MQTT publisher ------------- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " MQTT Publisher";
+    Menu[Nr_sys] = L_KONFIG_SRV_MQTT;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
@@ -153,7 +154,7 @@ int set_services(void)
     /* --------------- Symulowany czujnik RT (sensor_sim.c) --------------- */
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
-    Menu[Nr_sys] = " Czujnik Sim";
+    Menu[Nr_sys] = L_KONFIG_SRV_SENSOR;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
@@ -223,7 +224,7 @@ int set_services(void)
         exit(1);
     }
     /* --------------------------------------------------------------- */
-    Menu[L_SYS] = " -- Stan systemu --";
+    Menu[L_SYS] = L_KONFIG_SRV_STAN;
     S = (struct Service*)Malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
