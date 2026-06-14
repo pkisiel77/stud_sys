@@ -12,6 +12,14 @@ DOC_VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
 DOC_DATE := $(shell date +%F)
 
 # ----------------------------------------------------------------
+# Jezyk TUI (TUI_LANG=PL domyslnie, TUI_LANG=EN dla wersji angielskiej)
+# Mapuje sie na LANG_PL / LANG_EN w loc.h.
+# Uwaga: nie uzywamy nazwy LANG, bo to standardowa zmienna srodowiska Unix.
+# ----------------------------------------------------------------
+TUI_LANG ?= PL
+CFLAGS += -DLANG_$(TUI_LANG)
+
+# ----------------------------------------------------------------
 # Opcjonalna obsluga MQTT (wymaga biblioteki paho-mqtt-c)
 #   macOS:  brew install paho-mqtt-c
 #   Linux:  sudo apt-get install libpaho-mqtt-dev
