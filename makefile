@@ -61,7 +61,7 @@ OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) \
 
 $(shell mkdir -p $(OBJDIR)/blank $(OBJDIR)/opcjesys)
 
-.PHONY: all clean docs-pdf
+.PHONY: all clean test docs-pdf
 
 all: $(TARGET)
 
@@ -81,6 +81,29 @@ $(OBJDIR)/%.o: %.C
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
 	@echo "Clean complete"
+
+# ----------------------------------------------------------------
+# Lekkie testy regresyjne schedulera. Core jest kompilowany ponownie
+# z przemianowana funkcja main, aby test mogl dostarczyc wlasny punkt wejscia.
+# ----------------------------------------------------------------
+TEST_OBJDIR = $(OBJDIR)/test
+TEST_TARGET = $(TEST_OBJDIR)/test_scheduler
+TEST_CORE_OBJ = $(TEST_OBJDIR)/core.o
+TEST_APP_OBJS = $(filter-out $(OBJDIR)/core.o,$(OBJS))
+
+$(TEST_CORE_OBJ): core.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -Dmain=stud_sys_app_main -c $< -o $@
+
+$(TEST_OBJDIR)/test_scheduler.o: tests/test_scheduler.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TEST_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_scheduler.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+test: $(TEST_TARGET)
+	$(TEST_TARGET)
 
 run: $(TARGET)
 	./$(TARGET)

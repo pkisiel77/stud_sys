@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/* Scheduler jest kooperacyjny: podczas oczekiwania na klawisz trzeba
+   regularnie odliczac agende i uruchamiac gotowe uslugi. */
+void check_services(void);
+
 /* Global variables */
 int xg_akt = 0, yg_akt = 0;
 char alarmclock = 0;
@@ -323,6 +327,8 @@ int GET_char(void)
     static int pending_scan_code = -1;
     int ch;
     int mapped = -1;
+
+    check_services();
 
     /* Emulate DOS two-byte keys: first SPEC(0), then scan code. */
     if (pending_scan_code >= 0)

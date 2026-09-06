@@ -673,33 +673,47 @@ struct agenda* check_queue(void)
             continue;
         }
         if (A->state < 0) continue;
-        if (select_mode == NO_PRIOR) return A;
-        if (A->prior_plus > 0) mod_prior(A);
-        if (select_mode == MAX_PRIOR && A->cur_prior > max_prior)
+        if (select_mode == NO_PRIOR)
         {
             sel = Nrq;
-            max_prior = A->cur_prior;
+            break;
         }
-        else /* to jest gdy RAND_PRIOR */
+        if (A->prior_plus > 0) mod_prior(A);
+        if (select_mode == MAX_PRIOR)
+        {
+            if (A->cur_prior > max_prior)
+            {
+                sel = Nrq;
+                max_prior = A->cur_prior;
+            }
+        }
+        else if (select_mode == RAND_PRIOR)
         {
             nq++;
-            lim += A->cur_prior;
+            if (A->cur_prior > 0) lim += A->cur_prior;
             prior_lim[nq] = lim;
             serv_ready[nq] = Nrq;
         }
-        break;
     }
-    if (Nrq > NoServisMax) return NULL;
+    if (sel < 0 && nq < 0) return NULL;
     if (sel < 0) /* to jest gdy RAND_PRIOR */
     {
-        lim = lim * RND01();
-        for (Nrq = 0; Nrq <= nq; Nrq++)
+        if (lim <= 0)
         {
-            if (lim < prior_lim[Nrq])
+            sel = serv_ready[0];
+        }
+        else
+        {
+            lim = (int)(lim * RND01());
+            for (Nrq = 0; Nrq <= nq; Nrq++)
             {
-                sel = Nrq;
-                break;
+                if (lim < prior_lim[Nrq])
+                {
+                    sel = serv_ready[Nrq];
+                    break;
+                }
             }
+            if (sel < 0) sel = serv_ready[nq];
         }
     }
     A = SysQ[sel];
