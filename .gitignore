@@ -17,6 +17,11 @@
 mono_crash.*
 
 # Build results
+[Bb]uild*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

@@ -152,6 +152,26 @@ Wymagania:
 - kompilator `gcc`
 - biblioteka `ncurses`
 
+### CMake (Linux i macOS)
+
+Zalecany sposób budowania wraz z testami:
+
+```bash
+cmake -S . -B build -DSTUDSYS_LANG=PL
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Dostępne opcje:
+
+- `-DSTUDSYS_LANG=PL` lub `-DSTUDSYS_LANG=EN`,
+- `-DSTUDSYS_MQTT=ON` — wymaga biblioteki Eclipse Paho MQTT C,
+- `-DBUILD_TESTING=OFF` — pomija budowanie testów.
+
+Plik wykonywalny powstaje jako `build/stud_sys`.
+
+### Makefile
+
 Budowanie podstawowe:
 
 ```bash
