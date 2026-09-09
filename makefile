@@ -87,7 +87,8 @@ clean:
 # z przemianowana funkcja main, aby test mogl dostarczyc wlasny punkt wejscia.
 # ----------------------------------------------------------------
 TEST_OBJDIR = $(OBJDIR)/test
-TEST_TARGET = $(TEST_OBJDIR)/test_scheduler
+TEST_SCHEDULER_TARGET = $(TEST_OBJDIR)/test_scheduler
+TEST_TERMINAL_TARGET = $(TEST_OBJDIR)/test_terminal
 TEST_CORE_OBJ = $(TEST_OBJDIR)/core.o
 TEST_APP_OBJS = $(filter-out $(OBJDIR)/core.o,$(OBJS))
 
@@ -99,11 +100,19 @@ $(TEST_OBJDIR)/test_scheduler.o: tests/test_scheduler.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TEST_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_scheduler.o
+$(TEST_SCHEDULER_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_scheduler.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test: $(TEST_TARGET)
-	$(TEST_TARGET)
+$(TEST_OBJDIR)/test_terminal.o: tests/test_terminal.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TEST_TERMINAL_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_terminal.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+test: $(TEST_SCHEDULER_TARGET) $(TEST_TERMINAL_TARGET)
+	$(TEST_SCHEDULER_TARGET)
+	$(TEST_TERMINAL_TARGET)
 
 run: $(TARGET)
 	./$(TARGET)

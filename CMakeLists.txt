@@ -98,4 +98,12 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_scheduler PRIVATE studsys_build_options)
     add_test(NAME scheduler COMMAND test_scheduler)
+
+    add_executable(test_terminal
+        tests/test_terminal.c
+        $<TARGET_OBJECTS:studsys_common>
+        $<TARGET_OBJECTS:studsys_test_core>
+    )
+    target_link_libraries(test_terminal PRIVATE studsys_build_options)
+    add_test(NAME terminal COMMAND test_terminal)
 endif()

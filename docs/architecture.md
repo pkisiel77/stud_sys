@@ -31,7 +31,9 @@ W aktualnym trybie prezentacyjnym menu pokazuje tylko:
 
 - `Budzik`
 - `-- Stan systemu --`
-- przełącznik tekst/grafika
+
+Przełącznik tekst/grafika pozostaje elementem historycznych backendów. Wersja
+`ncurses` działa wyłącznie w trybie tekstowym i nie pokazuje tego przełącznika.
 
 ## Rejestracja usług
 

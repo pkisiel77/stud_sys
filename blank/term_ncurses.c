@@ -10,12 +10,16 @@
 --------------------------------------*/
 
 #include "term_ncurses.h"
+#include <locale.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 /* Scheduler jest kooperacyjny: podczas oczekiwania na klawisz trzeba
    regularnie odliczac agende i uruchamiac gotowe uslugi. */
 void check_services(void);
+
+extern int MY_MAX, MYR_MAX, MX_MAX, MXR_MAX;
 
 /* Global variables */
 int xg_akt = 0, yg_akt = 0;
@@ -30,19 +34,60 @@ int x_max = 79, y_max = 24;
 
 static int is_cursor = 1;
 static int current_color_pair = 0;
-static int igraf = 0;
+static int terminal_initialized = 0;
+static int cleanup_registered = 0;
+static volatile sig_atomic_t stop_requested = 0;
+static int available_color_pairs = 1;
 
 /* Color pair definitions - map Windows colors to ncurses */
 #define COLOR_PAIR_COUNT 64
+
+static void terminal_signal_handler(int signal_number)
+{
+    (void)signal_number;
+    stop_requested = 1;
+}
+
+static void update_terminal_size(void)
+{
+    int rows, columns;
+
+    getmaxyx(stdscr, rows, columns);
+    if (rows < 1) rows = 1;
+    if (columns < 1) columns = 1;
+
+    y_max = rows - 1;
+    x_max = columns - 1;
+    x_maxOkna = x_max;
+    y_maxOkna = y_max;
+
+    MX_MAX = columns;
+    MXR_MAX = x_max;
+    MY_MAX = y_max;
+    MYR_MAX = (y_max > 0) ? y_max - 1 : 0;
+}
+
+short ncurses_color_from_dos(int color)
+{
+    static const short colors[8] = {
+        COLOR_BLACK, COLOR_BLUE, COLOR_GREEN, COLOR_CYAN,
+        COLOR_RED, COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE
+    };
+
+    if (color < 0 || color >= 8) return COLOR_BLACK;
+    return colors[color];
+}
 
 void init_ncurses_colors(void)
 {
     if (!has_colors())
     {
+        available_color_pairs = 1;
         return;
     }
 
     start_color();
+    available_color_pairs = COLOR_PAIRS;
 
     /* Initialize color pairs for foreground/background combinations */
     /* Color pairs: 1-8 for black bg, 9-16 for blue bg, etc. */
@@ -53,7 +98,8 @@ void init_ncurses_colors(void)
         {
             if (pair_idx < COLOR_PAIRS)
             {
-                init_pair(pair_idx++, fg, bg);
+                init_pair((short)pair_idx++, ncurses_color_from_dos(fg),
+                          ncurses_color_from_dos(bg));
             }
         }
     }
@@ -71,7 +117,7 @@ int map_attr_to_color_pair(unsigned int attr)
     /* Calculate color pair index */
     int pair_idx = bg * 8 + fg + 1;
 
-    if (pair_idx >= COLOR_PAIRS)
+    if (pair_idx >= available_color_pairs || pair_idx >= COLOR_PAIR_COUNT)
     {
         pair_idx = 0;
     }
@@ -81,34 +127,16 @@ int map_attr_to_color_pair(unsigned int attr)
 
 void InitConsoleV1(void)
 {
-    initscr(); /* Initialize ncurses */
-    cbreak(); /* Disable line buffering */
-    noecho(); /* Don't echo input characters */
-    keypad(stdscr, TRUE); /* Enable function keys */
-    /* Nie rozrywaj sekwencji klawiszy (strzałki to ESC+[+litera) */
-    timeout(50);
-
-#ifdef NCURSES_VERSION
-    /* Szybciej rozpoznawaj ESC vs sekwencje ESC[...] */
-    set_escdelay(25);
-#endif
-    curs_set(1); /* Show cursor by default */
-
-    init_ncurses_colors();
-
-    /* Get screen dimensions */
-    getmaxyx(stdscr, y_max, x_max);
-    y_max--; /* Adjust for 0-based indexing */
-    x_max--;
-    x_maxOkna = x_max;
-    y_maxOkna = y_max;
-
-    refresh();
+    InitConsole();
 }
 
 void InitConsole(void)
 {
+    if (terminal_initialized) return;
+
+    setlocale(LC_ALL, "");
     initscr(); /* Initialize ncurses */
+    terminal_initialized = 1;
     cbreak(); /* Disable line buffering */
     noecho(); /* Don't echo input characters */
     keypad(stdscr, TRUE); /* Enable function keys */
@@ -117,28 +145,40 @@ void InitConsole(void)
        getch() będzie czekał max N ms, potem zwróci ERR. */
     timeout(50);
 
+#ifdef NCURSES_VERSION
+    set_escdelay(25);
+#endif
+
     curs_set(1); /* Show cursor by default */
 
     init_ncurses_colors();
 
-    /* Get screen dimensions */
-    getmaxyx(stdscr, y_max, x_max);
-    y_max--; /* Adjust for 0-based indexing */
-    x_max--;
-    x_maxOkna = x_max;
-    y_maxOkna = y_max;
+    update_terminal_size();
+
+    signal(SIGINT, terminal_signal_handler);
+    signal(SIGTERM, terminal_signal_handler);
+    if (!cleanup_registered)
+    {
+        atexit(CloseConsole);
+        cleanup_registered = 1;
+    }
 
     refresh();
 }
 
 void CloseConsole(void)
 {
+    if (!terminal_initialized) return;
+    timeout(-1);
+    curs_set(1);
+    echo();
+    nocbreak();
     endwin();
+    terminal_initialized = 0;
 }
 
 int Endgraph(void)
 {
-    igraf = 0;
     return 0;
 }
 
@@ -158,8 +198,9 @@ void setcursor(unsigned int shape)
 
 int otworz_graf_blank(int Xw_min, int Yw_min, int Xw_max, int Yw_max, int Yz_max, unsigned int Attr)
 {
-    igraf = 1;
-    return 1;
+    (void)Xw_min; (void)Yw_min; (void)Xw_max;
+    (void)Yw_max; (void)Yz_max; (void)Attr;
+    return 0;
 }
 
 void term_clear(int co)
@@ -189,6 +230,8 @@ int term_type(int y, int x, char* text, int lenth, unsigned int attr)
 {
     int actual_len;
 
+    if (text == NULL) return 0;
+
     /* Boundary checks */
     if (x < 0) x = 0;
     if (x > x_max) x = x_max;
@@ -210,13 +253,13 @@ int term_type(int y, int x, char* text, int lenth, unsigned int attr)
     {
         actual_len = lenth;
     }
+    if (actual_len < 0) actual_len = 0;
+    if (actual_len > x_max - x + 1) actual_len = x_max - x + 1;
 
     /* Move cursor and print text */
     mvprintw(y, x, "%.*s", actual_len, text);
 
     xg_akt += actual_len;
-
-    refresh();
     return actual_len;
 }
 
@@ -239,6 +282,9 @@ int term_printf(int y, int x, unsigned int attr, char* format, ...)
     va_start(args, format);
     len = vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
+
+    if (len < 0) return len;
+    if (len >= (int)sizeof(buffer)) len = (int)sizeof(buffer) - 1;
 
     /* Print formatted text */
     term_type(y, x, buffer, len, attr);
@@ -269,7 +315,6 @@ void m_gotoxy(int x, int y)
     yg_akt = y;
 
     move(y, x);
-    refresh();
 }
 
 int GET_charV1(void)
@@ -328,7 +373,11 @@ int GET_char(void)
     int ch;
     int mapped = -1;
 
+    if (stop_requested) return 27;
+
     check_services();
+    refresh();
+    if (stop_requested) return 27;
 
     /* Emulate DOS two-byte keys: first SPEC(0), then scan code. */
     if (pending_scan_code >= 0)
@@ -344,6 +393,15 @@ int GET_char(void)
         return -1;
     }
 
+    if (ch == KEY_RESIZE)
+    {
+        update_terminal_size();
+        clearok(stdscr, TRUE);
+        touchwin(stdscr);
+        refresh();
+        return -1;
+    }
+
     /* Fallback for raw ESC sequences sent by some terminals. */
     if (ch == 27)
     {
@@ -352,25 +410,30 @@ int GET_char(void)
 
         timeout(0);
         ch2 = getch();
+        if (ch2 != '[')
+        {
+            if (ch2 != ERR) ungetch(ch2);
+            timeout(50);
+            return 27;
+        }
+
         ch3 = getch();
         timeout(50);
-
-        if (ch2 == '[')
+        switch (ch3)
         {
-            switch (ch3)
-            {
-            case 'A': mapped = 72; break; /* UP */
-            case 'B': mapped = 80; break; /* DOWN */
-            case 'C': mapped = 77; break; /* RIGHT */
-            case 'D': mapped = 75; break; /* LEFT */
-            default: break;
-            }
-            if (mapped >= 0)
-            {
-                pending_scan_code = mapped;
-                return 0;
-            }
+        case 'A': mapped = 72; break; /* UP */
+        case 'B': mapped = 80; break; /* DOWN */
+        case 'C': mapped = 77; break; /* RIGHT */
+        case 'D': mapped = 75; break; /* LEFT */
+        default: break;
         }
+        if (mapped >= 0)
+        {
+            pending_scan_code = mapped;
+            return 0;
+        }
+        if (ch3 != ERR) ungetch(ch3);
+        ungetch(ch2);
         return 27;
     }
 
@@ -424,30 +487,55 @@ int Get_Char(void)
 void term_cur(int y, int x)
 {
     if (is_cursor == 0) return;
+    if (x < 0) x = 0;
+    if (x > x_max) x = x_max;
+    if (y < 0) y = 0;
+    if (y > y_max) y = y_max;
     move(y, x);
-    refresh();
 }
 
 void clear_cur(char z)
 {
-    return;
+    (void)z;
 }
 
 int term_save_image(int y0, int x0, char* bufor, int dlug)
 {
-    if (dlug == 0) return 2;
-    /* Not implemented for ncurses - would need to save screen region */
-    return 1;
+    int i;
+    chtype *cells = (chtype *)bufor;
+
+    if (dlug == 0) return (int)sizeof(chtype);
+    if (bufor == NULL || dlug < 0) return (int)sizeof(chtype);
+
+    for (i = 0; i < dlug; i++)
+    {
+        int x = x0 + i;
+        cells[i] = (y0 >= 0 && y0 <= y_max && x >= 0 && x <= x_max)
+                   ? mvinch(y0, x) : (chtype)' ';
+    }
+    return (int)sizeof(chtype);
 }
 
 void term_restore_image(int y0, int x0, char* bufor, int dlug)
 {
-    /* Not implemented for ncurses */
+    int i;
+    chtype *cells = (chtype *)bufor;
+
+    if (bufor == NULL || dlug <= 0 || y0 < 0 || y0 > y_max) return;
+    for (i = 0; i < dlug; i++)
+    {
+        int x = x0 + i;
+        if (x >= 0 && x <= x_max) mvaddch(y0, x, cells[i]);
+    }
 }
 
 void backspace(char* c)
 {
-    /* Not implemented */
+    (void)c;
+    if (xg_akt <= 0 || yg_akt < 0 || yg_akt > y_max) return;
+    xg_akt--;
+    mvaddch(yg_akt, xg_akt, ' ');
+    move(yg_akt, xg_akt);
 }
 
 void term_flush(void)
@@ -457,6 +545,12 @@ void term_flush(void)
 
 void ramka_graficzna(int yp, int xp, int ym, int xm, unsigned int attr)
 {
+    if (xp < 0) xp = 0;
+    if (yp < 0) yp = 0;
+    if (xm > x_max) xm = x_max;
+    if (ym > y_max) ym = y_max;
+    if (xp >= xm || yp >= ym) return;
+
     /* Draw a box frame */
     term_color(attr);
 
@@ -480,16 +574,21 @@ void ramka_graficzna(int yp, int xp, int ym, int xm, unsigned int attr)
         mvaddch(y, xm, ACS_VLINE);
     }
 
-    refresh();
 }
 
 void ustaw_okno_graficzne(void)
 {
-    /* Not implemented */
+    touchwin(stdscr);
 }
 
 void bar(int x0, int y0, int x1, int y1)
 {
+    if (x0 < 0) x0 = 0;
+    if (y0 < 0) y0 = 0;
+    if (x1 > x_max) x1 = x_max;
+    if (y1 > y_max) y1 = y_max;
+    if (x0 > x1 || y0 > y1) return;
+
     /* Fill a rectangular area */
     for (int y = y0; y <= y1 && y <= y_max; y++)
     {
@@ -498,12 +597,12 @@ void bar(int x0, int y0, int x1, int y1)
             mvaddch(y, x, ' ');
         }
     }
-    refresh();
 }
 
 void sound(unsigned frequency)
 {
     /* Use beep() for system bell */
+    (void)frequency;
     beep();
 }
 
@@ -526,23 +625,35 @@ void Cls(void)
 /* MessageBox replacement using ncurses */
 int MessageBox(void* hwnd, const char* message, const char* title, unsigned int type)
 {
+    WINDOW *saved_screen;
     int msg_len = strlen(message);
     int title_len = strlen(title);
     int width = (msg_len > title_len ? msg_len : title_len) + 4;
     int height = 7;
 
+    (void)hwnd;
+    (void)type;
+
+    saved_screen = dupwin(stdscr);
+
     if (width < 40) width = 40;
-    if (width > x_max - 4) width = x_max - 4;
+    if (width > x_max - 2) width = x_max - 2;
+    if (width < 4 || y_max < height + 2)
+    {
+        if (saved_screen != NULL) delwin(saved_screen);
+        return 0;
+    }
 
     int y_start = (y_max - height) / 2;
     int x_start = (x_max - width) / 2;
 
     /* Draw box */
-    attron(A_BOLD);
     ramka_graficzna(y_start, x_start, y_start + height, x_start + width, 0x70);
 
     /* Draw title */
+    attron(A_BOLD);
     mvprintw(y_start, x_start + (width - title_len) / 2, "%s", title);
+    attroff(A_BOLD);
 
     /* Draw message */
     mvprintw(y_start + 2, x_start + 2, "%s", message);
@@ -550,20 +661,22 @@ int MessageBox(void* hwnd, const char* message, const char* title, unsigned int 
     /* Draw OK button */
     mvprintw(y_start + height - 2, x_start + width / 2 - 3, "[ OK ]");
 
-    refresh();
+    term_flush();
 
     /* Wait for key press */
-    nodelay(stdscr, FALSE); /* Blocking mode */
     int ch;
     do
     {
-        ch = getch();
+        ch = GET_char();
     }
     while (ch != '\n' && ch != '\r' && ch != 27 && ch != ' ');
-    nodelay(stdscr, TRUE); /* Back to non-blocking */
 
-    /* Redraw screen */
-    clear();
+    if (saved_screen != NULL)
+    {
+        overwrite(saved_screen, stdscr);
+        delwin(saved_screen);
+    }
+    touchwin(stdscr);
     refresh();
 
     return 0;

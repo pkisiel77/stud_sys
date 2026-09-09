@@ -36,7 +36,9 @@ Repo jest obecnie ustawione w tryb prezentacyjny. W menu głównym widoczne są 
 
 - `Budzik`
 - `-- Stan systemu --`
-- przełącznik `GRAFICZNY/TEKSTOWY`
+
+Historyczny przełącznik `GRAFICZNY/TEKSTOWY` nie jest pokazywany w wersji
+`ncurses`, ponieważ ten backend udostępnia wyłącznie interfejs tekstowy.
 
 Pozostałe moduły pozostają w kodzie, ale nie są eksponowane w głównym menu prezentacyjnym.
 

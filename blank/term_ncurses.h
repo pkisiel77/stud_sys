@@ -66,6 +66,7 @@ void Cls(void);
 
 /* Color mapping from Windows style to ncurses color pairs */
 int map_attr_to_color_pair(unsigned int attr);
+short ncurses_color_from_dos(int color);
 void init_ncurses_colors(void);
 
 /* MessageBox replacement */
