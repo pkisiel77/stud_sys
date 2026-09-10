@@ -30,6 +30,39 @@ extern struct agenda *SysA[];
 /* stan lokalny uslugi — po jednej kopii na modul (Etap 1a) */
 static struct agenda *Anew = NULL, *Aserv = NULL;
 
+int sensor_sim_start_demo(void)
+{
+    struct agenda *A;
+    struct sensor_sim *S;
+    int i, result;
+
+    for (i = 0; i < AG_SIZE; i++) {
+        A = SysA[i];
+        if (A != NULL && A->S != NULL && A->S->decyzje == dec_sensor_sim &&
+            A->number_of_calls != 0) return i;
+    }
+
+    A = service_default(dec_sensor_sim);
+    if (A == NULL) return -1;
+    S = (struct sensor_sim *)A->data;
+    S->waveform = 's';
+    S->amplitude = 10.0f;
+    S->frequency = 0.1f;
+    S->offset = 20.0f;
+    S->thr_min = 12.0f;
+    S->thr_max = 28.0f;
+    A->mode = 'p';
+    A->number_of_calls = -1;
+    A->Interval = 1;
+    A->delay = 0.0f;
+    A->prior = 100;
+    A->cur_prior = A->prior;
+
+    result = insert_to_agenda(A);
+    free_agenda_mem(A);
+    return result;
+}
+
 /* kody decyzji lokalne dla tego modulu */
 #define DEC_SIM_WAVE 30
 #define DEC_SIM_AMP  31
@@ -88,7 +121,9 @@ int sensor_sim_main(void *DA)
                   ? RT_ALARM_RANGE : RT_ALARM_OK;
 
     A->rt.elapsed += 1.0f;
-    A->state = 1;
+    /* Jedna probka konczy pojedyncze wykonanie. Scheduler ponownie doda
+       usluge do kolejki po uplywie A->Interval. */
+    A->state = 0;
     return A->state;
 }
 

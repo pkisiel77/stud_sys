@@ -1,6 +1,7 @@
 /* #include <butil.h> */
 #include "blank/moje.h"
 #include "sprawdz.h"
+#include "sys_rep.h"
 #include "loc.h"
 void chk_time(void);
 extern struct Service* Service;
@@ -23,6 +24,7 @@ int sprawdz(void* DA)
     int i, xkursora, ykursora;
     A = (struct agenda*)DA;
     A->state = 0;
+    if (sys_status_dashboard_active) return A->state;
     tsek1970 = time(NULL);
     Time = localtime(&tsek1970);
     xkursora = m_wherex();

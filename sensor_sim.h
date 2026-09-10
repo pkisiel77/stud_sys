@@ -21,5 +21,6 @@ void  wpis_sensor_sim(int ob_pocz, int ob_konc, char *D,
                       int rozmiar_ob, char zapis[], char *Kod_op);
 int   dec_sensor_sim(int decyzja, int kod_decyzji, int nr_dec,
                      int kod_uslugi, int np, int *nr_rekordu);
+int   sensor_sim_start_demo(void);
 
 #endif /* SENSOR_SIM_H */

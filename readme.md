@@ -35,6 +35,7 @@ W praktyce system pozwala:
 Repo jest obecnie ustawione w tryb prezentacyjny. W menu głównym widoczne są tylko:
 
 - `Budzik`
+- `Demo IoT: czujnik symulowany`
 - `-- Stan systemu --`
 
 Historyczny przełącznik `GRAFICZNY/TEKSTOWY` nie jest pokazywany w wersji
@@ -62,6 +63,13 @@ Raport `-- Stan systemu --` służy do pokazania:
 - jakie jest ich bieżące opóźnienie.
 
 To jest podstawowy ekran diagnostyczny systemu RT.
+
+Ekran ma formę odświeżanego dashboardu: pokazuje podsumowanie aktywnych zadań,
+kolejkę i alarmy, a niżej czytelną tabelę. Nawigacja jest zawsze opisana w
+dolnym pasku; `Esc` wraca bezpośrednio do menu głównego.
+
+Gotowy scenariusz uruchomienia symulowanego czujnika opisano w
+[`examples/iot-monitor.md`](examples/iot-monitor.md).
 
 ## Architektura
 

@@ -30,10 +30,15 @@ Przebieg startu:
 W aktualnym trybie prezentacyjnym menu pokazuje tylko:
 
 - `Budzik`
+- `Demo IoT: czujnik symulowany`
 - `-- Stan systemu --`
 
 Przełącznik tekst/grafika pozostaje elementem historycznych backendów. Wersja
 `ncurses` działa wyłącznie w trybie tekstowym i nie pokazuje tego przełącznika.
+
+Pozycja `Stan systemu` otwiera dedykowany dashboard zamiast ogólnego silnika
+formularzy. Dashboard pobiera migawkę agendy i kolejki, prezentuje alarmy oraz
+stan zadań i pozostawia scheduler aktywny podczas przeglądania.
 
 ## Rejestracja usług
 

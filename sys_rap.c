@@ -7,6 +7,217 @@ extern struct Service *Service;
 extern struct agenda *Agenda;
 extern int X_time, X_tyt;
 extern unsigned int attr_title;
+extern struct agenda *SysA[AG_SIZE];
+extern struct agenda *SysQ[Q_SIZE];
+int sys_status_dashboard_active = 0;
+
+static int agenda_is_queued(const struct agenda *A)
+{
+    int i;
+    for (i = 0; i < Q_SIZE; i++) {
+        if (SysQ[i] == A) return 1;
+    }
+    return 0;
+}
+
+int sys_status_snapshot(struct sys_status_row *rows, int capacity,
+                        struct sys_status_summary *summary)
+{
+    int i, count = 0;
+
+    if (summary != NULL) {
+        summary->active = 0;
+        summary->queued = 0;
+        summary->alarms = 0;
+        for (i = 0; i < Q_SIZE; i++) {
+            if (SysQ[i] != NULL && SysQ[i]->number_of_calls != 0)
+                summary->queued++;
+        }
+    }
+
+    for (i = 0; i < AG_SIZE; i++) {
+        struct agenda *A = SysA[i];
+        struct sys_status_row *row;
+        const char *name;
+
+        if (A == NULL) continue;
+        if (summary != NULL) {
+            if (A->number_of_calls != 0) {
+                summary->active++;
+                if (A->rt.alarm != RT_ALARM_OK) summary->alarms++;
+            }
+        }
+        if (rows == NULL || count >= capacity) {
+            count++;
+            continue;
+        }
+
+        row = &rows[count++];
+        name = A->name;
+        if ((name == NULL || name[0] == '\0') && A->S != NULL) name = A->S->name;
+        snprintf(row->name, sizeof(row->name), "%s", name != NULL ? name : "-");
+        row->agenda_index = i;
+        row->mode = A->mode;
+        row->interval = A->Interval;
+        row->delay = A->delay;
+        row->priority = A->prior;
+        row->calls_left = A->number_of_calls;
+        row->alarm = A->rt.alarm;
+        row->value = A->rt.value;
+        if (A->number_of_calls == 0) row->state = SYS_STATUS_DISABLED;
+        else if (A->state < 0) row->state = SYS_STATUS_RUNNING;
+        else if (agenda_is_queued(A)) row->state = SYS_STATUS_READY;
+        else row->state = SYS_STATUS_WAITING;
+    }
+    return count;
+}
+
+static const char *status_state_name(int state)
+{
+    switch (state) {
+    case SYS_STATUS_READY: return L_STATUS_READY;
+    case SYS_STATUS_RUNNING: return L_STATUS_RUNNING;
+    case SYS_STATUS_DISABLED: return L_STATUS_DISABLED;
+    default: return L_STATUS_WAITING;
+    }
+}
+
+static const char *status_alarm_name(int alarm)
+{
+    switch (alarm) {
+    case RT_ALARM_RANGE: return L_STATUS_ALARM_RANGE;
+    case RT_ALARM_TIMEOUT: return L_STATUS_ALARM_TIMEOUT;
+    default: return L_STATUS_ALARM_OK;
+    }
+}
+
+static const char *status_mode_name(char mode)
+{
+    switch (mode) {
+    case 'p': return L_STATUS_MODE_PERMANENT;
+    case 's': return L_STATUS_MODE_SERIAL;
+    case 't': return L_STATUS_MODE_ONESHOT;
+    default: return L_STATUS_MODE_UNKNOWN;
+    }
+}
+
+static void render_status_dashboard(int selected)
+{
+    struct sys_status_row rows[AG_SIZE];
+    struct sys_status_summary summary;
+    const unsigned int base = TERM_WHITE | TERM_BLUE_BG;
+    const unsigned int heading = TERM_WHITE | MTERM_HILIGHT | TERM_CYAN_BG;
+    const unsigned int selected_attr = TERM_BLACK | MTERM_HILIGHT | TERM_WHITE_BG;
+    const unsigned int alarm_attr = TERM_WHITE | MTERM_HILIGHT | TERM_RED_BG;
+    char calls[24];
+    int count, page_size, page_start, page_end, i, y;
+
+    count = sys_status_snapshot(rows, AG_SIZE, &summary);
+    if (selected < 0) selected = 0;
+    if (selected >= count && count > 0) selected = count - 1;
+    page_size = MY_MAX - 7;
+    if (page_size < 1) page_size = 1;
+    page_start = (selected / page_size) * page_size;
+    page_end = page_start + page_size;
+    if (page_end > count) page_end = count;
+
+    term_fill(base);
+    term_printf(0, 0, heading, "%-*.*s", MX_MAX, MX_MAX, L_STATUS_TITLE);
+    term_printf(1, 1, base, L_STATUS_SUMMARY,
+                summary.active, summary.queued, summary.alarms);
+    term_printf(2, 1, base, L_STATUS_PAGE,
+                count == 0 ? 0 : page_start / page_size + 1,
+                count == 0 ? 0 : (count + page_size - 1) / page_size);
+    term_type(3, 0, MX_MAX >= 76 ? L_STATUS_COLUMNS : L_STATUS_COLUMNS_COMPACT,
+              0, heading);
+
+    if (count == 0) term_type(5, 2, L_STATUS_EMPTY, 0, base);
+    for (i = page_start, y = 4; i < page_end; i++, y++) {
+        unsigned int row_attr = i == selected ? selected_attr : base;
+        if (rows[i].state != SYS_STATUS_DISABLED && rows[i].alarm != RT_ALARM_OK)
+            row_attr = alarm_attr;
+        if (MX_MAX >= 76) {
+            term_printf(y, 0, row_attr,
+                        " %2d  %-22.22s %-8.8s %6.1f %6d %5d %9.2f %-7.7s",
+                        rows[i].agenda_index, rows[i].name,
+                        status_state_name(rows[i].state), rows[i].delay,
+                        rows[i].interval, rows[i].priority, rows[i].value,
+                        status_alarm_name(rows[i].alarm));
+        } else {
+            term_printf(y, 0, row_attr, " %2d  %-22.22s %-8.8s %6.1f %-7.7s",
+                        rows[i].agenda_index, rows[i].name,
+                        status_state_name(rows[i].state), rows[i].delay,
+                        status_alarm_name(rows[i].alarm));
+        }
+    }
+
+    if (count > 0) {
+        if (rows[selected].calls_left < 0)
+            snprintf(calls, sizeof(calls), "%s", L_STATUS_CALLS_PERMANENT);
+        else
+            snprintf(calls, sizeof(calls), "%d", rows[selected].calls_left);
+        term_printf(MY_MAX - 2, 1, base, L_STATUS_DETAIL,
+                    rows[selected].agenda_index, rows[selected].name,
+                    status_mode_name(rows[selected].mode), calls);
+    }
+    term_printf(MY_MAX, 0, heading, "%-*.*s", MX_MAX, MX_MAX, L_STATUS_HELP);
+    term_flush();
+}
+
+int sys_status_dashboard(void)
+{
+    struct sys_status_summary summary;
+    int selected = 0, key, scan, count, page_size;
+    int force_render = 1, last_width = -1, last_height = -1;
+    time_t last_render = 0, now;
+
+    sys_status_dashboard_active = 1;
+    setcursor(nocursor);
+    for (;;) {
+        now = time(NULL);
+        if (MX_MAX != last_width || MY_MAX != last_height) force_render = 1;
+        if (force_render || now != last_render) {
+            count = sys_status_snapshot(NULL, 0, &summary);
+            if (selected >= count && count > 0) selected = count - 1;
+            render_status_dashboard(selected);
+            last_render = now;
+            last_width = MX_MAX;
+            last_height = MY_MAX;
+            force_render = 0;
+        }
+
+        key = GET_char();
+        if (key < 0) continue;
+        if (key == 27) break;
+        if (key == 'r' || key == 'R') {
+            force_render = 1;
+            continue;
+        }
+        if (key != 0) continue;
+
+        scan = GET_char();
+        count = sys_status_snapshot(NULL, 0, &summary);
+        page_size = MY_MAX - 7;
+        if (page_size < 1) page_size = 1;
+        switch (scan) {
+        case 72: if (selected > 0) selected--; break;
+        case 80: if (selected + 1 < count) selected++; break;
+        case 73: selected -= page_size; if (selected < 0) selected = 0; break;
+        case 81:
+            selected += page_size;
+            if (selected >= count && count > 0) selected = count - 1;
+            break;
+        case 71: selected = 0; break;
+        case 79: if (count > 0) selected = count - 1; break;
+        default: continue;
+        }
+        force_render = 1;
+    }
+    sys_status_dashboard_active = 0;
+    setcursor(cursor);
+    return 0;
+}
+
 struct agenda **SA;
 int sys_main(void *DA)
  {struct agenda *A;

@@ -1,4 +1,6 @@
 #include "blank/moje.h"
+#include "sensor_sim.h"
+#include "sys_rep.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -138,6 +140,73 @@ static void test_agenda_releases_ready_task_to_queue(void)
     CHECK(SysQ[0] == &task);
 }
 
+static void test_status_snapshot_explains_scheduler_state(void)
+{
+    struct Service service;
+    struct agenda waiting = ready_task(20);
+    struct agenda queued = ready_task(30);
+    struct agenda disabled = ready_task(40);
+    struct sys_status_row rows[AG_SIZE];
+    struct sys_status_summary summary;
+    int count;
+
+    memset(&service, 0, sizeof(service));
+    service.name = "sensor";
+    waiting.S = &service;
+    waiting.name = "temperature";
+    waiting.delay = 5.0f;
+    waiting.Interval = 10;
+    waiting.rt.value = 21.5f;
+    queued.S = &service;
+    queued.name = NULL;
+    queued.rt.alarm = RT_ALARM_RANGE;
+    disabled.S = &service;
+    disabled.number_of_calls = 0;
+
+    reset_scheduler();
+    SysA[0] = &waiting;
+    SysA[3] = &queued;
+    SysA[4] = &disabled;
+    SysQ[2] = &queued;
+
+    count = sys_status_snapshot(rows, AG_SIZE, &summary);
+
+    CHECK(count == 3);
+    CHECK(summary.active == 2);
+    CHECK(summary.queued == 1);
+    CHECK(summary.alarms == 1);
+    CHECK(rows[0].agenda_index == 0);
+    CHECK(strcmp(rows[0].name, "temperature") == 0);
+    CHECK(rows[0].state == SYS_STATUS_WAITING);
+    CHECK(rows[1].agenda_index == 3);
+    CHECK(strcmp(rows[1].name, "sensor") == 0);
+    CHECK(rows[1].state == SYS_STATUS_READY);
+    CHECK(rows[2].state == SYS_STATUS_DISABLED);
+    CHECK(sys_status_snapshot(rows, 1, NULL) == 3);
+}
+
+static void test_sensor_sample_finishes_queue_execution(void)
+{
+    struct agenda task = ready_task(100);
+    struct sensor_sim sensor;
+
+    memset(&sensor, 0, sizeof(sensor));
+    sensor.waveform = 's';
+    sensor.amplitude = 10.0f;
+    sensor.frequency = 0.1f;
+    sensor.offset = 20.0f;
+    sensor.thr_min = 12.0f;
+    sensor.thr_max = 28.0f;
+    task.data = &sensor;
+    task.rt.elapsed = 0.0f;
+
+    CHECK(sensor_sim_main(&task) == 0);
+    CHECK(task.state == 0);
+    CHECK(task.rt.value == 20.0f);
+    CHECK(task.rt.elapsed == 1.0f);
+    CHECK(task.rt.alarm == RT_ALARM_OK);
+}
+
 int main(void)
 {
     test_max_priority_scans_whole_queue();
@@ -146,6 +215,8 @@ int main(void)
     test_random_mode_accepts_zero_weight();
     test_completed_entry_is_removed_before_selection();
     test_agenda_releases_ready_task_to_queue();
+    test_status_snapshot_explains_scheduler_state();
+    test_sensor_sample_finishes_queue_execution();
 
     if (failures != 0) {
         fprintf(stderr, "%d scheduler test(s) failed\n", failures);

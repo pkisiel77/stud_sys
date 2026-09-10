@@ -24,6 +24,8 @@ int ag_rep, q_rep;
 #include "konfig.h"
 #include "dek_budz.h"   /* budz_blankiet, budz_wczytaj_z_pliku */
 #include "mqtt_pub.h"   /* mqtt_auto_start */
+#include "sensor_sim.h" /* demonstracyjny monitor IoT */
+#include "sys_rep.h"    /* czytelny dashboard stanu systemu */
 #include "loc.h"
 #include "randf.c"
 /* ----------------------------------------------------------- */
@@ -213,6 +215,19 @@ int main(int argc, char* argv[])
         }
 
         Ret = menu_map[Ret];
+        if (Ret == L_SYS - 1)
+        {
+            sensor_sim_start_demo();
+            sys_status_dashboard();
+            Ret = 0;
+            continue;
+        }
+        if (Ret == L_SYS)
+        {
+            sys_status_dashboard();
+            Ret = 0;
+            continue;
+        }
         Service = Serv[Ret];
         Agenda = NULL;
         {
@@ -238,6 +253,9 @@ static int build_presentation_menu(char* menu_view[], int menu_map[], char* grap
     int idx = 0;
     menu_view[idx] = Menu[1];
     menu_map[idx] = 1;
+    idx++;
+    menu_view[idx] = L_CORE_MENU_IOT_DEMO;
+    menu_map[idx] = L_SYS - 1;
     idx++;
     menu_view[idx] = Menu[L_SYS];
     menu_map[idx] = L_SYS;
