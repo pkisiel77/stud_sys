@@ -29,9 +29,6 @@ struct BUFOR_EKRANU
 extern HWND handle_window_device;
 #endif
 
-#ifdef _MAIN_MODUL_ // modulu glownego czyli main
- #include "../blank/konsola.c"
-#endif // koniec dla modulu glownego
 #ifdef WEWY_MAIN // dla wewy_main
  #include "../opcjesys/shintdef.h"
 #endif // koniec wewy_main

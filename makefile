@@ -47,7 +47,6 @@ endif
 SRCS = core.c \
        konfig.c \
        blank/term_ncurses.c \
-       blank/konsola.c \
        blank/wewy.c \
        budz.c \
        admin.c \

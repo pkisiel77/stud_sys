@@ -71,7 +71,6 @@ endif()
 set(STUDSYS_COMMON_SOURCES
     konfig.c
     blank/term_ncurses.c
-    blank/konsola.c
     blank/wewy.c
     budz.c
     admin.c
