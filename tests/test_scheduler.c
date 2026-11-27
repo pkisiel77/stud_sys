@@ -13,6 +13,8 @@ extern char select_mode;
 
 void check_agenda(time_t dt);
 int data_systemowa(int *dzien, int *miesiac, int *rok);
+struct agenda *rekord_zlecenia_agendy(int *nr_rekordu, int nr_w_agendzie,
+                                      int kod_uslugi);
 int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
                 int *nr_rekordu, int kod_uslugi, char *tytul);
 struct agenda *check_queue(void);
@@ -240,6 +242,36 @@ static void test_save_without_new_record_does_not_exit_report(void)
     CHECK(nr_rekordu == 3);
 }
 
+static void test_record_lookup_past_last_returns_last_record(void)
+{
+    struct Service service;
+    struct agenda first = ready_task(1);
+    struct agenda second = ready_task(1);
+    int nr_rekordu = 5;
+
+    memset(&service, 0, sizeof(service));
+    service.kod_uslugi = 7;
+    first.S = &service;
+    second.S = &service;
+
+    reset_scheduler();
+    SysA[1] = &first;
+    SysA[3] = &second;
+
+    /* nr_w_agendzie < 0: szukanie po numerze rekordu, ktory nie istnieje */
+    CHECK(rekord_zlecenia_agendy(&nr_rekordu, -1, 7) == &second);
+    CHECK(nr_rekordu == 1);
+
+    nr_rekordu = 0;
+    CHECK(rekord_zlecenia_agendy(&nr_rekordu, -1, 7) == &first);
+    CHECK(nr_rekordu == 0);
+
+    nr_rekordu = 0;
+    CHECK(rekord_zlecenia_agendy(&nr_rekordu, -1, 8) == NULL);
+
+    reset_scheduler();
+}
+
 int main(void)
 {
     test_max_priority_scans_whole_queue();
@@ -252,6 +284,7 @@ int main(void)
     test_sensor_sample_finishes_queue_execution();
     test_system_date_uses_calendar_month();
     test_save_without_new_record_does_not_exit_report();
+    test_record_lookup_past_last_returns_last_record();
 
     if (failures != 0) {
         fprintf(stderr, "%d scheduler test(s) failed\n", failures);
