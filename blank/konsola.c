@@ -1,10 +1,10 @@
 /*-----------------------------------------------------
 
   Plik: konsola.c             
-  Opis: W pliku znajduj� si�:
+  Opis: W pliku znajduja sie:
         - deklaracje funkcji,
           dla systemu WEWY kompilowanego
-          w �rodowisku WINDOWS NT lub ncurses
+          w srodowisku WINDOWS NT lub ncurses
         jako konsola.
   
   Wersja: 1.0.5
@@ -46,7 +46,7 @@ void InitConsole() {
 void sound(unsigned frequency)
 {
  BOOL ret;
- DWORD dwDuration = 1; // minimalna warto�� 1ms 
+ DWORD dwDuration = 1; // minimalna wartosc 1ms 
 
  ret = Beep(frequency, dwDuration);
  SprawdzFunkcje(ret,"Beep");
@@ -66,7 +66,7 @@ void SprawdzFunkcje(BOOL ret, PSTR nazwa_funkcji)
   if(ret!=TRUE)
    {nr_bledu = GetLastError();
     snprintf(bufor, MAX_WART_BUFORA_BLEDU, "%d",nr_bledu);
-//    MessageBox(NULL,TEXT("Numer b��du:\n")TEXT(bufor),"B��d procedury: " TEXT(nazwa_funkcji),MB_OK|MB_ICONERROR);
+//    MessageBox(NULL,TEXT("Numer bledu:\n")TEXT(bufor),"Blad procedury: " TEXT(nazwa_funkcji),MB_OK|MB_ICONERROR);
    }
 }
 #endif  /* _NCURSES_ */
@@ -82,7 +82,7 @@ void SprawdzFunkcje(BOOL ret, PSTR nazwa_funkcji)
   wersja 0.0.2 - 25.08.2002
   wersja 0.0.3 - 26.08.2002
   autor: gonzo77@poczta.fm
-  opis: funkcja dla podsystemu BOSS w �rodowisku Windows 2000
+  opis: funkcja dla podsystemu BOSS w srodowisku Windows 2000
         (plik term_dos.c)
 ----------------------------------*/
 
@@ -152,7 +152,7 @@ HWND term_console_create(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCm
      hwnd = CreateWindow (szAppName, TEXT ("Konsola dla podsystemu BOSS... wersja 0.0.3n 21-11-2002"),
                           WS_OVERLAPPEDWINDOW,
                           CW_USEDEFAULT, CW_USEDEFAULT,
-                          81*8,26*13, // !!! tak nie mo�e by� 
+                          81*8,26*13, // !!! tak nie moze byc 
                           NULL, NULL, hInstance, NULL) ;
      ShowWindow (hwnd, iCmdShow) ;
      UpdateWindow (hwnd) ;
@@ -198,7 +198,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 ReleaseDC(hwnd,hdc);
 		 
 	 case WM_SIZE:
-		 // pobie� rozmiar okna w pikselach
+		 // pobierz rozmiar okna w pikselach
 		 if(message==WM_SIZE)
 		 {
 			 cx_client=LOWORD(lParam);
@@ -209,7 +209,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 cx_buffer=max(1,cx_client/cx_char);
 		 cy_buffer=max(1,cy_client/cy_char);
 
-		 // przydziel pami�� na bufor i wykasuj j�
+		 // przydziel pamiec na bufor i wykasuj ja
 		 
 		 if(ptr_buffer != NULL)
 			 free(ptr_buffer);
@@ -228,7 +228,7 @@ LRESULT CALLBACK term_console_events(HWND hwnd, UINT message, WPARAM wParam, LPA
 		 // zapis obrazu
 		 return 0;
 	 case WM_KILLFOCUS:
-		 // od�wierzenie obrazu
+		 // odswiezenie obrazu
 		 return 0;
 
 /*

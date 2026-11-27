@@ -29,9 +29,9 @@ struct BUFOR_EKRANU
 extern HWND handle_window_device;
 #endif
 
-#ifdef _MAIN_MODUL_ // modu�u g��wnego czyli main
+#ifdef _MAIN_MODUL_ // modulu glownego czyli main
  #include "../blank/konsola.c"
-#endif // koniec dla modu�u g��wnego
+#endif // koniec dla modulu glownego
 #ifdef WEWY_MAIN // dla wewy_main
  #include "../opcjesys/shintdef.h"
 #endif // koniec wewy_main
@@ -61,11 +61,11 @@ extern HWND handle_window_device;
   #include "../blank/wewybl.h"
   #include "../opcjesys/scr_size.h"
  #endif // koniec DOS/ncurses
-#endif // koniec hedr�w dla moje.h
+#endif // koniec hedrow dla moje.h
 #ifdef _WEWYBL_H_INCLUDE // hedery dla wewybl.h
  #include "../opcjesys/shintdef.h"
  #include "../opcjesys/mystderr.h"
-#endif // koniec init. heder�w dla wewybl.h
+#endif // koniec init. hederow dla wewybl.h
 #ifdef _WEWY1_H_INCLUDE
 # include "../opcjesys/scr_size.h"
 #endif
@@ -73,7 +73,7 @@ extern HWND handle_window_device;
 //extern HDC hdc;
 //extern HWND hwnd;
 //#define getch VCGetch
-//#define MAX_LICZBA_KOLOROW 25 // do kolor�w systemowch w WEWYBL.H
+//#define MAX_LICZBA_KOLOROW 25 // do kolorow systemowch w WEWYBL.H
 #endif // koniec dla win_graf
 #endif
 

@@ -1,7 +1,7 @@
 /*
 ==========================================================
   Plik: ../opcjesys/scr_size.h
-  Ustawienia granic ekranu dla system�w:
+  Ustawienia granic ekranu dla systemow:
   - QNX,
   - DOS,
   - WINDOWS.

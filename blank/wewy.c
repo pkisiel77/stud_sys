@@ -1491,13 +1491,13 @@ void mAbort()
 {
     yplus();
     x_akt = x_akt0;
-    term_printf(y_akt, x_akt, attryb, "���������������������������������������ͻ");
+    term_printf(y_akt, x_akt, attryb, "+---------------------------------------+");
     yplus();
     x_akt = x_akt0;
-    term_printf(y_akt, x_akt, attryb, "�   ABORT programu !!! ?? TAK - 't'     �");
+    term_printf(y_akt, x_akt, attryb, "|   ABORT programu !!! ?? TAK - 't'     |");
     yplus();
     x_akt = x_akt0;
-    term_printf(y_akt, x_akt, attryb, "���������������������������������������ͼ");
+    term_printf(y_akt, x_akt, attryb, "+---------------------------------------+");
     yplus();
     x_akt = x_akt0;
     if (Get_Char() == 't') exit(0);
@@ -8010,46 +8010,46 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
             {
                 char format_inny_rek[32];
                 if (ob_pocz == ob_konc)
-                    snprintf(format_inny_rek, sizeof(format_inny_rek), "� Chcesz WYJSC z RAPORTU ??? ");
+                    snprintf(format_inny_rek, sizeof(format_inny_rek), "| Chcesz WYJSC z RAPORTU ??? ");
                 else
-                    snprintf(format_inny_rek, sizeof(format_inny_rek), "� <%c,%c,%c,%c,Home,End>-inny rek", 24, 25, 26, arrow);
+                    snprintf(format_inny_rek, sizeof(format_inny_rek), "| <%c,%c,%c,%c,Home,End>-inny rek", 24, 25, 26, arrow);
 
 #ifndef _DOS_
                 if (*zapis == 1)
                 {
                     term_printf(MY_MAX, 0, TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "�<Tab>-powrot do edycji � <%c,%c,%c,%c,Home,End>-inny rek�<F2>-ZAPIS �<Esc>-wyjscie �",
+                                "|<Tab>-powrot do edycji | <%c,%c,%c,%c,Home,End>-inny rek|<F2>-ZAPIS |<Esc>-wyjscie |",
                                 24, 25, 26, arrow);
-                    term_printf(MY_MAX, 24, ATTR_A, "%s%s", format_inny_rek, "�<F2>-ZAPIS�");
+                    term_printf(MY_MAX, 24, ATTR_A, "%s%s", format_inny_rek, "|<F2>-ZAPIS|");
                 }
                 else
                 {
                     term_printf(MY_MAX, 0, TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "� <Tab> - powrot do edycji raportu � <%c,%c,%c,%c,Home,End>-inny rek�<Esc>-wyjscie �",
+                                "| <Tab> - powrot do edycji raportu | <%c,%c,%c,%c,Home,End>-inny rek|<Esc>-wyjscie |",
                                 24, 25, 26, arrow);
-                    term_printf(MY_MAX, X_L0 + 35, ATTR_A, "%s%s", format_inny_rek, "�");
+                    term_printf(MY_MAX, X_L0 + 35, ATTR_A, "%s%s", format_inny_rek, "|");
                 }
       }
                 if (blankiet_ret_read_only(Ret))
-                    komun_text(MY_MAX, 0, "�PREZENTACJA DANYCH bez prawa zmian", 0, TERM_CYAN | INVERSE | TERM_FLUSH);
+                    komun_text(MY_MAX, 0, "|PREZENTACJA DANYCH bez prawa zmian", 0, TERM_CYAN | INVERSE | TERM_FLUSH);
 #else
                 if (*zapis == 1)
                 {
                     term_printf(MY_MAX, 0,TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "�<Tab>-powrot do edycji � <%c,%c,%c,%c,Home,End>-inny rek�<F2>-ZAPIS�<Esc>-wyjscie�",
+                                "|<Tab>-powrot do edycji | <%c,%c,%c,%c,Home,End>-inny rek|<F2>-ZAPIS|<Esc>-wyjscie|",
                                 24, 25, 26, arrow);
-                    term_printf(MY_MAX, X_L0 + 24,ATTR_A, "%s%s", format_inny_rek, "�<F2>-ZAPIS�");
+                    term_printf(MY_MAX, X_L0 + 24,ATTR_A, "%s%s", format_inny_rek, "|<F2>-ZAPIS|");
                 }
                 else
                 {
                     term_printf(MY_MAX, 0,TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "� <Tab> - powrot do edycji raportu � <%c,%c,%c,%c,Home,End>-inny rek�<Esc>-wyjscie�",
+                                "| <Tab> - powrot do edycji raportu | <%c,%c,%c,%c,Home,End>-inny rek|<Esc>-wyjscie|",
                                 24, 25, 26, arrow);
-                    term_printf(MY_MAX, X_L0 + 35,ATTR_A, "%s%s", format_inny_rek, "�");
+                    term_printf(MY_MAX, X_L0 + 35,ATTR_A, "%s%s", format_inny_rek, "|");
                 }
             }
             if (blankiet_ret_read_only(Ret))
-                komun_text(MY_MAX, 0, "�PREZENTACJA DANYCH bez prawa zmian", 0,TERM_CYAN | INVERSE | TERM_FLUSH);
+                komun_text(MY_MAX, 0, "|PREZENTACJA DANYCH bez prawa zmian", 0,TERM_CYAN | INVERSE | TERM_FLUSH);
 #endif
         }
         /* ================== WYBOR OPCJI JW =========================== */
@@ -8488,11 +8488,11 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
         /* ----------------- cos zostalo wpisane ---------------------------- */
 #ifndef _DOS_
         term_type(MY_MAX, X_L0,
-                  "�<Tab>-powrot do danych�<F2> -ZAPIS�<q> -WYJSCIE�<Esc> -wyjscie Z ANULOW.ZMIAN �", 0, attr_h);
+                  "|<Tab>-powrot do danych|<F2> -ZAPIS|<q> -WYJSCIE|<Esc> -wyjscie Z ANULOW.ZMIAN |", 0, attr_h);
 #else
         term_type(MY_MAX, X_L0,
-                  "�<Tab>-powrot do danych�<F2> -ZAPIS�<q> -WYJSCIE�<Esc> -wyjscie Z ANULOW.ZMIAN�", 0, attr_h);
-        term_type(MY_MAX, 24, "�<F2> -ZAPIS�<q> -WYJSCIE�", 0,ATTR_A);
+                  "|<Tab>-powrot do danych|<F2> -ZAPIS|<q> -WYJSCIE|<Esc> -wyjscie Z ANULOW.ZMIAN|", 0, attr_h);
+        term_type(MY_MAX, 24, "|<F2> -ZAPIS|<q> -WYJSCIE|", 0,ATTR_A);
 #endif
         do
         {
@@ -8503,7 +8503,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
                 if (wpisano >= ZAP_MIN)
                 {
                     term_type(MY_MAX, X_L0,
-                              "�  Chcesz zakonczyc raport BEZ WPISU !!! <t/n> ?? �", 0,ATTR_A);
+                              "|  Chcesz zakonczyc raport BEZ WPISU !!! <t/n> ?? |", 0,ATTR_A);
                     do
                     {
                         znak = GET_char();
@@ -8558,7 +8558,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
                         return Esc;
                     }
                     term_type(MY_MAX, X_L0,
-                              "�Wpisz dane OBLIGATORYJNE (ze znakiem ?? ) -<Ent>; lub wyjdz bez zapisu -<q>�", 0,
+                              "|Wpisz dane OBLIGATORYJNE (ze znakiem ?? ) -<Ent>; lub wyjdz bez zapisu -<q>|", 0,
                               ATTR_A);
                     znak = GET_char();
                     znak = znak & 0x00ff;
@@ -8922,12 +8922,12 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
 #ifndef _DOS_
             {
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�  Wpis danej: <Esc> - wyjscie�  <Ent> - akceptacja � <%c, %c> - inkrementacja   �",
+                            "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja   |",
                             24, 25);
 #else
             {
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�  Wpis danej: <Esc> - wyjscie�  <Ent> - akceptacja � <%c, %c> - inkrementacja  �",
+                            "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja  |",
                             24, 25);
 #endif
                 term_cur(MY_MAX, X_L0 + 1);
@@ -9001,79 +9001,79 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
             {
             case 7: /* help= 1+2+4- raport+menu+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-dana�<F1>-raport�<F3>-menu�<F4>-tabl",
+                            "|<%c,%c,%c,%c>-dana|<F1>-raport|<F3>-menu|<F4>-tabl",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "ica  � <Esc,Tab>-wyjscie z rap.  �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "ica  | <Esc,Tab>-wyjscie z rap.  |", 0, attr_h);
                 break;
             case 6: /* help= 2+4- menu+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F3>-menu �<F4>-tablica",
+                            "|<%c,%c,%c,%c>-wybor danej|<F3>-menu |<F4>-tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  � <Esc,Tab>-wyjscie z raportu  �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu  |", 0, attr_h);
 
                 break;
             case 5: /* help= 1+4- raport+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F1>-raport�<F4>-tablica",
+                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport|<F4>-tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  � <Esc,Tab>-wyjscie z raportu  �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu  |", 0, attr_h);
 
                 break;
             case 4: /* help= 4- tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F4>- tablica",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F4>- tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 14: /* help= 14- tablica i grafika */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor�<F1>-wykr.�<F4>-tabl",
+                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.|<F4>-tabl",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 3:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F1>-raport �<F3>-menu ",
+                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport |<F3>-menu ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "� <Esc,Tab> - wyjscie z raportu  �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "| <Esc,Tab> - wyjscie z raportu  |", 0, attr_h);
                 break;
             case 2:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F1,F3>-menu ",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1,F3>-menu ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 1:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F1>-raport ",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1>-raport ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie �", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie |", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 0:
                 term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "�<%c,%c,%c,%c, Home, End> - wybor danej ",
+                            "|<%c,%c,%c,%c, Home, End> - wybor danej ",
                             24, 25, 26, arrow);
                 if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "�<ENT> - edycja danej �<Esc,Tab> - wyjscie �",
+                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie |",
                               0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.� <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 16:
                 term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "�<%c,%c,%c,%c,Home,End>-wybor�<F1>-wykr.",
+                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.",
                             24, 25, 26, arrow);
                 if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "�<ENT> - edycja danej �<Esc,Tab> - wyjscie �",
+                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie |",
                               0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.� <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
             default: break;
             }
 #else
@@ -9081,79 +9081,79 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
             {
             case 7: /* help= 1+2+4- raport+menu+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-dana�<F1>-raport�<F3>-menu�<F4>-tabl",
+                            "|<%c,%c,%c,%c>-dana|<F1>-raport|<F3>-menu|<F4>-tabl",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja�<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "ica  � <Esc,Tab>-wyjscie z rap.�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "ica  | <Esc,Tab>-wyjscie z rap.|", 0, attr_h);
                 break;
             case 6: /* help= 2+4- menu+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F3>-menu �<F4>-tablica",
+                            "|<%c,%c,%c,%c>-wybor danej|<F3>-menu |<F4>-tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja�<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  � <Esc,Tab>-wyjscie z raportu�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu|", 0, attr_h);
 
                 break;
             case 5: /* help= 1+4- raport+tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F1>-raport�<F4>-tablica",
+                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport|<F4>-tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja�<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  � <Esc,Tab>-wyjscie z raportu�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu|", 0, attr_h);
 
                 break;
             case 4: /* help= 4- tablica */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F4>- tablica",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F4>- tablica",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja�<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " �<Esc,Tab> - wyjscie z raportu�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " |<Esc,Tab> - wyjscie z raportu|", 0, attr_h);
                 break;
             case 14: /* help= 14- tablica i grafika */
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor�<F1>-wykr.�<F4>-tabl",
+                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.|<F4>-tabl",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
                 break;
             case 3:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c>-wybor danej�<F1>-raport �<F3>-menu ",
+                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport |<F3>-menu ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "� <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 2:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F1,F3>-menu ",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1,F3>-menu ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "� <Esc,Tab> - wyjscie z raportu �", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
                 break;
             case 1:
                 term_printf(MY_MAX, X_L0, attr_h,
-                            "�<%c,%c,%c,%c,Home,End>-wybor danej �<F1>-raport ",
+                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1>-raport ",
                             24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "�<ENT>-edycja �<Esc,Tab>-wyjscie�", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " � <Esc,Tab> - wyjscie z raportu�", 0, attr_h);
+                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
                 break;
             case 0:
                 term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "�<%c,%c,%c,%c, Home, End> - wybor danej ",
+                            "|<%c,%c,%c,%c, Home, End> - wybor danej ",
                             24, 25, 26, arrow);
                 if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "�<ENT> - edycja danej �<Esc,Tab> - wyjscie�", 0,
+                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie|", 0,
                               attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.� <Esc,Tab> - wyjscie z raportu�", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
                 break;
             case 16:
                 term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "�<%c,%c,%c,%c,Home,End>-wybor�<F1>-wykr.",
+                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.",
                             24, 25, 26, arrow);
                 if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "�<ENT> - edycja danej �<Esc,Tab> - wyjscie�", 0,
+                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie|", 0,
                               attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.� <Esc,Tab> - wyjscie z raportu�", 0, attr_h);
+                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
                 break;
             default: break;
             }
@@ -9195,11 +9195,11 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                     }
 #ifndef _DOS_
                     term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                                "�  Wpis danej: <Esc> - wyjscie�  <Ent> - akceptacja � <%c, %c> - inkrementacja   �",
+                                "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja   |",
                                 24, 25);
 #else
                     term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                                "�  Wpis danej: <Esc> - wyjscie�  <Ent> - akceptacja � <%c, %c> - inkrementacja  �",
+                                "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja  |",
                                 24, 25);
 #endif
                     term_type(MY_MAX, X_L0 + 1, L_WEWY_DATA_ENTRY, 0, attr_o[2]);
@@ -9363,11 +9363,11 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             if (ok->blok_wpisu == 1) wp = -3;
 #ifndef _DOS_
                             term_printf(MY_MAX, X_L0, attr_h,
-                                        "�<%c,%c,%c,%c,Home,End>-wybor opcji  � <Ent> - akceptacja � <Esc> - wyjscie z menu  �",
+                                        "|<%c,%c,%c,%c,Home,End>-wybor opcji  | <Ent> - akceptacja | <Esc> - wyjscie z menu  |",
                                         24, 25, 26, arrow);
 #else
                             term_printf(MY_MAX, X_L0, attr_h,
-                                        "�<%c,%c,%c,%c,Home,End>-wybor opcji  � <Ent> - akceptacja � <Esc> - wyjscie z menu�",
+                                        "|<%c,%c,%c,%c,Home,End>-wybor opcji  | <Ent> - akceptacja | <Esc> - wyjscie z menu|",
                                         24, 25, 26, arrow);
 #endif
                             term_printf(MY_MAX, X_L0 + 1, attr_o[2], "<%c,%c,%c,%c,Home,End> - wybor opcji",
@@ -9380,11 +9380,11 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             if (ok->blok_wpisu == 1) wp = 5; /* wpis w tabl.dodane 27.01.98 */
 #ifndef _DOS_
                             term_printf(MY_MAX, X_L0, attr_h,
-                                        "�<%c,%c,%c,%c,Home,End> - wybierz do edycji � <Ent> - akceptacja � <Esc> - wyjscie �",
+                                        "|<%c,%c,%c,%c,Home,End> - wybierz do edycji | <Ent> - akceptacja | <Esc> - wyjscie |",
                                         24, 25, 26, arrow);
 #else
                             term_printf(MY_MAX, X_L0, attr_h,
-                                        "�<%c,%c,%c,%c,Home,End> - wybierz do edycji � <Ent> - akceptacja � <Esc> - wyjscie�",
+                                        "|<%c,%c,%c,%c,Home,End> - wybierz do edycji | <Ent> - akceptacja | <Esc> - wyjscie|",
                                         24, 25, 26, arrow);
 #endif
                             if (ok->blok_wpisu == 1)
