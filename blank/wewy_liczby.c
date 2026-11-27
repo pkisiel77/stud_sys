@@ -266,7 +266,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
                 term_type(y, xa, " ", 1,ATTR_A);
                 term_type(y, xa + 1, text, 0,ATTR_A);
             }
-            GET_char();
+            czekaj_na_klawisz();
             if (buffer != NULL)
             {
                 term_restore_image(y, xa, buffer, i);
@@ -309,7 +309,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
             i--;
             term_cur(y, i);
             term_flush();
-            zn = GET_char();
+            zn = czekaj_na_klawisz();
             zn = zn & 0x00ff;
             if (buffer != NULL)
             {
@@ -798,7 +798,7 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
             i--;
             term_cur(y, i);
             term_flush();
-            zn = GET_char();
+            zn = czekaj_na_klawisz();
             zn = zn & 0x00ff;
             if (buffer != NULL)
             {
@@ -955,7 +955,7 @@ int disp_dana(signed char wp, int y0, int x,
         komunikat(MY_MAX - 1, X_L0,ATTR_A, " Bledny typ okna danej: ok=%d form=%c%c%c%c.... wp=%d y=%d typ= (%c) <Ent>",
                   ok, ok->format[1], ok->format[2], ok->format[3],
                   ok->format[4], wp, y, ok->typ);
-        GET_char();
+        czekaj_na_klawisz();
         ret = -1;
     }
     return ret;
@@ -1055,14 +1055,14 @@ int def_float(int y, int x, char* monit, int ind_min, int ind_max,
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
                   nr_danej);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     if (nr_danej >= liczba_danych)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
                   nr_danej, liczba_danych);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     ok = Ok + nr_danej;
@@ -1224,7 +1224,7 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
             {
                 komunikat(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_float_wzgl(). <Ent> ",
                           format_ogr);
-                GET_char();
+                czekaj_na_klawisz();
                 dlh_ogr = 0;
                 break;
             }

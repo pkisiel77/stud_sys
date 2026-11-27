@@ -31,7 +31,7 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
   d=(struct admin *)dane_raportowanego_rekordu(admin_blankiet,&nr_rek);
 	if(d==NULL || d!=dp)
 	 {term_printf(MY_MAX,X_L0,ATTR_A,L_ADMIN_ERR_ADDR_MISMATCH,d,dp);
-		GET_char();  return -1;
+		czekaj_na_klawisz();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_rek);
     ret=dana_koment(-1,-1,"+ ");

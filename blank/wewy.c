@@ -90,7 +90,7 @@ char mgetch(char* monit)
     if (co < 3)
     {
         term_printf(y_akt, x_akt, attryb, "Brak wzorca funkcji mgetch() %s ??. Nacisnij dowolny klawisz", monit);
-        Get_Char(); /* dev_mode(0,opcje,_DEV_MODES);*/
+        czekaj_na_klawisz(); /* dev_mode(0,opcje,_DEV_MODES);*/
         return 0;
     }
     cox = m_wherex();
@@ -1375,7 +1375,7 @@ void mAbort()
     term_printf(y_akt, x_akt, attryb, "+---------------------------------------+");
     yplus();
     x_akt = x_akt0;
-    if (Get_Char() == 't') exit(0);
+    if (czekaj_na_klawisz() == 't') exit(0);
     term_printf(y_akt, x_akt, attryb, L_WEWY_ENTER_REPLY);
 }
 
@@ -1489,7 +1489,7 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
         if (tx_size > MXR_MAX)
         {
             komun_text(MY_MAX, X_L0, " Za dlugi tekst opcji w menu. <Ent>", 0,ATTR_A);
-            GET_char();
+            czekaj_na_klawisz();
         }
         Xm = Xp + tx_size - 1;
     }
@@ -1543,7 +1543,7 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
     if (buf == NULL)
     {
         komun_text(MY_MAX, 1, " Brak pamieci dla menu. <Ent>", 0,ATTR_A);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
@@ -1565,7 +1565,7 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
             }
             Free(buf);
             lwmall--;
-            GET_char();
+            czekaj_na_klawisz();
             return -1;
         }
         lwmall++;
@@ -1865,7 +1865,7 @@ char* szukaj_formatow(char* format, char typ, char** zp)
             {
                 komunikat(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_tabl_..(). <Ent> ",
                           format);
-                GET_char();
+                czekaj_na_klawisz();
                 z = NULL;
                 break;
             }
@@ -1984,7 +1984,7 @@ char czy_format(char* form, int* cd)
             else
             {
                 komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                GET_char();
+                czekaj_na_klawisz();
             }
             *cd = j + 1;
             return EOS;
@@ -1999,7 +1999,7 @@ char czy_format(char* form, int* cd)
             else
             {
                 komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                GET_char();
+                czekaj_na_klawisz();
             }
             return EOS;
         }
@@ -2013,7 +2013,7 @@ char czy_format(char* form, int* cd)
             else
             {
                 komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                GET_char();
+                czekaj_na_klawisz();
             }
             return EOS;
         }
@@ -2065,7 +2065,7 @@ int otworz_raporty(char nr_op)
     if (Klucz != -1)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_REPORTS_OPEN);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     for (i = 0; i < LHASEL; i++)
@@ -2077,7 +2077,7 @@ int otworz_raporty(char nr_op)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_ALLOCS_LEFT,
                   lwmall);
-        GET_char();
+        czekaj_na_klawisz();
     }
     lwmallp = lwmall;
     if (nr_blank >= 0 || Czy_Blankiet_otwarty != 0)
@@ -2161,7 +2161,7 @@ signed char zamknij_blankiet(int* nr_rekordu)
             nr_blank--;
             i = 1;
             k = 1;
-            GET_char();
+            czekaj_na_klawisz();
         }
     }
     while (i == 1);
@@ -2181,7 +2181,7 @@ signed char zamknij_blankiet(int* nr_rekordu)
         }
         Free(Ok);
         lwmall--;
-        GET_char();
+        czekaj_na_klawisz();
     }
     Czy_Blankiet_otwarty = 2;
     if (k == 0)
@@ -2203,7 +2203,7 @@ signed char zamknij_blankiet(int* nr_rekordu)
             komunikat(MY_MAX, X_L0,ATTR_A,
                       " Niezgodnosc rekordu dekl.(%d) z zapisem (%d) w zamykanym blankiecie %d. <ENT> ",
                       *nr_rekordu, BL[nr_blank]->nr_rekordu, nr_blank);
-            GET_char();
+            czekaj_na_klawisz();
         }
         if (nr_blank == 0)
         {
@@ -2237,7 +2237,7 @@ signed char zamknij_blankiet(int* nr_rekordu)
             komunikat(5, 1,ATTR_A, " Zla specyfikacja blankietu %d (nr_raportu=%d): <Ent>",
                       nr_blank, nr_raportu);
             if (nr_blank >= 0) nr_blank--;
-            GET_char();
+            czekaj_na_klawisz();
             return -1;
         }
         if (RAP[nr_raportu] != NULL) return RAP[nr_raportu]->kod_raportu;
@@ -2484,7 +2484,7 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
         term_save_image(yp, xp, buf, tx_size);
     }
     term_type(yp, xp, text, 0, attr);
-    ret = GET_char();
+    ret = czekaj_na_klawisz();
     if (buf != NULL)
     {
         term_restore_image(yp, xp, buf, tx_size);

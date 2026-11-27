@@ -201,7 +201,7 @@ def_haslo("st", "Student");
         {
             komunikat(MY_MAX, X_L0, ATTR_A, L_CORE_ERR_DEF_REPORT,
                       kod_uslugi, Serv[i]->name);
-            GET_char();
+            czekaj_na_klawisz();
         }
     }
     budz_wczytaj_z_pliku();

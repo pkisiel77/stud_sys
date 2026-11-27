@@ -245,7 +245,7 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 	nr_ag=nr_rek;
 	if(A==NULL && nr_rek>=0)
 	 {term_printf(MY_MAX,X_L0,ATTR_A,L_RAP_NO_RECORD_SYS,nr_rek);
-		GET_char();  return -1;
+		czekaj_na_klawisz();  return -1;
 	 }
 	rekord_danych_do_naglowka(nr_ag);
 	for(z_min=0;z_min<lsa;z_min++) {if(SA[z_min]!=NULL) break;}

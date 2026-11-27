@@ -20,7 +20,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     if (nr_blank < 0 || BL[nr_blank] == NULL || Ok == NULL)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Blankiet %d nie otwarty. <Ent>", nr_blank);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     liczba_danych = BL[nr_blank]->liczba_danych;
@@ -28,7 +28,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     if (l_danych == 0)
     {
         komunikat(5, 1,ATTR_A, " Brak danych blankietu %d: <Ent>", nr_blank);
-        GET_char();
+        czekaj_na_klawisz();
         return -1 /*zamknij_blankiet()*/;
     }
     /*  nr_danej=0; */
@@ -124,7 +124,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
             term_flush();
             komunikat(MY_MAX, X_L0,ATTR_A, " no=%d ld=%d typ=%c x=%d y=%d Ymax=%d/%d X0=%d ok->x=%d ok->y=%d <Ent> ",
                       no, l_danych, ok->typ, x, y, Y_maxBlank, MY_MAX, X_L0, ok->xo, ok->yo);
-            GET_char();
+            czekaj_na_klawisz();
         }
         setcursor(nocursor);
         do
@@ -327,7 +327,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
                     term_type(MY_MAX, X_L0,
                               "|Wpisz dane OBLIGATORYJNE (ze znakiem ?? ) -<Ent>; lub wyjdz bez zapisu -<q>|", 0,
                               ATTR_A);
-                    znak = GET_char();
+                    znak = czekaj_na_klawisz();
                     znak = znak & 0x00ff;
                     if (znak == CR) znak = TAB; /* powrot do edycji */
                     if (znak == 'q')
@@ -395,7 +395,7 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
             komunikat(MY_MAX, 1,ATTR_A, "%s. Brak miejsca na dane. Bedzie bierny  !! <Ent> ",
                       tytul);
             if (zn != 0) tytul[30] = zn;
-            GET_char();
+            czekaj_na_klawisz();
             *rozmiar = 0;
             *zmiany = NULL;
             return NULL;
@@ -513,7 +513,7 @@ D:
         {
             term_type(MY_MAX, X_L0,
                       " Nie mozna otworzyc blankietu !! <Ent> ", 0,ATTR_A);
-            GET_char();
+            czekaj_na_klawisz();
             return (char*)-1;
         }
         if (ret == 0)
@@ -540,7 +540,7 @@ D:
     default:
         komunikat(MY_MAX, 1,ATTR_A, " Czy_Blankiet_otwarty=%d ?? <Ent> ",
                   Czy_Blankiet_otwarty);
-        GET_char();
+        czekaj_na_klawisz();
         return NULL; /* break; */
     }
     BL[nr_blank]->y_scroll = -1;
@@ -562,7 +562,7 @@ D:
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak danych w blankiecie %d: nr_danej=%d nr_ob=%d . <Ent> ",
                   nr_blank, nr_danej, *nr_ob);
-        GET_char();
+        czekaj_na_klawisz();
         return (char*)-1;
     }
     Czy_Blankiet_otwarty = 2;
@@ -1227,7 +1227,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
     if (i == LRAP_BL)
     {
         komunikat(MY_MAX, X_L0, ATTR_A, "Nie zdefiniowany raport %d. <ENT> ", kod_raportu);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     R = RAP[i];
@@ -1277,7 +1277,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Przekroczony limit blankietow (%d). <Ent>",LBLANK);
         nr_blank--;
-        GET_char();
+        czekaj_na_klawisz();
         return -2;
     }
     BL[nr_blank] = (struct blankiet*)Malloc(sizeof(struct blankiet));
@@ -1292,7 +1292,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
         komunikat(MY_MAX, X_L0,ATTR_A, " %s. Brak pamieci dla opisu blankietu %d. <Ent>", R->tytul, nr_blank);
         nr_blank--;
         if (zn != 0) R->tytul[30] = zn;
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
@@ -1310,7 +1310,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
                   R->tytul, nr_blank);
         nr_blank--;
         if (zn != 0) R->tytul[30] = zn;
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
