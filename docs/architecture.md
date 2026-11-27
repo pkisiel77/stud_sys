@@ -259,6 +259,7 @@ To były źródła migania i problemów z interfejsem w ostatnich iteracjach.
 - `blank/wewy*.c` - silnik blankietów (podział opisany w sekcji "Silnik blankietów")
 - `rap_bl.c` - przepływ raportu
 - `budz.c` - główny moduł demonstracyjny
+- `ui_wpis.c` - okna menu i pole wpisu dla modułów usług (formularze Budzika i MQTT zostają na ekranie podczas wpisu)
 - `sys_rap.c` - raport diagnostyczny
 - `loc.h` - tablica stringów TUI dla PL/EN, wybór przez `make TUI_LANG=...`
 

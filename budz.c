@@ -4,6 +4,7 @@
 #include "scheduler.h"
 #include "zlecenia.h"
 #include "core.h"
+#include "ui_wpis.h"
 /* extern struct agenda *Agenda; */
 
 
@@ -27,7 +28,6 @@ static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src);
    Lista (z odliczaniem) i otwarty formularz rysuje razem
    budz_odswiez_ekran(), wywolywana co sekunde z kazdej petli czekajacej
    na klawisz (lista, formularz, pole wpisu). */
-#define BUDZ_NIC (-2) /* budz_klawisz_menu: klawisz obsluzony, nic nie wybrano */
 
 static struct {
     struct agenda **lista;
@@ -43,31 +43,9 @@ static struct {
     int nmenu, sel;
     char *tytul;
     int yp, xp;
-    char *tlo;               /* ekran pod formularzem (term_save_image) */
-    int tlo_n, tlo_x, tlo_dl;
+    struct ui_tlo tlo;       /* ekran pod formularzem */
 } FW;
 
-/* Okno z ramka i tytulem; wiersze od x = xp + dx, podswietlony wiersz sel. */
-static void budz_rysuj_okno(int yp, int xp, int ym, int xm, char *tytul,
-                            char *wiersze[], int n, int sel, int dx)
-{
-    int i, x, y;
-    unsigned int att;
-    Okno(yp, xp, ym, xm, attr);
-    maluj_ramke(yp, xp, ym, xm, attr);
-    if (tytul != NULL) {
-        int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
-        if (xt < xp + 1) xt = xp + 1;
-        term_type(yp, xt, tytul, 0, attr);
-    }
-    for (i = 0; i < ym - yp - 1; i++) {
-        y = yp + 1 + i;
-        att = (i == sel) ? at_wpis : attr;
-        for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
-        if (i < n) term_type(y, xp + dx, wiersze[i], xm - xp - dx, att);
-    }
-    term_cur(yp + 1 + sel, xp + dx + 1);
-}
 
 static void budz_wiersz_listy(int i, char *buf, size_t n)
 {
@@ -93,7 +71,7 @@ static void budz_rysuj_liste(void)
         budz_wiersz_listy(i, rows[i], sizeof(rows[i]));
         w[i] = rows[i];
     }
-    budz_rysuj_okno(BW.yp, BW.xp, BW.ym, BW.xm, BW.tytul, w, BW.count, BW.sel, 1);
+    ui_rysuj_okno(BW.yp, BW.xp, BW.ym, BW.xm, BW.tytul, w, BW.count, BW.sel, 1);
 }
 
 static void budz_rysuj_formularz(void)
@@ -116,7 +94,7 @@ static void budz_rysuj_formularz(void)
     if (xm > MXR_MAX) xm = MXR_MAX;
     ym = FW.yp + n + 2;
     if (ym > MYR_MAX) ym = MYR_MAX;
-    budz_rysuj_okno(FW.yp, FW.xp, ym, xm, FW.tytul, w, n + 1, FW.sel, 2);
+    ui_rysuj_okno(FW.yp, FW.xp, ym, xm, FW.tytul, w, n + 1, FW.sel, 2);
 }
 
 /* Rysuje liste i otwarty formularz: zawsze gdy wymus != 0, poza tym
@@ -125,49 +103,14 @@ static void budz_odswiez_ekran(int wymus)
 {
     static time_t ostatnio = 0;
     time_t teraz = time(NULL);
-    int y, kom;
     if (!wymus && teraz == ostatnio) return;
     ostatnio = teraz;
-    if (FW.menu != NULL && FW.tlo != NULL) {
-        /* najpierw tlo: formularz mogl sie zwezic */
-        kom = term_save_image(0, 0, "a", 0);
-        for (y = 0; y < FW.tlo_n; y++)
-            term_restore_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
-    }
+    if (FW.menu != NULL) ui_przywroc_tlo(&FW.tlo); /* najpierw tlo: formularz mogl sie zwezic */
     if (BW.count > 0) budz_rysuj_liste();
     if (FW.menu != NULL) budz_rysuj_formularz();
     term_flush();
 }
 
-/* Wspolna obsluga klawiszy listy i formularza.
-   Zwraca wybrana pozycje (Enter), -1 (Esc) albo BUDZ_NIC. */
-static int budz_klawisz_menu(int ch, int *sel, int count)
-{
-    ch &= 0x00ff;
-    switch (ch) {
-    case NLCR:
-    case CR:
-        return *sel;
-    case Esc:
-        return -1;
-    case SPEC:
-        ch = GETchar() & 0x00ff;
-        switch (ch) {
-        case UP:
-        case BBS:  if (--(*sel) < 0) *sel = count - 1; break;
-        case DOWN:
-        case FFR:  if (++(*sel) >= count) *sel = 0; break;
-        case Home: *sel = 0; break;
-        case End:  *sel = count - 1; break;
-        default:   break;
-        }
-        budz_odswiez_ekran(1);
-        break;
-    default:
-        break;
-    }
-    return BUDZ_NIC;
-}
 
 /* ============ Persystencja budzikow ================================ */
 
@@ -308,70 +251,7 @@ struct budzik
 	int co_ile;
 	int wyprzedz;
  }; ------------------------------------------------------ */
-/* ---------- Pomocnicze: wczytaj liczbe w wierszu statusu ---------- */
-static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int current)
-{
-    char buf[12];
-    int len, ch, val, nowa;
-    snprintf(buf, sizeof(buf), "%d", current);
-    len = (int)strlen(buf);
-    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
-    setcursor(cursor);
-    for (;;) {
-        budz_odswiez_ekran(0); /* lista i formularz zostaja na ekranie */
-        term_printf(MY_MAX, X_L0, ATTR_A,
-                    L_BUDZ_PROMPT_INT, prompt, min_val, max_val, buf);
-        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
-        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
-        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
-        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
-        if (ch == 27) { len = -1; break; }
-        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
-            buf[--len] = 0; nowa = 0;
-        } else if (ch >= '0' && ch <= '9' && len < (int)(sizeof(buf) - 2)) {
-            if (nowa) { len = 0; nowa = 0; } buf[len++] = ch; buf[len] = 0;
-        }
-    }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
-    setcursor(nocursor);
-    if (len <= 0) return current;
-    val = atoi(buf);
-    if (val < min_val) val = min_val;
-    if (val > max_val) val = max_val;
-    return val;
-}
 
-/* ---------- Pomocnicze: wczytaj tekst w wierszu statusu ----------- */
-static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
-{
-    char tmp[128];
-    int len, ch, nowa;
-    strncpy(tmp, buf, sizeof(tmp) - 1);
-    tmp[sizeof(tmp) - 1] = 0;
-    len = (int)strlen(tmp);
-    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
-    setcursor(cursor);
-    for (;;) {
-        budz_odswiez_ekran(0); /* lista i formularz zostaja na ekranie */
-        term_printf(MY_MAX, X_L0, ATTR_A,
-                    L_BUDZ_PROMPT_TXT, prompt, tmp);
-        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
-        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
-        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
-        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
-        if (ch == 27) { len = -1; break; }
-        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
-            tmp[--len] = 0; nowa = 0;
-        } else if (ch >= 32 && ch < 256 && len < max_len - 1) {
-            if (nowa) { len = 0; nowa = 0; } tmp[len++] = ch; tmp[len] = 0;
-        }
-    }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
-    setcursor(nocursor);
-    if (len > 0) {
-        snprintf(buf, (size_t)max_len, "%s", tmp);
-    }
-}
 
 /* ====================== BLANKIET BUDZIKA — LISTA I ZARZADZANIE ===== */
 
@@ -385,56 +265,44 @@ static int budz_formularz(struct agenda *A, struct budzik *B,
                           char *tytul, char **menu, int nmenu)
 {
     (void)A;
-    int w, ch, y, kom;
+    int w, ch;
 
     FW.B = B; FW.menu = menu; FW.nmenu = nmenu; FW.sel = 0; FW.tytul = tytul;
     /* pod lista, zeby bylo widac jej odliczanie; gdy sie nie miesci -
        na liscie, jak dawniej */
     FW.yp = Y_G0 + 2; FW.xp = X_L0 + 2;
     if (BW.count > 0 && BW.ym + 1 + nmenu + 2 <= MYR_MAX) FW.yp = BW.ym + 1;
-    /* tlo pod formularzem: pelna szerokosc, bo szerokosc formularza
+    /* tlo pod formularzem: pelne wiersze, bo szerokosc formularza
        zmienia sie razem z dlugoscia wpisanej Sprawy */
-    FW.tlo_x = X_L0; FW.tlo_dl = MXR_MAX - X_L0 + 1;
-    FW.tlo_n = nmenu + 3;
-    if (FW.yp + FW.tlo_n - 1 > MYR_MAX) FW.tlo_n = MYR_MAX - FW.yp + 1;
-    kom = term_save_image(0, 0, "a", 0);
-    FW.tlo = (char *)malloc((size_t)FW.tlo_n * FW.tlo_dl * kom);
-    if (FW.tlo != NULL)
-        for (y = 0; y < FW.tlo_n; y++)
-            term_save_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
+    ui_zapamietaj_tlo(&FW.tlo, FW.yp, nmenu + 3);
 
-    w = BUDZ_NIC;
-    while (w == BUDZ_NIC) {
-        budz_odswiez_ekran(1);
-        while ((ch = GET_char()) == -1) budz_odswiez_ekran(0);
-        w = budz_klawisz_menu(ch, &FW.sel, nmenu);
+    w = UI_NIC;
+    while (w == UI_NIC) {
+        ch = ui_czekaj_klawisz(budz_odswiez_ekran);
+        w = ui_klawisz_menu(ch, &FW.sel, nmenu, budz_odswiez_ekran);
         switch (w) {
         case 0:
-            budz_czytaj_text(B->nazwa, sizeof(B->nazwa), L_BUDZ_ASK_NAME);
-            w = BUDZ_NIC;
+            ui_czytaj_text(B->nazwa, sizeof(B->nazwa), L_BUDZ_ASK_NAME, budz_odswiez_ekran);
+            w = UI_NIC;
             break;
         case 1:
-            B->godz     = budz_czytaj_int(L_BUDZ_ASK_HOUR, 0, 23, B->godz);
-            B->min      = budz_czytaj_int(L_BUDZ_ASK_MIN,  0, 59, B->min);
+            B->godz     = ui_czytaj_int(L_BUDZ_ASK_HOUR, 0, 23, B->godz, budz_odswiez_ekran);
+            B->min      = ui_czytaj_int(L_BUDZ_ASK_MIN,  0, 59, B->min, budz_odswiez_ekran);
             B->mod_time = 1;
-            w = BUDZ_NIC;
+            w = UI_NIC;
             break;
         case 2:
-            B->co_ile   = budz_czytaj_int(L_BUDZ_ASK_EVERY, 1, 1440, B->co_ile);
-            B->wyprzedz = budz_czytaj_int(L_BUDZ_ASK_LEAD,  1, 1440, B->wyprzedz);
-            w = BUDZ_NIC;
+            B->co_ile   = ui_czytaj_int(L_BUDZ_ASK_EVERY, 1, 1440, B->co_ile, budz_odswiez_ekran);
+            B->wyprzedz = ui_czytaj_int(L_BUDZ_ASK_LEAD,  1, 1440, B->wyprzedz, budz_odswiez_ekran);
+            w = UI_NIC;
             break;
         default:
-            break; /* akcja albo Esc (-1) albo nawigacja (BUDZ_NIC) */
+            break; /* akcja albo Esc (-1) albo nawigacja (UI_NIC) */
         }
     }
 
-    if (FW.tlo != NULL) {
-        for (y = 0; y < FW.tlo_n; y++)
-            term_restore_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
-        free(FW.tlo);
-        FW.tlo = NULL;
-    }
+    ui_przywroc_tlo(&FW.tlo);
+    ui_zwolnij_tlo(&FW.tlo);
     FW.menu = NULL;
     term_flush();
     return w;
@@ -571,12 +439,10 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
     BW.ym = BW.yp + BW.count + 2;
     if (BW.ym > MYR_MAX) BW.ym = MYR_MAX;
 
-    budz_odswiez_ekran(1);
     for (;;) {
-        ch = GET_char();
-        if (ch == -1) { budz_odswiez_ekran(0); continue; }
-        w = budz_klawisz_menu(ch, &BW.sel, BW.count);
-        if (w != BUDZ_NIC) return w;
+        ch = ui_czekaj_klawisz(budz_odswiez_ekran);
+        w = ui_klawisz_menu(ch, &BW.sel, BW.count, budz_odswiez_ekran);
+        if (w != UI_NIC) return w;
     }
 }
 
