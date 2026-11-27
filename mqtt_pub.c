@@ -1,17 +1,16 @@
 #include "blank/moje.h"
 #include "mqtt_pub.h"
 #include "loc.h"
+#include "scheduler.h"
 
 #ifdef _MQTT_
 #include <MQTTClient.h>
 #endif
 
-void chk_time(void);
 extern struct Service  *Service;
 extern unsigned int     attr, at_wpis;
 extern unsigned int     cursor, nocursor;
-extern int              AgendaMax, lwmall;
-extern struct agenda   *SysA[];
+extern int              lwmall;
 extern unsigned short   NODE_NO;
 
 /* ================================================================ */

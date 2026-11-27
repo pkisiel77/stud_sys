@@ -13,19 +13,12 @@
 #include "blank/sys_dekl.h"
 #include "sensor_sim.h"
 #include "loc.h"
-
-/* forward declarations — funkcje zaimplementowane w core.c */
-int  dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
-int  pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
-                            struct agenda **As, struct agenda **An,
-                            struct agenda ***SA, char *adres_rek0, char *nazwa);
-int  decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
-                 int *nr_rekordu, int kod_uslugi, char *tytul);
+#include "scheduler.h"
+#include "zlecenia.h"
 
 extern struct Service *Service;
 extern unsigned int attr, at_wpis;
 extern int lwmall;
-extern struct agenda *SysA[];
 
 /* stan lokalny uslugi — po jednej kopii na modul (Etap 1a) */
 static struct agenda *Anew = NULL, *Aserv = NULL;

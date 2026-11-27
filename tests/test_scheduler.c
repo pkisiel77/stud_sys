@@ -1,23 +1,12 @@
 #include "blank/moje.h"
 #include "sensor_sim.h"
 #include "sys_rep.h"
+#include "scheduler.h"
+#include "zlecenia.h"
 
 #include <stdio.h>
 #include <string.h>
 
-extern struct agenda *SysA[AG_SIZE];
-extern struct agenda *SysQ[Q_SIZE];
-extern int AgendaMax;
-extern int NoServisMax;
-extern char select_mode;
-
-void check_agenda(time_t dt);
-int data_systemowa(int *dzien, int *miesiac, int *rok);
-struct agenda *rekord_zlecenia_agendy(int *nr_rekordu, int nr_w_agendzie,
-                                      int kod_uslugi);
-int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
-                int *nr_rekordu, int kod_uslugi, char *tytul);
-struct agenda *check_queue(void);
 
 static int failures = 0;
 

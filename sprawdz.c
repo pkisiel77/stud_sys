@@ -3,17 +3,14 @@
 #include "sprawdz.h"
 #include "sys_rep.h"
 #include "loc.h"
-void chk_time(void);
+#include "scheduler.h"
 extern struct Service* Service;
-/* extern struct agenda *Agenda, *SysA[]; */
 extern int X_time, X_tyt;
-extern time_t sek_akt;
 extern unsigned int attr_title, attryb, attr_time;
 extern unsigned int cursor, nocursor;
 
 char* dni[] = {L_RAP_DAY_SUNDAY, L_RAP_DAY_MONDAY, L_RAP_DAY_TUESDAY, L_RAP_DAY_WEDNESDAY,
                L_RAP_DAY_THURSDAY, L_RAP_DAY_FRIDAY, L_RAP_DAY_SATURDAY};
-extern struct agenda* SysA[];
 
 int sprawdz(void* DA)
 {

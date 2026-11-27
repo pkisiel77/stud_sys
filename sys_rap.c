@@ -2,13 +2,11 @@
 #include "blank/moje.h"
 #include "sys_rep.h"
 #include "loc.h"
-void chk_time(void);
+#include "scheduler.h"
 extern struct Service *Service;
 extern struct agenda *Agenda;
 extern int X_time, X_tyt;
 extern unsigned int attr_title;
-extern struct agenda *SysA[AG_SIZE];
-extern struct agenda *SysQ[Q_SIZE];
 int sys_status_dashboard_active = 0;
 
 static int agenda_is_queued(const struct agenda *A)
@@ -305,8 +303,6 @@ int sys_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 /*    ret=dana_znak(-1,-1," Typ uslugi <%s>", "p/s/t", typ_usl, 3, &(A->mode), ochr=5);  */
 	return ret;
  }
-
-extern struct agenda *SysA[];
 
 char *dane_sys(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {int ns, x, y;
