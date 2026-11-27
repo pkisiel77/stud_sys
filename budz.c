@@ -83,7 +83,7 @@ void budz_zapisz_do_pliku(void)
         if ((A->S)->decyzje != dec_budz) continue;
         B = (struct budzik *)(A->data);
         memset(&rec, 0, sizeof(rec));
-        strncpy(rec.nazwa, B->nazwa, sizeof(rec.nazwa) - 1);
+        snprintf(rec.nazwa, sizeof(rec.nazwa), "%s", B->nazwa);
         rec.godz     = B->godz;
         rec.min      = B->min;
         rec.co_ile   = B->co_ile;
@@ -115,7 +115,7 @@ void budz_wczytaj_z_pliku(void)
         if (A == NULL) break;
         B = (struct budzik *)(A->data);
         memset(B, 0, sizeof(struct budzik));
-        strncpy(B->nazwa, rec.nazwa, sizeof(B->nazwa) - 1);
+        snprintf(B->nazwa, sizeof(B->nazwa), "%s", rec.nazwa);
         B->godz     = rec.godz;
         B->min      = rec.min;
         B->co_ile   = (rec.co_ile  > 0) ? rec.co_ile  : 2;
@@ -229,8 +229,7 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
     term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
     setcursor(nocursor);
     if (len > 0) {
-        strncpy(buf, tmp, max_len - 1);
-        buf[max_len - 1] = 0;
+        snprintf(buf, (size_t)max_len, "%s", tmp);
     }
 }
 
