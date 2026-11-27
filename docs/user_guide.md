@@ -16,7 +16,7 @@ System pozwala:
 Po starcie programu widoczne są trzy pozycje:
 
 - `Budzik` - lista budzików i formularz budzika,
-- `Demo IoT: czujnik symulowany` - uruchamia symulowany czujnik i pokazuje jego pomiary w `Stanie systemu`,
+- `Demo IoT: czujnik symulowany` - uruchamia symulowany czujnik i pokazuje jego pomiary w Stanie systemu,
 - `-- Stan systemu --` - podgląd na żywo wszystkich zadań schedulera RT.
 
 Po powrocie z dowolnej pozycji kursor zostaje na niej, więc `Enter` otwiera ją ponownie.
@@ -25,7 +25,7 @@ Po powrocie z dowolnej pozycji kursor zostaje na niej, więc `Enter` otwiera ją
 
 Podstawowe klawisze:
 
-- `Strzałki góra/dół` - zmiana zaznaczenia
+- Strzałki góra/dół - zmiana zaznaczenia
 - `Enter` - wejście do pozycji lub akceptacja pola
 - `Esc` - wyjście z bieżącego okna (w polu wpisu: anulowanie zmiany)
 - cyfry i `Backspace` - wpisywanie wartości w polu wpisu na dole ekranu
@@ -111,7 +111,7 @@ W nagłówku jest liczba aktywnych zadań, długość kolejki i liczba alarmów,
 | `WARTOSC` | ostatni pomiar zadania (np. czujnika) |
 | `ALARM` | stan alarmu pomiaru |
 
-Pod tabelą są szczegóły zaznaczonego zadania. Klawisze: `Góra/Dół` - wybór zadania,
+Pod tabelą są szczegóły zaznaczonego zadania. Klawisze: Góra/Dół - wybór zadania,
 `PgUp/PgDn` - strona, `R` - odświeżenie, `Esc` - powrót do menu głównego.
 
 Najlepiej wejść tu po dodaniu budzika: rekord `Budzik` pokazuje, że wpis trafił do schedulera.

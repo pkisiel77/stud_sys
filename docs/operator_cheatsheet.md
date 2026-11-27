@@ -14,11 +14,11 @@ Widoczne pozycje:
 
 ## Klawisze
 
-- `Strzałka góra/dół` - przesunięcie zaznaczenia
+- Strzałka góra/dół - przesunięcie zaznaczenia
 - `Enter` - otwarcie pozycji / zatwierdzenie pola
 - `Esc` - wyjście z okna / anulowanie wpisu
 - cyfry, `Backspace` - pole wpisu na dole ekranu
-- w `Stanie systemu`: `PgUp/PgDn` strona, `R` odświeżenie
+- w Stanie systemu: `PgUp/PgDn` strona, `R` odświeżenie
 
 ## Demo 3 min
 
@@ -60,7 +60,7 @@ Godzinę liczysz od bieżącej (`T` = teraz, z dokładnością do minuty).
 - `Godzina`: `T + 6 min`
 - `Co ile`: `1`, `Wyprzedzenie`: `1`
 
-Monity zaczynają się `Wyprzedzenie` minut przed `Godziną`. Godzina ustawiona zbyt blisko (np. `T + 1`) daje alarm od razu po zapisie.
+Monity zaczynają się `Wyprzedzenie` minut przed Godziną. Godzina ustawiona zbyt blisko (np. `T + 1`) daje alarm od razu po zapisie.
 
 ## Co powiedzieć
 
