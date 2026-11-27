@@ -21,6 +21,7 @@ struct Service          / * deklaracja w sys_dekl.h * /
  -------------------------------------------------------- */
 #include "konfig.h"
 #include "loc.h"
+#include "scheduler.h"
 #include "sprawdz.h"   /* plik zrodlowy sprawdz.c */
 #include "dek_budz.h"  /* plik zrodlowy budz.c */
 #include "sys_rep.h"   /* plik zrodlowy sys_rap.c */

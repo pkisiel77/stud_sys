@@ -16,8 +16,8 @@
 #include <unistd.h>
 
 /* Scheduler jest kooperacyjny: podczas oczekiwania na klawisz trzeba
-   regularnie odliczac agende i uruchamiac gotowe uslugi. */
-void check_services(void);
+   regularnie odliczac agende i uruchamiac gotowe uslugi (check_services). */
+#include "../scheduler.h"
 
 extern int MY_MAX, MYR_MAX, MX_MAX, MXR_MAX;
 
