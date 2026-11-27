@@ -65,13 +65,14 @@ static void budz_wiersz_listy(int i, char *buf, size_t n)
 static void budz_rysuj_liste(void)
 {
     char rows[AG_SIZE + 2][80];
-    char *w[AG_SIZE + 2];
+    char *w[AG_SIZE + 3];
     int i;
     for (i = 0; i < BW.count; i++) {
         budz_wiersz_listy(i, rows[i], sizeof(rows[i]));
         w[i] = rows[i];
     }
-    ui_rysuj_okno(BW.yp, BW.xp, BW.ym, BW.xm, BW.tytul, w, BW.count, BW.sel, 1);
+    w[BW.count] = " <Esc>"; /* podpowiedz w ostatnim wierszu, jak w menu i formularzach */
+    ui_rysuj_okno(BW.yp, BW.xp, BW.ym, BW.xm, BW.tytul, w, BW.count + 1, BW.sel, 1);
 }
 
 static void budz_rysuj_formularz(void)
