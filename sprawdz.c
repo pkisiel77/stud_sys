@@ -4,10 +4,8 @@
 #include "sys_rep.h"
 #include "loc.h"
 #include "scheduler.h"
-extern struct Service* Service;
-extern int X_time, X_tyt;
-extern unsigned int attr_title, attryb, attr_time;
-extern unsigned int cursor, nocursor;
+#include "core.h"
+extern unsigned int attryb; /* blank/wewy.c */
 
 char* dni[] = {L_RAP_DAY_SUNDAY, L_RAP_DAY_MONDAY, L_RAP_DAY_TUESDAY, L_RAP_DAY_WEDNESDAY,
                L_RAP_DAY_THURSDAY, L_RAP_DAY_FRIDAY, L_RAP_DAY_SATURDAY};

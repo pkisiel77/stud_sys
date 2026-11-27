@@ -2,6 +2,7 @@
 #define _WEWY_TERM_
 // #define _NCURSES_  // Defined in Makefile with -D_NCURSES_
 #include "blank/moje.h"
+#include "core.h"
 struct agenda* Agenda = NULL;
 int X_time = 30, X_tyt = 0, Liczba_opcji;
 // kolory poczatkowe
@@ -9,7 +10,6 @@ unsigned int attr = TERM_WHITE_BG | TERM_BLACK | TERM_FLUSH;
 unsigned int at_wpis = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
 unsigned int attr_time = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
 unsigned int attr_title = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
-extern unsigned int cursor, nocursor;
 #include "konfig.h"
 #include "dek_budz.h"   /* budz_blankiet, budz_wczytaj_z_pliku */
 #include "mqtt_pub.h"   /* mqtt_auto_start */
@@ -19,16 +19,12 @@ extern unsigned int cursor, nocursor;
 #include "rap_bl.h"
 #include "scheduler.h"
 /* ----------------------------------------------------------- */
-void term_clear(int co);
-int open_sys(void);
+static int open_sys(void);
 /* ------------------------------------------------------------ */
 struct Service* Service;
 unsigned short int NODE_NO = 1;
 signed char _TYP_KONSOLI_ = -1;
-int lmall;
-extern int lwmall, lwmallp;
-char Dec = 'p', typ_raportu = ' ';
-int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
+static int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
 int y_shift = 0;
 /* ---------------------------------------------------------------- */
 /* ---------------------------------------------------------------- */
@@ -159,7 +155,7 @@ static int build_presentation_menu(char* menu_view[], int menu_map[], char* grap
 }
 
 /* -------------------------------------------------------------------- */
-int open_sys(void)
+static int open_sys(void)
 {
     int liczba_opcji, i;
     struct agenda* A;

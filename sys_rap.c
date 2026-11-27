@@ -3,10 +3,7 @@
 #include "sys_rep.h"
 #include "loc.h"
 #include "scheduler.h"
-extern struct Service *Service;
-extern struct agenda *Agenda;
-extern int X_time, X_tyt;
-extern unsigned int attr_title;
+#include "core.h"
 int sys_status_dashboard_active = 0;
 
 static int agenda_is_queued(const struct agenda *A)

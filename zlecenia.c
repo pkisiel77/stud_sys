@@ -6,10 +6,8 @@
 #include "loc.h"
 #include "scheduler.h"
 #include "zlecenia.h"
+#include "core.h"
 
-extern struct Service* Service;
-extern unsigned int attr, at_wpis;
-extern int lwmall;
 
 int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct agenda** As, struct agenda** Anew,
                           struct agenda*** SA, char* adres_rek0_uslugi, char* nazwa)

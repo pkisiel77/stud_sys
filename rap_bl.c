@@ -1,10 +1,8 @@
 #include "blank/moje.h"
 #include "konfig.h"
 #include "rap_bl.h"
+#include "core.h"
 
-extern struct Service* Service;
-extern int Liczba_opcji, y_shift;
-extern unsigned int attr, at_wpis;
 /* ======================================================================= */
 int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 					int kto, int r_pocz, int lrek, struct Service *S)

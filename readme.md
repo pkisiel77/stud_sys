@@ -79,7 +79,7 @@ Projekt składa się z czterech warstw:
 
 Pliki:
 
-- `core.c`
+- `core.c`, `core.h`
 - `scheduler.c`, `scheduler.h`
 - `zlecenia.c`, `zlecenia.h`
 - `konfig.c`
@@ -228,6 +228,7 @@ sudo apt-get install libpaho-mqtt-dev
 ## Najważniejsze pliki
 
 - `core.c` - start systemu, menu główne
+- `core.h` - wspólny stan aplikacji dla modułów (usługa, kolory, pasek statusu)
 - `scheduler.c` - scheduler RT (agenda, kolejka)
 - `zlecenia.c` - wspólne formularze i decyzje modułów usług
 - `konfig.c` - rejestracja usług

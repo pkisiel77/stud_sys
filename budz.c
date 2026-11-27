@@ -3,14 +3,10 @@
 #include "loc.h"
 #include "scheduler.h"
 #include "zlecenia.h"
-extern struct Service *Service;
+#include "core.h"
 /* extern struct agenda *Agenda; */
-extern unsigned int attr_title;
-extern unsigned int cursor, nocursor;
 
 
-extern int X_time, X_tyt;
-extern unsigned int attr,at_wpis;
 #define S_MIN 60l
 /* ------------------ kody decyzji sa w moje.h -------------
 #define DEC_NEW    1
@@ -20,7 +16,6 @@ extern unsigned int attr,at_wpis;
 #define DEC_DELAY  5
  ----------------------------------------------------------- */
 #define DEC_MOD_TIME 16
-extern int lwmall;
 static struct agenda *Anew = NULL, *Aserv = NULL; /* stan lokalny uslugi budzik */
 static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
 static float budz_pozostalo_teraz(struct agenda *A);

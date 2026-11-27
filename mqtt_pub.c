@@ -2,16 +2,12 @@
 #include "mqtt_pub.h"
 #include "loc.h"
 #include "scheduler.h"
+#include "core.h"
 
 #ifdef _MQTT_
 #include <MQTTClient.h>
 #endif
 
-extern struct Service  *Service;
-extern unsigned int     attr, at_wpis;
-extern unsigned int     cursor, nocursor;
-extern int              lwmall;
-extern unsigned short   NODE_NO;
 
 /* ================================================================ */
 /* Jedno polaczenie MQTT na caly proces                             */
