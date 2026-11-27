@@ -1,10 +1,10 @@
 /*-----------------------------------------------------
 
   Plik: konsola.h             
-  Opis: W pliku znajduj¹ siê:
+  Opis: W pliku znajduja sie:
         - definicje funkcji, stale itd...
           dla systemu WEWY kompilowanego
-          w œrodowisku WINDOWS NT
+          w srodowisku WINDOWS NT
         jako konsola.
   
   Wersja: 1.0.4
@@ -18,14 +18,14 @@
 #define _WIN_CONSOLE_H_
 // hedery
 #include <windows.h>
-// sta³e symboliczne
+// stale symboliczne
 #define MAX_WART_BUFORA_BLEDU 10 // do funkcji SprawdzFunkcje
 // inicjacja konsoli
 #define _WIN_CONSOLE_
 #ifdef _WIN_CONSOLE_
 #define _DOS_
 #undef GRAF
-// deklaracje zmienników (funkcje brakuj¹ce) 
+// deklaracje zmiennikow (funkcje brakujace) 
 void sound(unsigned frequency);
 void nosound(void);
 void delay(unsigned milliseconds);

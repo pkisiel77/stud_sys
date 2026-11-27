@@ -109,7 +109,7 @@ void PrzegladajLog(void)
 /*-------------------------
   informacje o systemie
   ...podstawowe informacjie 
-  o systemie na k�rym 
+  o systemie na ktorym 
   pracuje podsystem
 -------------------------*/
 
