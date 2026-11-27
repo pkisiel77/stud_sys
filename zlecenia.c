@@ -23,7 +23,7 @@ int pobierz_rekord_uslugi(int* nr_rekordu, int kod_uslugi, int ob_konc, struct a
     {
         *nr_rekordu = -1;
         term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_ADDR_MISMATCH, nazwa);
-        GET_char();
+        czekaj_na_klawisz();
         return 0;
     }
     Ab = (struct agenda**)getRepDataPtr(&nrR);

@@ -117,6 +117,7 @@ struct lista
 
 int mscanf(char* stos, ...);
 int GET_char(void);
+int czekaj_na_klawisz(void);
 int Get_Char(void);
 int bscanf(char* text, unsigned int attrtx, char* stos, ...);
 int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow);

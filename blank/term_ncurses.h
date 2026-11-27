@@ -49,6 +49,7 @@ int term_printf(int y, int x, unsigned int attr, char* format, ...);
 int m_wherex(void);
 int m_wherey(void);
 int GET_char(void);
+int czekaj_na_klawisz(void);
 void m_gotoxy(int x, int y);
 void clear_cur(char z);
 int term_save_image(int y0, int x0, char* bufor, int dlug);

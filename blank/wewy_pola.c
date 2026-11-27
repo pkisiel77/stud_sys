@@ -278,7 +278,7 @@ char* wpisz_format(char* format, char* monit)
     {
         komunikat(5, 1, ATTR_A, " Brak pamieci dla formatu danej %d: <Ent>", nr_danej);
         nr_danej--;
-        GET_char();
+        czekaj_na_klawisz();
         return NULL;
     }
     memcpy(buf, monit, len);
@@ -557,7 +557,7 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
     if (buf == NULL)
     {
         komun_text(MY_MAX, X_L0, " Brak pamieci dla okno_help(). <Ent>", 0,ATTR_A);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
@@ -579,7 +579,7 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
             }
             Free(buf);
             lwmall--;
-            GET_char();
+            czekaj_na_klawisz();
             return -1;
         }
         lwmall++;
@@ -1173,7 +1173,7 @@ WP:
         i--;
         term_cur(y, i);
         term_flush();
-        znw = GET_char();
+        znw = czekaj_na_klawisz();
         znw = znw & 0x00ff;
         if (buffer != NULL)
         {
@@ -1339,7 +1339,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
             if (*zn == EOS)
             {
                 komunikat(MY_MAX, X_L0,ATTR_A, " Blad formatu %s w grupie (zn=%c). <Ent>", form, *zn);
-                GET_char();
+                czekaj_na_klawisz();
                 break;
             }
             if (k == 4)
@@ -1354,7 +1354,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                         komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie - zn=%c k=%d. <Ent>",
                                   form, *zn, k);
                         *zn = EOS;
-                        GET_char();
+                        czekaj_na_klawisz();
                         break;
                     }
                     else
@@ -1368,7 +1368,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 {
                     komunikat(5, 1,ATTR_A, " Brak liczby danych dla spec. %s w grupie. <Ent>", form);
                     /* fprintf(mystderr,"\n zly form=%s",form); */
-                    GET_char();
+                    czekaj_na_klawisz();
                     break;
                 }
             }
@@ -1426,19 +1426,19 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 if (*zn == EOS)
                 {
                     komunikat(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
-                    GET_char();
+                    czekaj_na_klawisz();
                     break;
                 }
                 if (k == 4)
                 {
                     komunikat(5, 1,ATTR_A, " Brak liczby stringow w menu dla spec. %s w grupie. <Ent>", form);
-                    GET_char();
+                    czekaj_na_klawisz();
                     break;
                 }
                 if (typ != 's' && typ != 'S')
                 {
                     komunikat(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
-                    GET_char();
+                    czekaj_na_klawisz();
                     break;
                 }
                 typ = 'S';
@@ -1451,7 +1451,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 if (nrzm == LHELP)
                 {
                     komunikat(5, 1,ATTR_A, " Za duzo danych w grupie. <Ent>");
-                    GET_char();
+                    czekaj_na_klawisz();
                     break;
                 }
                 if (Skok <= 0)
@@ -1633,7 +1633,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
             break;
         default:
             komunikat(5, 1,ATTR_A, " Blad formatu %s w disp_help(). <Ent>", format);
-            GET_char();
+            czekaj_na_klawisz();
             break;
         }
         i = strlen(text);
@@ -1756,7 +1756,7 @@ WPIS:
                         term_type(y, xa, " ", 1,ATTR_A);
                         term_type(y, xa + 1, text, 0,ATTR_A);
                     }
-                    GET_char();
+                    czekaj_na_klawisz();
                     if (buffer != NULL)
                     {
                         term_restore_image(y, xa, buffer, i);
@@ -1840,7 +1840,7 @@ WPIS:
         i--;
         term_cur(y, i);
         term_flush();
-        zn = GET_char();
+        zn = czekaj_na_klawisz();
         zn = zn & 0x00ff;
         if (buffer != NULL)
         {

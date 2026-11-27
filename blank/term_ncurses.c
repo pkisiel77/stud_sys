@@ -429,6 +429,19 @@ int Get_Char(void)
     return GET_char();
 }
 
+/* Czeka na nacisniecie klawisza ("... <Ent>"). GET_char() wraca z -1 po 50 ms
+   bez klawisza, wiec samo GET_char() nie czeka; tu powtarzamy je az do
+   klawisza (scheduler dziala w tle przez check_services()). Klawisz specjalny
+   (0 + kod skaningowy) zjadamy w calosci, zwracamy wtedy 0. */
+int czekaj_na_klawisz(void)
+{
+    int ch;
+    while ((ch = GET_char()) == -1)
+        ;
+    if (ch == 0) GET_char();
+    return ch;
+}
+
 void term_cur(int y, int x)
 {
     if (is_cursor == 0) return;

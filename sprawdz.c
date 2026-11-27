@@ -103,7 +103,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
     if (A == NULL)
     {
         term_printf(MY_MAX, X_L0,ATTR_A, L_RAP_ERR_ADDR_SPRAWDZ, A);
-        GET_char();
+        czekaj_na_klawisz();
         return -1;
     }
     rekord_danych_do_naglowka(nr_ag);

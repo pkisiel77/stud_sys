@@ -134,7 +134,7 @@ int insert_to_agenda(struct agenda* A)
                         ((struct Service*)(A->S))->name);
             term_cur(y, x);
             setcursor(cursor);
-            GET_char();
+            czekaj_na_klawisz();
             return -1;
         }
         else { AgendaMax = poz; }
@@ -152,7 +152,7 @@ int insert_to_agenda(struct agenda* A)
             term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_NO_MEM_ORDER, (A->S)->name);
             term_cur(y, x);
             setcursor(cursor);
-            GET_char();
+            czekaj_na_klawisz();
             return -1;
         }
         ag_size = sizeof(struct agenda);
@@ -214,7 +214,7 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
         term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_NO_MEM_ORDER, Serv[service_no]->name);
         term_cur(y, x);
         setcursor(cursor);
-        GET_char();
+        czekaj_na_klawisz();
         return NULL;
     }
     A->S = Serv[service_no];
@@ -380,7 +380,7 @@ int insert_to_queue(struct agenda* A)
             {
                 term_printf(MY_MAX, X_L0,ATTR_A, L_CORE_ERR_QUEUE_FULL,
                             ((struct Service*)(A->S))->name);
-                GET_char();
+                czekaj_na_klawisz();
                 return -1;
             }
             else { NoServisMax = poz; }
