@@ -18,12 +18,12 @@ Zakładany czas:
 
 1. Uruchom `stud_sys`.
 2. Wejdź w `Budzik`.
-3. Dodaj budzik za `10 s`.
-4. Wróć do listy i pokaż countdown.
+3. Dodaj budzik (wartości niżej) i wybierz `>>> Wpisz do agendy <<<`.
+4. Pokaż countdown na liście.
 5. Wejdź w `-- Stan systemu --`.
-6. Pokaż rekord budzika.
+6. Pokaż rekord `Budzik` (`NAST.` - sekundy do wywołania, `CYKL`).
 7. Wróć do `Budzik`.
-8. Poczekaj na alarm.
+8. Poczekaj na okno alarmu (ok. 1-2 min od zapisu).
 
 ## Co powiedzieć
 
@@ -34,9 +34,9 @@ Zakładany czas:
 
 ## Gotowe ustawienie
 
-- typ: `t`
-- czas: `10 s`
-- priorytet: `80`
+- `Sprawa`: `Demo`
+- `Godzina`: bieżąca godzina i minuta + 3 min
+- `Co ile`: `1`, `Wyprzedzenie`: `1`
 
 ## Najważniejszy przekaz
 

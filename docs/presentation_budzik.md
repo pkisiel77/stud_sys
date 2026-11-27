@@ -6,61 +6,71 @@ Pokazać, że `stud_sys` wykonuje zadania czasowe w czasie rzeczywistym i pozwal
 
 ## Widok prezentacyjny
 
-W menu głównym widoczne są tylko:
+W menu głównym widoczne są:
 
 - `Budzik`
+- `Demo IoT: czujnik symulowany`
 - `-- Stan systemu --`
-- `Zmiana trybu na GRAFICZNY/TEKSTOWY`
 
-Pozostałe usługi są ukryte, ale logika systemu pozostaje aktywna.
+Pozostałe usługi (np. `MQTT Publisher`) są ukryte, ale logika systemu pozostaje aktywna.
+
+## Jak ustawić budzik na pokaz
+
+Formularz budzika ma pola `Sprawa`, `Godzina` oraz `Co ile` / `wyprzedz`.
+Kursor na polu, `Enter`, wpisz wartość na dole ekranu, `Enter`.
+
+Monity zaczynają się `Wyprzedzenie` minut przed `Godziną` i powtarzają się co `Co ile` minut.
+Czas ustawia się z dokładnością do minuty, a wyprzedzenie to co najmniej 1 minuta, dlatego:
+
+- `Godzina` = teraz + 3 min, `Co ile` = 1, `Wyprzedzenie` = 1 → pierwszy monit po ok. 1-2 min, odliczanie widać na liście;
+- `Godzina` = teraz + 1 min → alarm od razu po zapisie (okno wyprzedzenia już trwa).
 
 ## Scenariusz 3-5 minut
 
 1. Wejdź w `Budzik`.
-2. Pokaż listę budzików i dodaj nowy wpis.
-3. Ustaw budzik jednorazowy za `10 s`.
-4. Ustaw drugi budzik za `30 s`.
-5. Pokaż, że można wrócić do listy i edytować/usunąć wpisy.
-6. Wejdź w `-- Stan systemu --`.
-7. Pokaż dla rekordów:
-   - `Cykl`
-   - `Priorytet`
-   - `Opóźn`
-   - `Stan realizacji`
-8. Wróć do `Budzik` i poczekaj na wyzwolenie alarmu.
+2. Pokaż listę budzików i dodaj budzik A (teraz + 3 min).
+3. Dodaj budzik B (teraz + 6 min).
+4. Pokaż, że wpis można otworzyć `Enter` i zmienić albo usunąć.
+5. `Esc` do menu i wejdź w `-- Stan systemu --`.
+6. Pokaż dla rekordu `Budzik`:
+   - `STAN`
+   - `NAST.` - sekundy do wywołania
+   - `CYKL` - okres wywołań
+   - `PRIOR`
+7. Wróć do `Budzik` i poczekaj na okno alarmu.
 
 ## Co mówić na prezentacji
 
 ### Warstwa RT
 
-- `Sprawdz.otoczenia` działa w tle jako zadanie nadzorcze.
+- `Sprawdz.otoczenia` działa w tle jako zadanie nadzorcze (cykl 1 s, priorytet 200).
 - `Budzik` jest zadaniem czasowym sterowanym przez harmonogram.
-- `Stan systemu` pokazuje aktualny stan kolejkowania i opóźnień.
+- `Stan systemu` pokazuje aktualny stan agendy, kolejki i opóźnień.
 
 ### Czas rzeczywisty
 
-- Budzik za `10 s` pokazuje reakcję w krótkim horyzoncie czasowym.
-- Budzik za `30 s` pokazuje, że system utrzymuje wiele zadań jednocześnie.
-- W `Stan systemu` można pokazać, że zadanie ma okres i priorytet.
+- Odliczanie na liście i kolumna `NAST.` maleją co sekundę - scheduler działa także wtedy, gdy program czeka na klawisz.
+- Dwa budziki z różnymi godzinami pokazują, że system utrzymuje wiele zadań jednocześnie.
+- `Demo IoT` dokłada trzecie zadanie (`Czujnik Sim`, cykl 1 s) z pomiarem w kolumnie `WARTOSC`.
 
 ## Proponowane ustawienia demo
 
-### Budzik 1
+### Budzik A
 
-- typ: `t` jednorazowy
-- czas do uruchomienia: `10 s`
-- priorytet: `80`
+- `Sprawa`: `Demo A`
+- `Godzina`: teraz + 3 min
+- `Co ile`: `1`, `Wyprzedzenie`: `1`
 
-### Budzik 2
+### Budzik B
 
-- typ: `t` jednorazowy
-- czas do uruchomienia: `30 s`
-- priorytet: `60`
+- `Sprawa`: `Demo B`
+- `Godzina`: teraz + 6 min
+- `Co ile`: `1`, `Wyprzedzenie`: `1`
 
 ## Najkrótsza wersja demo
 
 1. `Budzik`
-2. dodanie wpisu za `10 s`
+2. dodanie budzika A
 3. `-- Stan systemu --`
 4. powrót do `Budzik`
 5. alarm
@@ -76,44 +86,42 @@ System nie jest tylko listą formularzy. To prosty scheduler RT:
 
 ## Wersja 2 min
 
-1. Wejdź w `Budzik`.
-2. Dodaj budzik jednorazowy za `10 s`.
-3. Wróć do listy budzików.
-4. Wejdź w `-- Stan systemu --`.
-5. Pokaż:
-   - rekord budzika,
-   - `Cykl`,
-   - `Priorytet`,
-   - `Opóźn`.
-6. Wróć do `Budzik` i poczekaj na alarm.
+Najlepiej przygotować budzik A tuż przed pokazem (np. teraz + 3 min), żeby alarm zmieścił się w czasie.
+
+1. Wejdź w `Budzik` i pokaż odliczanie budzika A.
+2. `Esc`, wejdź w `-- Stan systemu --`.
+3. Pokaż:
+   - rekord `Budzik`,
+   - `NAST.`,
+   - `CYKL`.
+4. Wróć do `Budzik` i poczekaj na alarm.
 
 ### Co powiedzieć
 
 - System przyjmuje zadanie czasowe.
 - Zadanie trafia do agendy i jest widoczne w raporcie systemowym.
-- Po zadanym czasie scheduler uruchamia budzik.
+- O zadanym czasie scheduler uruchamia budzik.
 
 ## Wersja 5 min
 
 1. Wejdź w `Budzik`.
 2. Pokaż istniejące wpisy lub pustą listę.
-3. Dodaj budzik `A` za `10 s`, priorytet `80`.
-4. Dodaj budzik `B` za `30 s`, priorytet `60`.
+3. Dodaj budzik A (teraz + 3 min).
+4. Dodaj budzik B (teraz + 6 min).
 5. Pokaż, że wpisy można edytować albo usuwać.
-6. Wejdź w `-- Stan systemu --`.
-7. Pokaż dwa rekordy budzików i omów:
-   - typ zadania,
-   - czas/cykl,
+6. `Esc`, wejdź w `Demo IoT: czujnik symulowany`.
+7. Pokaż w `Stanie systemu` rekordy `Budzik` i `Czujnik Sim` i omów:
+   - `NAST.` i `CYKL`,
    - priorytet,
-   - opóźnienie.
+   - pomiar w `WARTOSC`.
 8. Wróć do `Budzik`.
-9. Poczekaj na pierwszy alarm.
-10. Pokaż, że drugi budzik nadal pozostaje aktywny.
+9. Poczekaj na alarm budzika A.
+10. Pokaż, że budzik B nadal czeka.
 
 ### Co powiedzieć
 
 - System obsługuje wiele zadań czasowych jednocześnie.
-- Zadania mają różne czasy uruchomienia i priorytety.
+- Zadania mają różne czasy uruchomienia i okresy.
 - `Stan systemu` pokazuje wewnętrzny obraz pracy harmonogramu RT.
 
 ## Lista klików
@@ -122,50 +130,35 @@ System nie jest tylko listą formularzy. To prosty scheduler RT:
 
 1. Start programu.
 2. `Enter` na `Budzik`.
-3. Wybierz `+++ Dodaj nowy budzik +++`.
+3. `Enter` na `+++ Dodaj nowy budzik +++`.
 4. Ustaw:
-   - typ: `t`
-   - czas: `10 s`
-   - priorytet: `80`
-5. Zapisz wpis.
+   - `Sprawa`: `Demo A`
+   - `Godzina`: teraz + 3 min
+   - `Co ile`: `1`, `Wyprzedzenie`: `1`
+5. `Enter` na `>>> Wpisz do agendy <<<`.
 6. `Esc` do menu.
 7. `Enter` na `-- Stan systemu --`.
-8. Pokaż rekord budzika.
+8. Pokaż rekord `Budzik`.
 9. `Esc` do menu.
 10. `Enter` na `Budzik`.
-11. Poczekaj na alarm.
+11. Poczekaj na okno alarmu (`Enter` wyłącza sygnał, `Esc` zamyka monit).
 
 ### Demo rozszerzone
 
-1. Dodaj pierwszy budzik:
-   - czas: `10 s`
-   - priorytet: `80`
-2. Dodaj drugi budzik:
-   - czas: `30 s`
-   - priorytet: `60`
-3. Wejdź w `-- Stan systemu --`.
-4. Przełącz rekord na drugi wpis.
-5. Pokaż różnice parametrów.
-6. Wróć do `Budzik`.
-7. Poczekaj na pierwszy alarm.
-8. Pokaż, że drugi wpis nadal czeka na wykonanie.
+1. Dodaj budzik A (teraz + 3 min).
+2. Dodaj budzik B (teraz + 6 min).
+3. `Esc`, `Enter` na `Demo IoT: czujnik symulowany`.
+4. `Góra/Dół` - przełączaj zaznaczony rekord i pokaż szczegóły pod tabelą.
+5. `Esc`, wróć do `Budzik`.
+6. Poczekaj na alarm budzika A.
+7. Pokaż, że budzik B nadal czeka na wykonanie.
 
 ## Gotowe wartości do wpisania
 
-### Budzik A
+`T` = bieżąca godzina i minuta.
 
-- typ: `t`
-- czas: `10 s`
-- priorytet: `80`
-
-### Budzik B
-
-- typ: `t`
-- czas: `30 s`
-- priorytet: `60`
-
-### Budzik C
-
-- typ: `t`
-- czas: `60 s`
-- priorytet: `40`
+| Budzik | `Sprawa` | `Godzina` | `Co ile` | `Wyprzedzenie` | Pierwszy monit |
+|---|---|---|---|---|---|
+| A | `Demo A` | `T + 3 min` | `1` | `1` | po ok. 1-2 min |
+| B | `Demo B` | `T + 6 min` | `1` | `1` | po ok. 4-5 min |
+| C | `Demo C` | `T + 10 min` | `2` | `4` | po ok. 5-6 min, potem co 2 min |

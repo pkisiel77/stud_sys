@@ -31,6 +31,14 @@ Język interfejsu (domyślnie `PL`):
 make TUI_LANG=EN
 ```
 
+Zmiana `TUI_LANG` lub `MQTT` sama przebudowuje cały program - nie trzeba robić `make clean`.
+
+Testy:
+
+```bash
+make test
+```
+
 ## Start
 
 ```bash
@@ -42,26 +50,26 @@ make TUI_LANG=EN
 W aktualnym trybie prezentacyjnym menu pokazuje:
 
 - `Budzik`
+- `Demo IoT: czujnik symulowany`
 - `-- Stan systemu --`
-- `Zmiana trybu na GRAFICZNY/TEKSTOWY`
 
-## Najszybsze demo
+## Najszybsze demo (ok. 3 min)
 
 1. Uruchom `stud_sys`.
-2. Wejdź w `Budzik`.
-3. Dodaj nowy budzik za `10 s`.
-4. Wróć do listy.
-5. Obserwuj countdown.
-6. Wejdź w `-- Stan systemu --`.
-7. Pokaż rekord budzika.
-8. Wróć do `Budzik`.
-9. Poczekaj na alarm.
+2. `Enter` na `Budzik`, potem `+++ Dodaj nowy budzik +++`.
+3. Ustaw pola (kursor na polu, `Enter`, wpisz wartość, `Enter`):
+   - `Sprawa`: `Demo`
+   - `Godzina`: bieżąca godzina i minuta **+3 min**
+   - `Co ile`: `1`, `Wyprzedzenie`: `1`
+4. Wybierz `>>> Wpisz do agendy <<<` - na liście widać odliczanie do pierwszego monitu.
+5. `Esc` do menu, wejdź w `-- Stan systemu --` i pokaż rekord `Budzik`.
+6. `Esc`, wróć do `Budzik` i poczekaj na okno alarmu (ok. 1-2 min od zapisu).
 
 ## Podstawowe klawisze
 
 - `Strzałki góra/dół` - zmiana pozycji
 - `Enter` - wejście / akceptacja
-- `Esc` - wyjście
+- `Esc` - wyjście (w polu wpisu: anulowanie)
 
 ## Gdzie szukać dalej
 
