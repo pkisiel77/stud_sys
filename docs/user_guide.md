@@ -64,7 +64,8 @@ Formularz ma trzy pola:
 | `Co ile` / `wyprzedz` | od ilu minut przed godziną budzika zaczynają się monity (`Wyprzedzenie`, min. 1) i co ile minut się powtarzają (`Co ile`) |
 
 Aby zmienić pole, ustaw na nim kursor i naciśnij `Enter`. Na dole ekranu pojawi się pole wpisu:
-wpisz wartość, `Enter` zatwierdza, `Esc` anuluje. `Godzina` pyta kolejno o godzinę i minutę,
+wpisz wartość, `Enter` zatwierdza, `Esc` anuluje. Pierwszy wpisany znak zastępuje starą wartość;
+żeby ją poprawić, zacznij od `Backspace`. `Godzina` pyta kolejno o godzinę i minutę,
 a `Co ile` - o odstęp monitów i o wyprzedzenie.
 
 ### Dodawanie budzika
