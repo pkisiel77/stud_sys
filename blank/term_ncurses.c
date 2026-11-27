@@ -125,11 +125,6 @@ int map_attr_to_color_pair(unsigned int attr)
     return COLOR_PAIR(pair_idx) | hilight | blink | inverse;
 }
 
-void InitConsoleV1(void)
-{
-    InitConsole();
-}
-
 void InitConsole(void)
 {
     if (terminal_initialized) return;
@@ -315,56 +310,6 @@ void m_gotoxy(int x, int y)
     yg_akt = y;
 
     move(y, x);
-}
-
-int GET_charV1(void)
-{
-    int ch;
-
-    /* Non-blocking read */
-    ch = getch();
-
-    if (ch == ERR)
-    {
-        /* No character available */
-        usleep(10000); /* Sleep 10ms to avoid busy waiting */
-        return -1;
-    }
-
-    /* Map ncurses keys to application-specific codes */
-    switch (ch)
-    {
-    case KEY_DOWN: return 80; /* DOWN */
-    case KEY_UP: return 72; /* UP */
-    case KEY_LEFT: return 75; /* LEFT/BBS */
-    case KEY_RIGHT: return 77; /* RIGHT/FFR */
-    case KEY_PPAGE: return 73; /* PgUp */
-    case KEY_NPAGE: return 81; /* PgDn */
-    case KEY_HOME: return 71; /* Home */
-    case KEY_END: return 79; /* End */
-    case KEY_IC: return 82; /* Insert */
-    case KEY_DC: return 83; /* Delete */
-    case KEY_F(1): return 59; /* F1 */
-    case KEY_F(2): return 60; /* F2 */
-    case KEY_F(3): return 61; /* F3 */
-    case KEY_F(4): return 62; /* F4 */
-    case KEY_F(5): return 63; /* F5 */
-    case KEY_F(6): return 64; /* F6 */
-    case KEY_F(7): return 65; /* F7 */
-    case KEY_F(8): return 66; /* F8 */
-    case KEY_F(9): return 67; /* F9 */
-    case KEY_F(10): return 68; /* F10 */
-    case KEY_F(11): return 69; /* F11 */
-    case KEY_F(12): return 70; /* F12 */
-    case 27: return 27; /* Escape */
-    case '\n': return 13; /* Enter (CR) */
-    case '\r': return 13; /* Enter (CR) */
-    case KEY_BACKSPACE:
-    case 127:
-    case '\b': return 8; /* Backspace */
-    case '\t': return 9; /* Tab */
-    default: return ch;
-    }
 }
 
 int GET_char(void)

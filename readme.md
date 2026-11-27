@@ -98,7 +98,6 @@ Pliki:
 
 - `blank/wewy.c`
 - `rap_bl.c`
-- `blank/konsola.c`
 - `blank/term_ncurses.c`
 
 Odpowiedzialność:

@@ -48,7 +48,6 @@ gcc -D_NCURSES_ -I. -Iblank -Iopcjesys \
     -o stud_sys \
     core.c \
     blank/term_ncurses.c \
-    blank/konsola.c \
     blank/wewy.c \
     budz.c \
     admin.c \

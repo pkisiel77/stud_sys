@@ -226,7 +226,6 @@ W trybie prezentacyjnym nie są eksponowane w menu głównym, ale pozostają cz�
 Pliki:
 
 - `blank/term_ncurses.c`
-- `blank/konsola.c`
 
 Rola:
 
