@@ -609,24 +609,6 @@ void dane_helpu(char* hformat, char* help[], va_list* ap)
                     break;
                 }
             }
-            /* ------------------------- kawalek wymieniony 23.08.1998 -------------
-                  if(form[0]=='['&&form[1]=='%'&&form[2]=='a')
-                   {for(zn=&form[3],k=4;;zn++,k++)
-                        {if((*zn)==EOS) break;
-                      if((*zn)==']') break;
-                      if((*zn)<'0' || (*zn)>'9') {*zn=EOS; break;}
-                     }
-                     if(*zn==EOS)
-                         {komunikat(MY_MAX, X_L0,ATTR_A," Brak klamry ] w formacie %s grupy (k=%d). <Ent>", form,k);
-                      GET_char();
-                      break;
-                     }
-                    if(k==4)
-                         {komunikat(MY_MAX, X_L0,ATTR_A," Brak liczby danych dla spec. %s w grupie. <Ent>", form);
-                      GET_char();
-                      break;
-                     }
-            ----------------------------------- */
             lzm++;
             if (lzm < LHELP)
             {
@@ -879,44 +861,6 @@ int dana_decyzyjna(int y, int x, char* monit, char* opcje, char* objasn[],
     return ret;
 }
 
-/*
-int dana_znak(int y, int x, char *monit, char *opcje, char *objasn[],
-                int liczba_obj, char *znak, int ochrona)
- {struct okno *ok;
-  int i,l;
-   if(Ok==NULL)
-		{komunikat(MY_MAX,X_L0,ATTR_A," Brak adresu dla danej %d blankietu. <Ent> ",
-           nr_danej);
-     GET_char(); return -1;
-    }
-   if(nr_danej>=liczba_danych)
-		{komunikat(MY_MAX,X_L0,ATTR_A," Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-           nr_danej,liczba_danych);
-     GET_char(); return -1;
-    }
-   ok=Ok+nr_danej; nr_danej++;
-   ok->format=wpisz_format(ok->format, monit); if(ok->format==NULL) return -1;
-    ok->typ='z';
-		ok->wartosc=(float *)znak;
-        ok->kod_anim=-1;
-    ok->size=1;
-    ok->prec=liczba_obj;
-    ok->wmin_opcje=(float *)opcje;
-    ok->wmax=(float *)objasn;
-    ok->proxy=-1;
-				ok->kod_anim=-1;
-    ok->yo=y;
-    ok->xo=x;
-    ok->obowiazk=0;
-    if(monit[0]=='#' || monit[1]=='#') ok->obowiazk=1;
-    ok->yplus=0;
-    if(monit[0]=='+' || monit[1]=='+') ok->yplus=1;
-    ok->blok_wpisu=0; if(ochrona==-1) ok->blok_wpisu=1;
-    ok->ochrona=ochrona;
-		if(ochrona<0 || BL[nr_blank]->czynny==0) ok->ochrona=Upr_max;
-   return nr_danej;
- }
-*/
 
 int dana_text_dec(int y, int x, char* monit, char* string, int size,
                   char** help, int l_opcji, int ochrona, int kod_decyzji)

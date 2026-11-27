@@ -1022,7 +1022,6 @@ char* podaj_adres_rap(int kod_raportu)
         if (R == NULL)
         {
             komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORT, kod_raportu);
-            //			term_color(TERM_WHITE|TERM_BLACK_BG);
             return NULL;
         }
         if (R->kod_raportu != kod_raportu) continue;
@@ -1069,11 +1068,6 @@ char* ustal_adres_rek(int kod_raportu, int rek_no)
                 int k;
                 baza = (char**)(R->D);
                 k = rek_no;
-                /*       for(k=rek_no; k<=R->ob_konc; k++) {if(baza[k]!=NULL) break;}
-                                 if(k>R->ob_konc)
-                                     {for(k=R->ob_pocz; k<rek_no; k++) {if(baza[k]!=NULL) break;}
-                                      if(k==rek_no) goto ERR_DANE;
-                                     } */
                 D = baza[k];
             }
             else /* adresy rekordow sa lista */
@@ -1402,18 +1396,11 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
                   kod_raportu, txt, size, i);
         /*		for(k=0;k<=i;k++)
                  {komunikat(MY_MAX-k,X_L0,TERM_WHITE|TERM_BLUE_BG," RAP[%d]=%p",k,RAP[k]);
-        //			if(RAP[k]!=NULL) komunikat(MY_MAX-k,m_wherex(),TERM_WHITE|TERM_BLUE_BG," %s",RAP[k]->tytul);
                  } */
         GET_char(); /*term_color(TERM_WHITE|TERM_BLUE_BG); */
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
-    /*  if((R->free_mem&0x02)!=0x02)
-         {komunikat(MY_MAX,X_L0,ATTR_A,L_WEWY_REPORT_NO_FREE ,
-                                    kod_raportu, txt, size);
-            GET_char(); if(znak!=0) txt[TXM]=znak; return NULL;
-         }
-    */
     if (size <= 0)
     {
         if (strlen(txt) > 0)
@@ -1679,11 +1666,6 @@ int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
     {
         if (poprz_dec == UNDO) return -1;
         else return 0;
-        /*     {komunikat(MY_MAX,X_L0,ATTR_A," Brak zmian danych w raporcie <Ent> ");
-              GET_char();
-              return 0;
-             }
-        */
     }
     else
     {

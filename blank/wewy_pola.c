@@ -1560,13 +1560,6 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 typ = 'S';
                 break;
             } /*  koniec obslugi innych formatow (nie %c i nie %s)  */
-            /* -----if(typ=='c')
-                                 fprintf(mystderr,"\nPo poprawce: typ=%c %c",typ,dana[0]);
-                    else {if(typ=='S')
-                                                    fprintf(mystderr,"\nPo poprawce: typ=%c %s",typ, *(char**)dana);
-                                             else fprintf(mystderr,"\nPo poprawce: typ=%c ",typ, f_bledu, dana[0]);
-                         }
-             ------------------------------------ */
         } /*  koniec obslugi niewlasciwego indeksu */
         switch (typ)
         {
@@ -1624,13 +1617,6 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
         case 's':
             if (lenth > max_x) lenth = max_x;
             i = strlen((char*)dana);
-            /*          if(menu!=NULL)
-                       {lenth+=2;
-                        if(i>lenth) {k=((char*)dana)[lenth]; ((char*)dana)[lenth]=EOS;}
-                        sprintf(text,fdanej,&((char*)dana)[2]);
-                       }
-                      else
-            */
             {
                 if (i > lenth)
                 {
