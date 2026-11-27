@@ -97,6 +97,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                      int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi, char* DaneUslugi)
 /* ------------- D jest adresem zerowego rekordu bazy ----------------- */
 {
+    (void)ob_pocz; (void)ob_konc; (void)x_lewy_gorny; (void)y_lewy_gorny; (void)kod_uslugi;
     struct agenda *A;
     int ls, nr_rek, size, ochr, ochrf = -3, raport, ret;
     static char nazwa_buf[80];
@@ -182,6 +183,7 @@ int sprawdz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 
 char* dane_sprawdz(int ob_pocz, int ob_konc, int* rozmiar_ob)
 {
+    (void)ob_pocz; (void)ob_konc;
     int ls;
     struct agenda** SA = getAgendaPtr(&ls);
     *rozmiar_ob = sizeof(struct agenda*);
@@ -210,6 +212,7 @@ struct agenda
 int dec_sprawdz(int decyzja, int kod_decyzji, int nr_dec,
                 int kod_raportu, int np, int* nr_rekordu)
 {
+    (void)nr_dec; (void)np;
     int p_min, p_max, ret;
     (void)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);
     (void)ustal_adres_rek(kod_raportu, *nr_rekordu);

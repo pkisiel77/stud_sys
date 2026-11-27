@@ -310,6 +310,7 @@ extern struct agenda *SysA[];
 
 char *dane_sys(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {int ns, x, y;
+	(void)ob_pocz; (void)ob_konc;
 /*  struct Service *S; */
   for(ns=0; ns<AG_SIZE; ns++) {if(SysA[ns]!=NULL) break;}
 	*rozmiar_ob=sizeof(struct agenda *);
@@ -323,7 +324,10 @@ char *dane_sys(int ob_pocz, int ob_konc, int *rozmiar_ob)
 
 void wpis_sys(int ob_pocz, int ob_konc,
 					 char *D, int rozmiar_ob, char zapis[], char *Kod_op)
- {freeAgendaPtr();}
+ {
+	(void)ob_pocz; (void)ob_konc; (void)D; (void)rozmiar_ob; (void)zapis; (void)Kod_op;
+	freeAgendaPtr();
+ }
 /* -------------- def. w sys_dekl.h ----------------
 struct agenda
  {struct Service *S;    / * adres danych stalych uslugi (struct Service *)* /
@@ -339,6 +343,7 @@ struct agenda
 int dec_sys(int decyzja, int kod_decyzji, int nr_dec,
 											int kod_raportu, int np, int *nr_rekordu)
  {struct agenda *A;
+	(void)nr_dec; (void)np;
 /*  struct Service *S; */
 	int p_min, p_max, ret;
 	(void)czy_zdefiniowany(kod_raportu, &p_min, &p_max, &ret);

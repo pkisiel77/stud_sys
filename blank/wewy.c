@@ -185,7 +185,7 @@ char mgetch(char* monit)
             /*      if(isalfa(co) term_type(y_akt,x_akt,&co,1,attryb); */
         }
     }
-    while (co != monit[0] && co != monit[2]);
+    while (co != (unsigned char)monit[0] && co != (unsigned char)monit[2]);
     /* dev_mode(0,opcje,_DEV_MODES);*/
     return co;
 }
@@ -1910,16 +1910,19 @@ void zamknij_grafiki(int report)
 /* NCURSES implementations - most functions are in term_ncurses.c */
 void zamknij_grafiki(int a)
 {
+    (void)a;
 };
 
 int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
                                                 char* pdane, char* Text, void*(*Dane_Wykr)(void* Rd), void* R))
 {
+    (void)akcja_grafik;
     return 0;
 }
 
 int zamknij_jeden_wykres(void* R, pid_t pid)
 {
+    (void)R; (void)pid;
     return 0;
 }
 
@@ -3000,7 +3003,7 @@ char wczytaj_string(int y, int x, char* monit, char* text, int size,
             term_cur(y, x0);
             return 0;
         } /* <Esc> */
-        for (i = 0; i <= strlen(buf); i++) text[i] = buf[i];
+        for (i = 0; i <= (int)strlen(buf); i++) text[i] = buf[i];
         break;
     }
     term_printf(y, x0, attryb, "%s", text);
@@ -3131,6 +3134,7 @@ int wydruk_monitu(int wpis, char* opis_danej, int dl_zakr, char* taknie,
                   int* xp, int* txl, unsigned int attrtx, int w_min,
                   int w_max, char typ, int skok, void* R, void* Rh, char* help[])
 {
+    (void)R; (void)Rh;
     char* fmon;
     int ret, i, ms, xmax, k, l;
     *dltn = 0;
@@ -4768,6 +4772,7 @@ int wpisanie_danych_fl(int x0, int xp, int y, int xmax, int x_konc,
                        float* wart, float wartn[], float baza, float w_min, float w_max,
                        float abs_min, float abs_max)
 {
+    (void)format_ogr;
     float w_abs, wmin, wmax;
     int xpp, nrkol, ins, ll, i, k, xa, ret, llmax, zn = ' ';
     char *zakr[2], *buffer, zmiana = 0; /* *fh, */
@@ -6502,6 +6507,7 @@ struct lista* szukaj_adr_alloc(int kod_raportu, char* txt,
 
 void* free_rep_mem(void* adres, int kod_raportu, int rekord, char* txt)
 {
+    (void)rekord;
     int i, liczba;
     char* buf;
     struct lista *l, *lp;
@@ -6536,6 +6542,7 @@ void* free_all_rep_mem(struct reports* R)
 void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
                       int rekord, char* txt)
 {
+    (void)rekord;
     int i, liczba;
     char znak = 0, *bufn, *dalej;
     struct reports* R = NULL;
@@ -10619,6 +10626,7 @@ int disp_dana(signed char wp, int y0, int x,
               unsigned int attr_D, unsigned int attr_o,
               unsigned int attrtx, struct okno* ok, int y_shift, char mod)
 {
+    (void)y_shift;
     int ret, y, *ind;
     unsigned int attr_d = attr_D;
     if (ok->ochrona > 5) attr_d = attr_o;
