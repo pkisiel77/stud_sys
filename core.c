@@ -277,7 +277,7 @@ int data_systemowa(int* dzien, int* miesiac, int* rok)
     sek1970 = time(NULL);
     Time = localtime(&sek1970);
     *dzien = Time->tm_mday;
-    *miesiac = Time->tm_mon;
+    *miesiac = Time->tm_mon + 1; /* tm_mon liczone od 0 */
     *rok = Time->tm_year + 1900;
     return 0;
 }
@@ -991,8 +991,8 @@ int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* 
             *Aserv = rekord_zlecenia_agendy(nr_rekordu, i, kod_uslugi); /*  Szukamy rekordu nowego zlecenia */
             free_agenda_mem(*Anew);
             *Anew = NULL;
-            break;
         }
+        break;
     case 'm': return -1;
     case 'l': ret = pokaz_listy_zlecen(*Anew, kod_uslugi, tytul);
         if (ret >= 0) *nr_rekordu = ret;
