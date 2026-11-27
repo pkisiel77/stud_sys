@@ -2,8 +2,7 @@
    okno_menu, okna komunikatow, przelaczniki trybu, wczytaj_*().
    Pozostale czesci silnika: wewy_pola.c, wewy_raporty.c, wewy_dane.c,
    wewy_blankiet.c, wewy_liczby.c. Ten plik definiuje globalne zmienne
-   silnika (WEWY_MAIN -> definicje w wewy1.h i opcjesys/scr_size.h). */
-#define WEWY_MAIN
+   silnika (deklaracje extern: wewy1.h i opcjesys/scr_size.h). */
 #include "wewy_wsp.h"
 
 extern HWND handle_window_device;
@@ -11,9 +10,45 @@ char real_time = 0;  /* Definition for NCURSES */
 
 static time_t lticks_min, Ltickm = 0.2 * CLK_TCK, kbtickm = 0.02 * CLK_TCK; /* klawisz co 0.2sek */
 
-char*(*dane_rap_bl)(int ob_pocz, int ob_konc, int* rozmiar_ob);
-void (*wpis_danych_bl)(int ob_pocz, int ob_konc, char* D,
-                       int rozmiar_ob, char zapis[], char* Kod_op);
+/* ---------- Globalne zmienne silnika (deklaracje extern: wewy1.h) ---------- */
+struct Blok_anim BA;
+shint mouse_free=0;
+char blokada_potwierdzania=0;
+char ABORT=1, BLAD=1, blokada_zapisu=0, bez_potwierdzania=0;
+shint SCROLL=-1;
+signed char Akt_Kolor=0, Klucz=-1, arrow=27;
+char haslo[LHASEL][11];
+char kod_o[LHASEL][21];
+unsigned int attr_o[3], attrtx[3], attr_dat[3], attr_inf;
+struct Blok_anim *blok_anim=&BA; /*NULL; */
+/* Parametry wymiarowe blankietu */
+shint X_0=0, Y_0=0, X_maxBlank, Y_maxBlank;
+int dana_poczatkowa=0;
+/* ----------------------------------------------------------------- */
+unsigned int attryb=TERM_WHITE|TERM_BLUE_BG|TERM_FLUSH /*, opcje*/;
+shint INSERT=-1, HELP=0, ZAPIS=0, BEZ_HASLA=0, SLEDZIC=0;
+struct okno *Ok=NULL;
+shint nr_danej=0, liczba_danych=0;
+shint lwmall=0, lwmallp=0;
+char Uprawn=6, Upr_max=10, Uprawn_max=0, *Kod_operatora_max=NULL;
+signed char NR_OPER=-1;
+struct blankiet *BL[LBLANK];
+struct reports *RAP[LRAP_BL+1];
+shint nr_blank=-1;
+shint x_kursor=-1;
+char lhasel=0, Uprawn_pocz=0, EDIT=0;
+signed char KOD_raportu=-1, wpisano_dana=0;
+char Czy_Blankiet_otwarty=0;
+char *(*dane_rap_bl)(shint ob_pocz, shint ob_konc, shint *rozmiar_ob);
+void (*wpis_danych_bl)(shint ob_pocz, shint ob_konc, char *D,
+											 shint rozmiar_ob, char zapis[], char *Kod_op);
+/* ---------- Wymiary ekranu (deklaracje extern: opcjesys/scr_size.h) -------- */
+int MYR_MAX=24;
+int MY_MAX=25;
+int MX_MAX=80;
+int MXR_MAX=79;
+int X_L0=0;
+int Y_G0=0;
 int BUF_com_size = 0, nr_komunik = -1;
 void* BUF_com = NULL;
 int igraf = 0;
