@@ -5,8 +5,6 @@
 
 #define L_SYS 5
 
-extern struct agenda *SysA[];
-
 extern char *Menu[L_SYS + 3];
 extern int (*Fun_sys[L_SYS + 1])();
 extern int (*dialog[L_SYS + 1])();
