@@ -255,7 +255,7 @@ static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
         else if (ch >= 32 && ch < 256 && len < max_len - 1)
             { tmp[len++] = (char)ch; tmp[len] = 0; }
     }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
     if (len > 0) snprintf(buf, (size_t)max_len, "%s", tmp);
 }
@@ -279,7 +279,7 @@ static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
         else if (ch >= '0' && ch <= '9' && len < (int)(sizeof(buf) - 2))
             { buf[len++] = (char)ch; buf[len] = 0; }
     }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
     if (len <= 0) return cur;
     val = atoi(buf);
@@ -388,13 +388,13 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                             L_MQTT_OK_MSG,
                             cfg.broker, cfg.port, cfg.topic, cfg.node_id);
                 GET_char();
-                term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+                term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
             } else {
                 term_printf(MY_MAX, X_L0, ATTR_A,
                             L_MQTT_ERR_MSG,
                             cfg.broker, cfg.port, cfg.err_count);
                 GET_char();
-                term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+                term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
             }
             /* Synchronizuj stan z agenda */
             {

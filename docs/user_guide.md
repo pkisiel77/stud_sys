@@ -15,11 +15,11 @@ System pozwala:
 
 Po starcie programu widoczne są trzy pozycje:
 
-- `Budzik`
-- `-- Stan systemu --`
-- `Zmiana trybu na GRAFICZNY/TEKSTOWY`
+- `Budzik` - lista budzików i formularz budzika,
+- `Demo IoT: czujnik symulowany` - uruchamia symulowany czujnik i pokazuje jego pomiary w `Stanie systemu`,
+- `-- Stan systemu --` - podgląd na żywo wszystkich zadań schedulera RT.
 
-Najczęściej używane będą pierwsze dwie.
+Po powrocie z dowolnej pozycji kursor zostaje na niej, więc `Enter` otwiera ją ponownie.
 
 ## 3. Sterowanie
 
@@ -27,19 +27,20 @@ Podstawowe klawisze:
 
 - `Strzałki góra/dół` - zmiana zaznaczenia
 - `Enter` - wejście do pozycji lub akceptacja pola
-- `Esc` - wyjście z bieżącego okna
-- klawisze znakowe, np. `t`, `n`, `m` - wybory w polach decyzyjnych
+- `Esc` - wyjście z bieżącego okna (w polu wpisu: anulowanie zmiany)
+- cyfry i `Backspace` - wpisywanie wartości w polu wpisu na dole ekranu
 
 ## 4. Moduł Budzik
 
 ### Co pokazuje lista
 
-Lista budzików zawiera:
+Każdy wiersz listy budzików zawiera:
 
-- godzinę alarmu,
-- typ wpisu,
-- nazwę budzika,
-- czas pozostały do uruchomienia.
+- godzinę budzika (`HH:MM`),
+- w nawiasie czas pozostały do najbliższego monitu,
+- nazwę budzika (pole `Sprawa`).
+
+Pod budzikami są pozycje `+++ Dodaj nowy budzik +++` i `Wyjdz`.
 
 Odliczanie na liście odświeża się na żywo.
 
@@ -52,15 +53,39 @@ W module `Budzik` można:
 - usunąć budzik,
 - obserwować ile czasu zostało do alarmu.
 
-### Dodawanie budzika
+### Formularz budzika
 
-Typowy przebieg:
+Formularz ma trzy pola:
+
+| Pole | Znaczenie |
+|---|---|
+| `Sprawa` | nazwa budzika |
+| `Godzina` | godzina i minuta budzika |
+| `Co ile` / `wyprzedz` | od ilu minut przed godziną budzika zaczynają się monity (`Wyprzedzenie`, min. 1) i co ile minut się powtarzają (`Co ile`) |
+
+Aby zmienić pole, ustaw na nim kursor i naciśnij `Enter`. Na dole ekranu pojawi się pole wpisu:
+wpisz wartość, `Enter` zatwierdza, `Esc` anuluje. `Godzina` pyta kolejno o godzinę i minutę,
+a `Co ile` - o odstęp monitów i o wyprzedzenie.
+
+### Dodawanie budzika
 
 1. Wejdź w `Budzik`.
 2. Wybierz `+++ Dodaj nowy budzik +++`.
-3. Ustaw parametry wpisu.
-4. Zatwierdź zapis.
-5. Wróć do listy i obserwuj odliczanie.
+3. Ustaw `Sprawa`, `Godzina` oraz `Co ile` / `wyprzedz`.
+4. Wybierz `>>> Wpisz do agendy <<<`.
+5. Na liście obserwuj odliczanie do pierwszego monitu.
+
+Budzik jest zapisywany w pliku `~/.stud_sys_budz.dat` i wraca po ponownym uruchomieniu programu.
+
+### Edycja i usuwanie
+
+Wybierz budzik na liście i naciśnij `Enter`. Formularz ma wtedy pozycje
+`>>> Zatwierdz zmiany <<<`, `>>> Usun budzik <<<` i `Wyjdz (bez zmian)`.
+
+### Alarm
+
+Gdy zaczyna się okno wyprzedzenia, pojawia się okno `BUDZIK` z nazwą budzika, godziną
+i czasem do następnego monitu. `Enter` wyłącza sygnał, `Esc` zamyka monit.
 
 ### Co oznacza czas pozostały
 
@@ -73,33 +98,46 @@ Format:
 
 ## 5. Raport Stan systemu
 
-Raport `-- Stan systemu --` służy do sprawdzania, jak system widzi aktywne rekordy RT.
+Ekran `-- Stan systemu --` pokazuje na żywo wszystkie zadania w agendzie schedulera RT.
+W nagłówku jest liczba aktywnych zadań, długość kolejki i liczba alarmów, a w tabeli:
 
-Można tam zobaczyć:
+| Kolumna | Znaczenie |
+|---|---|
+| `USLUGA` | nazwa usługi (np. `Sprawdz.otoczenia`, `Budzik`, `Czujnik Sim`) |
+| `STAN` | stan zadania, np. `CZEKA` |
+| `NAST.` | sekundy do następnego wywołania |
+| `CYKL` | okres wywołań w sekundach |
+| `PRIOR` | priorytet |
+| `WARTOSC` | ostatni pomiar zadania (np. czujnika) |
+| `ALARM` | stan alarmu pomiaru |
 
-- nazwę usługi,
-- typ pracy,
-- priorytet,
-- cykl uruchomień,
-- opóźnienie do kolejnego wykonania.
+Pod tabelą są szczegóły zaznaczonego zadania. Klawisze: `Góra/Dół` - wybór zadania,
+`PgUp/PgDn` - strona, `R` - odświeżenie, `Esc` - powrót do menu głównego.
 
-To jest ekran diagnostyczny. Najlepiej używać go po dodaniu budzika, aby pokazać, że wpis został poprawnie przyjęty przez scheduler.
+Najlepiej wejść tu po dodaniu budzika: rekord `Budzik` pokazuje, że wpis trafił do schedulera.
 
-## 6. Przykładowy scenariusz prezentacji
+## 6. Demo IoT
 
-Najprostszy pokaz:
+`Demo IoT: czujnik symulowany` dodaje do agendy zadanie `Czujnik Sim` (symulowany pomiar co sekundę)
+i od razu otwiera `Stan systemu`, gdzie w kolumnie `WARTOSC` widać zmieniający się pomiar.
+
+## 7. Przykładowy scenariusz prezentacji
+
+Najprostszy pokaz (ok. 3 min):
 
 1. Uruchom program.
-2. Wejdź w `Budzik`.
-3. Dodaj budzik za `10 s`.
-4. Wróć do listy budzików.
-5. Pokaż odliczanie czasu pozostałego.
-6. Wejdź w `-- Stan systemu --`.
-7. Pokaż rekord budzika z okresem i priorytetem.
-8. Wróć do `Budzik`.
-9. Poczekaj na alarm.
+2. Wejdź w `Budzik` i wybierz `+++ Dodaj nowy budzik +++`.
+3. Ustaw: `Sprawa` = `Demo`, `Godzina` = bieżąca godzina i minuta **+3 min**, `Co ile` = `1`, `Wyprzedzenie` = `1`.
+4. Wybierz `>>> Wpisz do agendy <<<` - na liście widać odliczanie do pierwszego monitu (ok. 1-2 min).
+5. `Esc` do menu głównego i wejdź w `-- Stan systemu --`.
+6. Pokaż rekord `Budzik`: `NAST.` (sekundy do wywołania) i `CYKL`.
+7. `Esc` i wróć do `Budzik`.
+8. Poczekaj na okno alarmu.
 
-## 7. Jak interpretować system podczas demo
+Budzik nie może zadzwonić "za 10 sekund": czas ustawia się z dokładnością do minuty, a monity zaczynają się
+na początku okna wyprzedzenia (min. 1 min przed godziną budzika).
+
+## 8. Jak interpretować system podczas demo
 
 Warto tłumaczyć system w trzech punktach:
 
@@ -107,7 +145,7 @@ Warto tłumaczyć system w trzech punktach:
 2. Scheduler RT przechowuje je w agendzie i odlicza czas do uruchomienia.
 3. `Stan systemu` pokazuje wewnętrzny stan tego mechanizmu.
 
-## 8. Typowe problemy
+## 9. Typowe problemy
 
 ### Lista budzików odświeża się
 
@@ -119,9 +157,13 @@ Użyj `Esc`.
 
 ### Nie widzę innych modułów
 
-To jest zamierzone. Program działa w trybie prezentacyjnym, gdzie menu główne pokazuje głównie `Budzik` i raport systemowy.
+To jest zamierzone. Program działa w trybie prezentacyjnym: menu główne pokazuje `Budzik`, `Demo IoT` i `Stan systemu`, a pozostałe moduły (np. `MQTT Publisher`) zostają w kodzie.
 
-## 9. Dla kogo jest ten system
+### Alarm pojawił się od razu po zapisaniu budzika
+
+Godzina budzika minus wyprzedzenie wypadła w bieżącej minucie lub wcześniej, więc monit startuje natychmiast. Ustaw godzinę co najmniej 2-3 minuty do przodu.
+
+## 10. Dla kogo jest ten system
 
 System jest przeznaczony do:
 

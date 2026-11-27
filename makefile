@@ -62,7 +62,24 @@ SRCS = core.c \
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) \
        $(patsubst %.C,$(OBJDIR)/%.o,$(filter %.C,$(SRCS)))
 
+# ----------------------------------------------------------------
+# Przebudowa po zmianie flag (np. TUI_LANG=EN, MQTT=1, inny CC).
+# Porownanie odbywa sie przy wczytywaniu makefile, zanim make zacznie
+# porownywac czasy plikow: gdy flagi sa inne niz przy poprzednim buildzie,
+# obiekty i program sa usuwane i budowane od nowa.
+# ----------------------------------------------------------------
+BUILD_FLAGS := $(CC) $(CFLAGS) $(LDFLAGS)
+FLAGS_STAMP := $(OBJDIR)/.build-flags
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(shell cat $(FLAGS_STAMP) 2>/dev/null),$(BUILD_FLAGS))
+$(shell rm -rf $(OBJDIR) $(TARGET); mkdir -p $(OBJDIR); echo '$(BUILD_FLAGS)' > $(FLAGS_STAMP))
+endif
+endif
+
 $(shell mkdir -p $(OBJDIR)/blank $(OBJDIR)/opcjesys)
+
+# Zaleznosci od naglowkow generuje kompilator (-MMD -MP -> pliki .d)
+DEPFLAGS = -MMD -MP
 
 .PHONY: all clean test docs-pdf
 
@@ -75,11 +92,11 @@ $(TARGET): $(OBJS)
 
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: %.C
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -x c -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) -x c -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
@@ -97,18 +114,18 @@ TEST_APP_OBJS = $(filter-out $(OBJDIR)/core.o,$(OBJS))
 
 $(TEST_CORE_OBJ): core.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -Dmain=stud_sys_app_main -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) -Dmain=stud_sys_app_main -c $< -o $@
 
 $(TEST_OBJDIR)/test_scheduler.o: tests/test_scheduler.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(TEST_SCHEDULER_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_scheduler.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(TEST_OBJDIR)/test_terminal.o: tests/test_terminal.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(TEST_TERMINAL_TARGET): $(TEST_CORE_OBJ) $(TEST_APP_OBJS) $(TEST_OBJDIR)/test_terminal.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
@@ -137,3 +154,6 @@ docs-pdf:
 	@echo "PDF export complete: docs/pdf/"
 
 .SUFFIXES: .c .C .o
+
+# Zaleznosci od naglowkow wygenerowane przez -MMD
+-include $(shell find $(OBJDIR) -name '*.d' 2>/dev/null)

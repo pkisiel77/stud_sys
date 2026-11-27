@@ -181,7 +181,7 @@ static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int cur
             buf[len++] = ch; buf[len] = 0;
         }
     }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
     if (len <= 0) return current;
     val = atoi(buf);
@@ -211,7 +211,7 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
             tmp[len++] = ch; tmp[len] = 0;
         }
     }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
+    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
     if (len > 0) {
         snprintf(buf, (size_t)max_len, "%s", tmp);
@@ -458,13 +458,15 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
                 if (xt < xp + 1) xt = xp + 1;
                 term_type(yp, xt, tytul, 0, attr);
             }
-            for (i = 0; i < count; i++)
+            /* czyscimy cale wnetrze okna: po zmianie rozmiaru listy nie moze
+               zostac fragment ramki poprzedniego, mniejszego okna */
+            for (i = 0; i < ym - yp - 1; i++)
             {
                 int y = yp + 1 + i;
                 int x;
                 att = (i == sel) ? at_wpis : attr;
                 for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
-                term_type(y, xp + 1, prev[i], 0, att);
+                if (i < count) term_type(y, xp + 1, prev[i], 0, att);
             }
             term_cur(yp + 1 + sel, xp + 2);
             term_flush();

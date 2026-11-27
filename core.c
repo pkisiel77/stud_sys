@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
 {
     (void)argc; (void)argv;
     int ret, Ret, l_poz_menu, y_logo = 3;
+    int poz_menu = 0; /* pozycja kursora w menu (Ret to numer uslugi) */
     char* graf_text[2] = {L_CORE_MODE_GRAPH, L_CORE_MODE_TEXT};
     char* menu_view[L_SYS + 3];
     int menu_map[L_SYS + 3];
@@ -74,8 +75,9 @@ int main(int argc, char* argv[])
             int y_menu;
             y_menu = MY_MAX - l_poz_menu - 10;
             if (y_menu - (y_logo + 10) > 1) y_menu = y_logo + 11;
-            Ret = okno_menu(menu_view, l_poz_menu, Ret, attr, at_wpis, y_menu, 25, -1, L_CORE_MAIN_MENU_TITLE, 1);
+            poz_menu = okno_menu(menu_view, l_poz_menu, poz_menu, attr, at_wpis, y_menu, 25, -1, L_CORE_MAIN_MENU_TITLE, 1);
         }
+        Ret = poz_menu;
         if (Ret < 0)
         {
             break;
