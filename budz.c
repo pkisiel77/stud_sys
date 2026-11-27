@@ -364,6 +364,7 @@ static void budz_format_pozostalo(float delay, char *buf, size_t buflen)
     hh = total / 3600L;
     mm = (total % 3600L) / 60L;
     ss = total % 60L;
+    if (hh > 99) hh = 99; /* budzik dziala w obrebie doby; pole ma 2 cyfry */
     if (hh > 0)
         snprintf(buf, buflen, "%02ld:%02ld:%02ld", hh, mm, ss);
     else
@@ -416,6 +417,7 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
         {
             len = snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_EXIT);
         }
+        if (len >= (int)sizeof(rows[i])) len = (int)sizeof(rows[i]) - 1;
         if (len > maxlen) maxlen = len;
     }
     xm = xp + maxlen + 3;
@@ -438,7 +440,8 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
                     char pozostal[20];
                     struct budzik* B = (struct budzik*)(lista[i]->data);
                     budz_format_pozostalo(budz_pozostalo_teraz(lista[i]), pozostal, sizeof(pozostal));
-                    snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33s",
+                    /* linia menu: nazwa celowo ucinana, by zmiescic sie w 79 kolumnach */
+                    snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33.40s",
                              B->godz, B->min, pozostal, B->nazwa);
                     txt = rows[i];
                 }
@@ -454,7 +457,7 @@ static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *t
                 }
                 if (strncmp(prev[i], txt, sizeof(prev[i])) != 0)
                 {
-                    snprintf(prev[i], sizeof(prev[i]), "%s", txt);
+                    snprintf(prev[i], sizeof(prev[i]), "%.*s", (int)sizeof(prev[i]) - 1, txt);
                     need_redraw = 1;
                 }
             }

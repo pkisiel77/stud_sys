@@ -11,6 +11,7 @@ set(CMAKE_C_EXTENSIONS ON)
 set(STUDSYS_LANG "PL" CACHE STRING "TUI language: PL or EN")
 set_property(CACHE STUDSYS_LANG PROPERTY STRINGS PL EN)
 option(STUDSYS_MQTT "Enable MQTT support through Eclipse Paho MQTT C" OFF)
+option(STUDSYS_WERROR "Treat compiler warnings as errors" OFF)
 
 string(TOUPPER "${STUDSYS_LANG}" STUDSYS_LANG_NORMALIZED)
 if(NOT STUDSYS_LANG_NORMALIZED MATCHES "^(PL|EN)$")
@@ -34,10 +35,12 @@ target_compile_definitions(studsys_build_options INTERFACE
 target_compile_options(studsys_build_options INTERFACE
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wall>
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wextra>
-    $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-format>
-    $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-pointer-sign>
-    $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-comment>
 )
+if(STUDSYS_WERROR)
+    target_compile_options(studsys_build_options INTERFACE
+        $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Werror>
+    )
+endif()
 target_link_libraries(studsys_build_options INTERFACE ${CURSES_LIBRARIES})
 if(UNIX)
     target_link_libraries(studsys_build_options INTERFACE m)

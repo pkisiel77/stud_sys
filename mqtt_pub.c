@@ -49,6 +49,16 @@ static void mqtt_zapisz_konfig(const struct mqtt_cfg *cfg)
     fclose(fp);
 }
 
+/* Kopiuje wartosc z pliku konfiguracyjnego. Za dluga wartosc jest pomijana
+   (zostaje poprzednia/domyslna), bo ucieta nazwa hosta czy haslo i tak
+   bylyby bledne. */
+static void mqtt_kopiuj_pole(char *dst, size_t n, const char *val)
+{
+    size_t len = strlen(val);
+    if (len >= n) return;
+    memcpy(dst, val, len + 1);
+}
+
 static void mqtt_wczytaj_konfig(struct mqtt_cfg *cfg)
 {
     char line[256], key[64], val[192];
@@ -56,12 +66,12 @@ static void mqtt_wczytaj_konfig(struct mqtt_cfg *cfg)
     if (fp == NULL) return;
     while (fgets(line, sizeof(line), fp)) {
         if (sscanf(line, "%63[^=]=%191[^\n]", key, val) != 2) continue;
-        if      (!strcmp(key, "broker"))    snprintf(cfg->broker,    sizeof(cfg->broker),    "%s", val);
+        if      (!strcmp(key, "broker"))    mqtt_kopiuj_pole(cfg->broker, sizeof(cfg->broker), val);
         else if (!strcmp(key, "port"))      cfg->port      = atoi(val);
-        else if (!strcmp(key, "topic"))     snprintf(cfg->topic,     sizeof(cfg->topic),     "%s", val);
-        else if (!strcmp(key, "client_id")) snprintf(cfg->client_id, sizeof(cfg->client_id), "%s", val);
-        else if (!strcmp(key, "user"))      snprintf(cfg->user,      sizeof(cfg->user),      "%s", val);
-        else if (!strcmp(key, "password"))  snprintf(cfg->password,  sizeof(cfg->password),  "%s", val);
+        else if (!strcmp(key, "topic"))     mqtt_kopiuj_pole(cfg->topic, sizeof(cfg->topic), val);
+        else if (!strcmp(key, "client_id")) mqtt_kopiuj_pole(cfg->client_id, sizeof(cfg->client_id), val);
+        else if (!strcmp(key, "user"))      mqtt_kopiuj_pole(cfg->user, sizeof(cfg->user), val);
+        else if (!strcmp(key, "password"))  mqtt_kopiuj_pole(cfg->password, sizeof(cfg->password), val);
         else if (!strcmp(key, "qos"))       cfg->qos      = atoi(val);
         else if (!strcmp(key, "node_id"))   cfg->node_id  = atoi(val);
         else if (!strcmp(key, "interval"))  cfg->interval = atoi(val);
