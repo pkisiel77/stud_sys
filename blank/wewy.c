@@ -453,7 +453,7 @@ D:
                 goto P;
             }
             break;
-        case 'g': ff = 2;
+        case 'g': ff = 2; /* fall through */
         case 'f':
             if (znaki_liczby(sl, ff) == 1)
             {
@@ -729,7 +729,7 @@ D:
                 goto P;
             }
             break;
-        case 'g': ff = 2;
+        case 'g': ff = 2; /* fall through */
         case 'f':
             if (znaki_liczby(sl, ff) == 1)
             {
@@ -815,7 +815,7 @@ int szukaj_znak(char *text,char znak)
 /*------------------------------------------------------------------------*/
 int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
 {
-    int lz, nEOS = 0, lzp = 0, x, x_pocz, start = 0, ccx, i;
+    int lz, nEOS = 0, lzp = 0, x, x_pocz, start = 0, ccx;
     int y_cursor, x_cursor, x_cur0, x_curM, y_cur0, y_curM;
     unsigned int c, cc, attr_old;
     lticks_min = kbtickm;
@@ -1132,7 +1132,7 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
 /*------------------------------------------------------------------------*/
 int czytaj_has(char* text, int lz0, int liczba_znakow)
 {
-    int lz, nEOS = 0, lzp = 0, x, x_pocz, start = 0, i;
+    int lz, nEOS = 0, lzp = 0, x, x_pocz, start = 0;
     int y_cursor, x_cursor, x_cur0, x_curM, y_cur0, y_curM;
     unsigned int c, cc, attr_old;
     lticks_min = kbtickm;
@@ -1930,7 +1930,7 @@ int zamknij_jeden_wykres(void* R, pid_t pid)
 /*====================================================================== */
 int Term_Typef(int y, int x, char* text, int lenth, unsigned int attr)
 {
-    int cc, l, i;
+    int l, i;
     /*  if(x<X_L0) x=X_L0; if(x>MX_MAX) x=MX_MAX;
         if(y<Y_G0) y=Y_G0; if(y>MY_MAX) y=MY_MAX;
     */
@@ -1963,7 +1963,7 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
 {
     unsigned int att;
     int k_inv, i, y, dl_tyt, l_linii, k, tx_size, ret, ip, k_ost;
-    int xp, xm, yp, ym, Ym, y_kur, x_kur, n, ik, x, ip_old;
+    int xp, xm, yp, ym, Ym, y_kur = 0, x_kur = 0, n, ik, x, ip_old;
     char znak, **buf, *text, *koniec = "<Esc>", jest;
     if (Xp < X_L0) Xp = X_L0;
     if (Xm > MXR_MAX) Xm = MXR_MAX;
@@ -2144,7 +2144,7 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
 
                 switch (ret)
                 {
-                case NLCR: ret = CR/*Get_Char()*/;
+                case NLCR: ret = CR/*Get_Char()*/; /* fall through */
                 case CR: if (k_inv == kmax) ret = Esc;
                     goto D;
                 case Esc: ret = Esc;
@@ -2201,7 +2201,6 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
 /* ===================================================================== */
 void maluj_ramke(int yp, int xp, int ym, int xm, unsigned int attr)
 {
-    int i;
     if (xp < X_L0) xp = X_L0;
     if (yp < Y_G0) yp = Y_G0;
     if (xm > MXR_MAX) xm = MXR_MAX;
@@ -2281,7 +2280,7 @@ void clr_Okno(void)
 int komunikat(int y, int x, unsigned int attr, char* format, ...)
 {
     int l, i = 0, max_len;
-    char bufor[120], *text = NULL;
+    char bufor[120];
     va_list arg;
     va_start(arg, format);
     vsnprintf(bufor, sizeof(bufor), format, arg);
@@ -2683,7 +2682,7 @@ int otworz_raporty(char nr_op)
 signed char zamknij_blankiet(int* nr_rekordu)
 {
     int i, k;
-    signed char nr_raportu = -1, ramka;
+    signed char nr_raportu = -1;
     struct okno *ok, *Okn;
     i = 0;
     k = 0;
@@ -2779,7 +2778,6 @@ signed char zamknij_blankiet(int* nr_rekordu)
     {
         Czy_Blankiet_otwarty = 2;
         Ok = BL[nr_blank]->Okbl;
-        ramka = BL[nr_blank]->ramka;
         Akt_Kolor = BL[nr_blank]->Kolor;
         X_maxBlank = BL[nr_blank]->X_max;
         X_0 = BL[nr_blank]->X_0;
@@ -2823,14 +2821,15 @@ signed char zamknij_blankiet(int* nr_rekordu)
 		if(ret<-1) liczba=w_def;\
 		break;\
 	 }\
-	if(liczba<w_min) liczba=w_min; if(liczba>w_max) liczba=w_max;\
+	if(liczba<w_min) liczba=w_min;\
+	if(liczba>w_max) liczba=w_max;\
 	term_printf(y,x0,attryb,format,liczba);\
 	attryb=attr_old;	term_color(attryb);
 /* --------------------- KONIEC MACRA ----------------------------- */
 char ustaw_buf_wpisu(int y, int x, char* monit, int* size,
                      unsigned int attr_monit, unsigned int attr_wpis)
 {
-    int dl, dlug, x0;
+    int dl, dlug;
     char znak = 0;
     wewy_abort_off();
     INSERT = 1;
@@ -2874,7 +2873,7 @@ int wczytaj_int(int y, int x, char* monit, int size, int w_def,
                 int w_min, int w_max,
                 unsigned int attr_monit, unsigned int attr_wpis)
 {
-    int x0, ret, i;
+    int x0, ret;
     char buf[WLMAX], format[20], oblig = 0;
     int liczba;
     unsigned int attr_old;
@@ -2905,7 +2904,7 @@ float wczytaj_float(int y, int x, char* monit, int size, int prec,
                     float w_def, float w_min, float w_max,
                     unsigned int attr_monit, unsigned int attr_wpis)
 {
-    int x0, ret, i;
+    int x0, ret;
     char buf[WLMAX], format[20], oblig = 0;
     float liczba;
     unsigned int attr_old;
@@ -2938,7 +2937,7 @@ char wczytaj_char(int y, int x, char* monit, unsigned char w_def,
 {
     unsigned int attr_old;
     unsigned char format[5], buf[2], liczba, w_min = 0, w_max = 'z';
-    int oblig = 0, size = 1, x0, ret, i;
+    int oblig = 0, size = 1, x0, ret;
     if (!isalnum(w_def)) { w_def = w_max; }
     attr_old = attryb;
     liczba = w_def;
@@ -2954,9 +2953,8 @@ char wczytaj_string(int y, int x, char* monit, char* text, int size,
                     unsigned int attr_monit, unsigned int attr_wpis)
 {
     int x0, ret, strl, i;
-    char buf[WLMAX], *format, oblig = 0;
+    char buf[WLMAX], oblig = 0;
     unsigned int attr_old;
-    unsigned char liczba, w_min = 0, w_max = 128;
     if (text == NULL) return 0;
     if (size >= WLMAX) size = WLMAX - 1;
     attr_old = attryb;
@@ -3572,10 +3570,10 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
 {
     unsigned int att;
     int k_inv, i, id, y, l_linii, k, tx_size, ret, ip, kmax, nr, k_ost, nrh;
-    int xp, xpf, xm, yp, ym, yd, Ym, y_kur, x_kur, n, ik, x, ind, ip_old, ind_size;
+    int xp, xpf = 0, xm, yp, ym, yd, Ym, y_kur = 0, x_kur = 0, n, ik, x, ind, ip_old, ind_size;
     char znak, **buf, *koniec = "<Esc>", form_dat[10], *form_d, *menu, *zle, jest;
     int dl_tyt = 0, opcja0 = 0;
-    float w, *wart;
+    float w, *wart = NULL;
     char err = 0;
     struct dane_wpisu* dw;
     dw = (struct dane_wpisu*)index_helpu;
@@ -3859,7 +3857,7 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
                 ret = ret & 0x00ff; /*printf("\n znak=%d",ret); */
                 switch (ret)
                 {
-                case NLCR: ret = CR/*Get_Char()*/;
+                case NLCR: ret = CR/*Get_Char()*/; /* fall through */
                 case CR:
                     if (k_inv == kmax) ret = Esc;
                     else
@@ -3953,7 +3951,7 @@ int okno_tabl_znak(signed char wpis, int y, int x0,
     char znk, znp, znf, sukces, *znak, hash = '*';
     char *buffer, opis_danej[80], nznak, *taknie = "<t/n>? ";
     char f_nazwy[40], *f_ind = NULL, *fk_nazwy = NULL, *fmon;
-    int xmax, xp, i, k, x_konc, zn, znw, xd, lopt, iopt;
+    int xmax, xp, i, k, x_konc, zn, znw, lopt, iopt;
     int iobl, dltn = 0, dx_ind = 0, x, ind_size, dl_zakr;
     unsigned int att;
     char blok = 0;
@@ -3984,7 +3982,6 @@ int okno_tabl_znak(signed char wpis, int y, int x0,
     else nznak = *znak;
     znakp = nznak;
     iopt = 0;
-    xd = xp;
     dlopt = 0;
     for (i = 0; i < 100; i++) { if (opcje[i] == EOS) break; }
     if (i == 100) i = 0;
@@ -4021,7 +4018,6 @@ int okno_tabl_znak(signed char wpis, int y, int x0,
 OP:
     term_type(y, xp, &nznak, 1, attr_d); /* wydruk objasnienia znaku */
     sukces = 0;
-    xd = m_wherex() - 1;
     if (size > 0 && nznak != ' ')
     {
         term_type(y, m_wherex(), " ", 1, attrtx);
@@ -4320,11 +4316,11 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
               int ind, int Skok, void* R, char* help[], int max_x)
 {
     int i, k, nrzm, typ, xk, dlfor, l_opcji, koniec;
-    long int skok, shift;
+    long int skok = 0, shift;
     int dnrz = 0, nrz;
     char *format, *dana, *form, *fm, znak, text[80], *fdanej, kod, **menu;
     char *brak[1] = {" !? "}, *zn, f_bledu[10], wzor;
-    int lenth;
+    int lenth = 80;
     unsigned long int Dana;
     format = (char*)help[0];
     max_x++;
@@ -4363,7 +4359,6 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 /* fprintf(mystderr,"\nret.szukaj: format=%s %d",format,m_wherex()); */
                 return m_wherex();
             }
-            else;
             form = fm + 1;
             typ = czy_format(fm, &koniec);
         }
@@ -5021,7 +5016,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
     char textn[80], *buffer, *taknie = "<t/n>? ";
     int xmax, xp, ins, i, k, im = 0, x_konc, zn, txl, dltn = 0, dlstr, ms;
     char blok = 0;
-    void* Rh = NULL; /*, *Rh=NULL; / * ???? */
     if (wpis < -2)
     {
         blok = 1;
@@ -5138,7 +5132,7 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
             else
             {
                 int w_min, w_max, size_helpu = 0, sizh, k, xmax_h;
-                char *buf = NULL, index_helpu = 0;
+                char *buf = NULL;
                 w_min = 0;
                 w_max = l_opcji - 1;
                 k = term_save_image(y + 1, xmax - size, taknie, 0);
@@ -5311,14 +5305,14 @@ void def_haslo(char* hasl, char* kod)
             hasl[10] = EOS;
             l = 10;
         }
-        przepisz(haslo[lhasel], hasl, l + 1);
+        przepisz(haslo[(unsigned char)lhasel], hasl, l + 1);
         l = strlen(kod);
         if (l > 20)
         {
             kod[20] = EOS;
             l = 20;
         }
-        przepisz(kod_o[lhasel], kod, l + 1);
+        przepisz(kod_o[(unsigned char)lhasel], kod, l + 1);
         lhasel++;
     }
 }
@@ -5383,7 +5377,6 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
             for (i = 0; i < lhasel; i++)
             {
                 sukces = 1;
-                if (haslo[i] == NULL) continue;
                 lh = strlen(haslo[i]);
                 if (lh == 0) continue;
                 for (j = 0; j <= lh; j++)
@@ -5436,7 +5429,7 @@ char wpisz_haslo(char** kod_operat, signed char potrzebne_uprawn,
 
 int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
 {
-    char *h, buf[10], znak, *form, sukces;
+    char buf[10], znak, *form, sukces;
     int i, l, j, ret, lh, poziom_upr;
     unsigned int attrtx = TERM_WHITE | MTERM_HILIGHT | TERM_GREEN_BG;
     unsigned int attr_o = TERM_WHITE | TERM_MAGENTA_BG;
@@ -5474,7 +5467,6 @@ int ustaw_uprawnienia(char* tytul, char potrzebne_uprawn, char nr_oper)
             for (i = 0; i < lhasel; i++)
             {
                 sukces = 1;
-                if (haslo[i] == NULL) continue;
                 lh = strlen(haslo[i]);
                 if (lh == 0) continue;
                 for (j = 0; j <= lh; j++)
@@ -5757,7 +5749,7 @@ char* zwolnij_baze(struct reports* R)
 /* ----------------- 28.08.00 ----------------------------------- */
 void zamknij_rap_kod(int kod_raportu)
 {
-    int i = 0, j, lrek, ret = 0, Ret, poprz_dec = 0, wymag_uprawn, zmiany;
+    int i = 0, j, lrek;
     struct reports* R;
     for (i = 0; i < LRAP_BL; i++)
     {
@@ -5805,14 +5797,14 @@ void zamknij_raporty(void) { zamkniecie_raportow(0); }
 
 int zamknij_system_raportow(void)
 {
-    char opcja = 1, i, k;
+    char opcja = 1;
     if (blokada_zapisu == ZAPIS_WSZYSTKICH_RAZEM) opcja = 0;
     return zamkniecie_raportow(opcja);
 }
 
 int zamkniecie_raportow(char kontr_spojnosci)
 {
-    int i = 0, j, lrek, ret = 0, Ret, poprz_dec = 0, wymag_uprawn, zmiany;
+    int i = 0, j, lrek, ret = 0, Ret, poprz_dec = 0, wymag_uprawn = -1, zmiany;
     struct reports* R;
     if (nr_blank >= 0)
     {
@@ -6269,7 +6261,6 @@ char* czy_zdefiniowany(signed char kod_raportu, int* ob_pocz, int* ob_konc,
                        int* rozmiar_ob)
 {
     int i;
-    char* D;
     struct reports* R;
     *rozmiar_ob = 0;
     for (i = 0; i < LRAP_BL; i++)
@@ -6281,7 +6272,6 @@ char* czy_zdefiniowany(signed char kod_raportu, int* ob_pocz, int* ob_konc,
         *ob_pocz = R->ob_pocz;
         *ob_konc = R->ob_konc;
         *rozmiar_ob = R->rozmiar_ob;
-        D = R->D;
         return ustal_adres_rek(kod_raportu, 0);
     }
     return NULL;
@@ -6362,21 +6352,20 @@ void odnow_blankiet(int kod_raportu, int nr_rekordu)
 
 void tytul_raportu(int kod_raportu, char* tytul)
 {
-    int i, nr_bl, nr_rap;
+    int i;
     struct reports* R = NULL;
     for (i = 0; i < LRAP_BL; i++)
     {
         if (RAP[i] == NULL) continue;
         if (RAP[i]->kod_raportu != kod_raportu) continue;
         R = RAP[i];
-        nr_rap = i;
         R->tytul = tytul;
     }
 }
 
 void wpisz_rek_konc_raportu(int kod_raportu, int rek_pocz, int rek_konc)
 {
-    int i, nr_bl, nr_rap;
+    int i;
     struct reports* R = NULL;
     for (i = 0; i < LRAP_BL; i++)
     {
@@ -6397,7 +6386,7 @@ static int total_size = 0;
 void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
 {
     long int i, ds;
-    char *buf, *adr_buf, **poprz_adr, znak = 0, k;
+    char *buf, *adr_buf, znak = 0;
     struct reports* R = NULL;
     struct lista* l;
     if (strlen(txt) > TXM)
@@ -6508,8 +6497,7 @@ struct lista* szukaj_adr_alloc(int kod_raportu, char* txt,
 void* free_rep_mem(void* adres, int kod_raportu, int rekord, char* txt)
 {
     (void)rekord;
-    int i, liczba;
-    char* buf;
+    int liczba;
     struct lista *l, *lp;
     lp = szukaj_adr_alloc(kod_raportu, txt, "free", adres, &liczba);
     if (lp == NULL || liczba < 0) return adres;
@@ -6523,8 +6511,7 @@ void* free_rep_mem(void* adres, int kod_raportu, int rekord, char* txt)
 
 void* free_all_rep_mem(struct reports* R)
 {
-    int i, liczba, ds;
-    char *buf, *adr_poprz, znak = 0;
+    int ds;
     struct lista *l, *lp;
     lp = (struct lista*)&R->bufs;
     ds = sizeof(struct lista);
@@ -6545,7 +6532,6 @@ void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
     (void)rekord;
     int i, liczba;
     char znak = 0, *bufn, *dalej;
-    struct reports* R = NULL;
     struct lista *l, *lp;
     if (strlen(txt) > TXM)
     {
@@ -6587,7 +6573,6 @@ void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
 void wpisz_adr_danych_raportu(int kod_raportu, char* D)
 {
     int i;
-    struct reports* R = NULL;
     for (i = 0; i < LRAP_BL; i++)
     {
         if (RAP[i] == NULL) continue;
@@ -6622,7 +6607,7 @@ int Zapisz_raport(int kod_raportu)
 /* ------------------------------------------------------------------- */
 int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
 {
-    signed char nr_raportu, i;
+    signed char nr_raportu = -1, i;
     char zmiany = 0, *kod_operatora, *text = L_WEWY_ALL_REPORTS;
     struct reports* R;
     int lrek, ret = 0;
@@ -6850,7 +6835,7 @@ int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
     struct reports Rd, *R;
     char *help[LHELP];
     va_list _ap;
-    int size,/* wydruk nr'u rekordu gdy >0 */dim = 0, xk, dl_tyt, tx_size, i;
+    int size, /* wydruk nr'u rekordu gdy >0 */dim = 0, xk, tx_size, i;
     va_start(_ap, hformat);
     R = &Rd;
     R->D = (char*)Menu;
@@ -7312,8 +7297,6 @@ int v_tabl_grup(int y, int x, char* monit, int ind_min,
                 int skok, signed char raport, char* hformat, va_list* ap)
 {
     struct okno* ok;
-    int k, lzm;
-    char *f = EOS, *form, typ, *zn;
     if (Ok == NULL)
     {
         komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
@@ -8242,7 +8225,7 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     struct okno* ok;
     signed char nr_raportu;
     int rozmiar_ob, l_danych, ypocz;
-    char x_tyt, y_tyt, *d_oryg = NULL, *d_rek = NULL, *zmiany;
+    char x_tyt = 0, y_tyt, *d_oryg = NULL, *d_rek = NULL, *zmiany;
     static int wpisano = 0;
     unsigned int attr, tlo, attr_ok, attr_wp;
     unsigned int text_a, attr_h, attr_d;
@@ -8685,8 +8668,8 @@ char* czy_jest_blankiet(signed char kod_raportu, int* anim_pid, int* nr_ob,
                         char czynny, int yp, int xp, int ym, int xm)
 {
     int ret, ob_p, ob_k, nr_rap, kod_rap, nr_rek;
-    signed char kolor, ramka, nrdan = -1;
-    char* Dane;
+    signed char kolor = -1, ramka = -1, nrdan = -1;
+    char* Dane = NULL;
     int (*def_blankiet)(int, int, int, int, int, int, char*);
 
     /* ----------- Zmienna globalna Czy_Blankiet_otwarty:
@@ -8868,7 +8851,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                   unsigned int attr_inf, int* loblig, signed char* raport,
                   int* wpisano)
 {
-    int znak, stara, nowa, ret, l_oblig, z_menu, y, x, yo, xo, ind, y_shift = 0;
+    int znak, stara, nowa, ret, l_oblig, z_menu, x, yo, xo, ind, y_shift = 0;
     char mod, help, Tabl = 0;
     signed char wp;
     struct okno* ok;
@@ -8901,7 +8884,7 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
         /*if(ok->typ=='F') fprintf(mystderr,"\nwp=%d %s ",wp,ok->format); */
         z_menu = 0;
     P:
-        ret = disp_dana(wp, ok->yo + Y_0, ok->xo + X_0, attr_dat[mod], attr_o[mod], attrtx[mod], ok, y_shift, mod);
+        ret = disp_dana(wp, ok->yo + Y_0, ok->xo + X_0, attr_dat[(unsigned char)mod], attr_o[(unsigned char)mod], attrtx[(unsigned char)mod], ok, y_shift, mod);
         if (wp < -2) wp = -wp;
         if (ret == -1 && wp < 3) return ret;
         if (wp == 1 || wp == -1 || (wp == 4 && wpisano_dana > 0))
@@ -9477,9 +9460,9 @@ void aktualiz_blank(int dana, int liczba, struct okno* okd,
 
 void animuj_blank(int liczba, void* ptrs[])
 {
-    int no, wp, i, y_shift = 0, xkursor, ykursor, yd, mod;
+    int no, wp, i = 0, y_shift = 0, xkursor, ykursor, yd, mod;
     int X_akt0, XX_max, Y_akt0, YY_max;
-    struct okno *ok, *Ok0;
+    struct okno *ok;
     unsigned int attr, attr_d, attr_old;
     if (nr_blank < 0) return;
     xkursor = m_wherex();
@@ -9491,7 +9474,6 @@ void animuj_blank(int liczba, void* ptrs[])
     Y_akt0 = y_akt0;
     YY_max = y_maxOkna;
     //fprintf(mystderr,"\nX_akt0=%d XX_max=%d Y_akt0=%d YY_max=%d xkursor=%d ykursor=%d", X_akt0,XX_max,Y_akt0,Y_max,xkursor,ykursor);
-    Ok0 = BL[nr_blank]->Okbl;
     for (no = 0; no < liczba_danych; no++)
     {
         ok = Ok + no;
@@ -10009,7 +9991,7 @@ int okno_double(signed char wpis, int y, int x0, int size,
         }
         x_konc = m_wherex();
         snprintf(form, (xmax - x0 + 20) - 13, "%s e", monit);
-        form[ms] = '%';
+        form[(unsigned char)ms] = '%';
     WPIS:
         ins = INSERT;
         INSERT = 1;
@@ -10993,14 +10975,14 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
                     float w_min, float w_max, char* format_tabl, char* format_ogr,
                     float baza, float abs_min, float abs_max)
 {
-    float *wart, wartn[30], wmin, wmax, w_abs;
+    float *wart = NULL, wartn[30];
     char *bufor, *format = NULL, text[80], *form = NULL, *c, *fh, typ;
     char zakres[80], *cc, *zz, *taknie = "<t/n>? ", znak;
     char hash = '*', f_nazwy[40], *f_ind = NULL, *fk_nazwy = NULL;
     char *fmon, *f_pocz, opis_danej[80];
-    char help_ogr[80], *format_bazy, *format_tx, *format_wyn, *zakr_abs;
+    char help_ogr[80], *format_bazy = NULL, *format_tx = NULL, *format_wyn = NULL, *zakr_abs = NULL;
     int ret, xmax, xp, xp_ind, xp_naz, i, k, x_konc;
-    int dlh_ogr, ll, l, j, n, poz_wart_abs = 0, txl, iobl = 0, dltn = 0;
+    int dlh_ogr, ll = 0, l, j, n, poz_wart_abs = 0, txl, iobl = 0, dltn = 0;
     int dx_ind, ind_size, dl_zakr, xpp, nrkol, xmax_tab;
     unsigned int attr_t;
     typ = 'f';

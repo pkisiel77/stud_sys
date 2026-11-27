@@ -252,7 +252,7 @@ static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
     }
     term_printf(MY_MAX, X_L0, ATTR_A, "%-79s", " ");
     setcursor(nocursor);
-    if (len > 0) { strncpy(buf, tmp, (size_t)(max_len - 1)); buf[max_len - 1] = 0; }
+    if (len > 0) snprintf(buf, (size_t)max_len, "%s", tmp);
 }
 
 static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
