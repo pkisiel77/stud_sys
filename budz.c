@@ -20,8 +20,155 @@ static struct agenda *Anew = NULL, *Aserv = NULL; /* stan lokalny uslugi budzik 
 static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
 static float budz_pozostalo_teraz(struct agenda *A);
 static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *tytul);
+static void budz_odswiez_ekran(int wymus);
 static struct agenda *budz_kopia_robocza(struct agenda *A);
 static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src);
+/* ============ Widok: lista budzikow i formularz ====================
+   Lista (z odliczaniem) i otwarty formularz rysuje razem
+   budz_odswiez_ekran(), wywolywana co sekunde z kazdej petli czekajacej
+   na klawisz (lista, formularz, pole wpisu). */
+#define BUDZ_NIC (-2) /* budz_klawisz_menu: klawisz obsluzony, nic nie wybrano */
+
+static struct {
+    struct agenda **lista;
+    int nbudz, count, sel;   /* count == 0: lista nie jest wyswietlana */
+    char *tytul;
+    int yp, xp, ym, xm;
+} BW;
+
+static struct {
+    struct budzik *B;
+    char **menu;             /* NULL: formularz zamkniety */
+    char pola[3][80];        /* teksty pol 0-2, wpisywane do menu[0..2] */
+    int nmenu, sel;
+    char *tytul;
+    int yp, xp;
+    char *tlo;               /* ekran pod formularzem (term_save_image) */
+    int tlo_n, tlo_x, tlo_dl;
+} FW;
+
+/* Okno z ramka i tytulem; wiersze od x = xp + dx, podswietlony wiersz sel. */
+static void budz_rysuj_okno(int yp, int xp, int ym, int xm, char *tytul,
+                            char *wiersze[], int n, int sel, int dx)
+{
+    int i, x, y;
+    unsigned int att;
+    Okno(yp, xp, ym, xm, attr);
+    maluj_ramke(yp, xp, ym, xm, attr);
+    if (tytul != NULL) {
+        int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
+        if (xt < xp + 1) xt = xp + 1;
+        term_type(yp, xt, tytul, 0, attr);
+    }
+    for (i = 0; i < ym - yp - 1; i++) {
+        y = yp + 1 + i;
+        att = (i == sel) ? at_wpis : attr;
+        for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
+        if (i < n) term_type(y, xp + dx, wiersze[i], xm - xp - dx, att);
+    }
+    term_cur(yp + 1 + sel, xp + dx + 1);
+}
+
+static void budz_wiersz_listy(int i, char *buf, size_t n)
+{
+    if (i < BW.nbudz) {
+        char pozostal[20];
+        struct budzik *B = (struct budzik *)(BW.lista[i]->data);
+        budz_format_pozostalo(budz_pozostalo_teraz(BW.lista[i]), pozostal, sizeof(pozostal));
+        /* nazwa celowo ucinana, by linia zmiescila sie w 79 kolumnach */
+        snprintf(buf, n, "  %02d:%02d  [%8s]  %-33.40s", B->godz, B->min, pozostal, B->nazwa);
+    } else if (i == BW.nbudz) {
+        snprintf(buf, n, "%s", L_BUDZ_MENU_ADD);
+    } else {
+        snprintf(buf, n, "%s", L_BUDZ_MENU_EXIT);
+    }
+}
+
+static void budz_rysuj_liste(void)
+{
+    char rows[AG_SIZE + 2][80];
+    char *w[AG_SIZE + 2];
+    int i;
+    for (i = 0; i < BW.count; i++) {
+        budz_wiersz_listy(i, rows[i], sizeof(rows[i]));
+        w[i] = rows[i];
+    }
+    budz_rysuj_okno(BW.yp, BW.xp, BW.ym, BW.xm, BW.tytul, w, BW.count, BW.sel, 1);
+}
+
+static void budz_rysuj_formularz(void)
+{
+    char *w[8];
+    int i, n, len, maxlen, xm, ym;
+    snprintf(FW.pola[0], sizeof(FW.pola[0]), L_BUDZ_FIELD_NAME, FW.B->nazwa);
+    snprintf(FW.pola[1], sizeof(FW.pola[1]), L_BUDZ_FIELD_TIME, FW.B->godz, FW.B->min);
+    snprintf(FW.pola[2], sizeof(FW.pola[2]), L_BUDZ_FIELD_EVERY, FW.B->co_ile, FW.B->wyprzedz);
+    n = FW.nmenu < 7 ? FW.nmenu : 7;
+    maxlen = 5; /* "<Esc>" */
+    if (FW.tytul != NULL && (int)strlen(FW.tytul) > maxlen) maxlen = (int)strlen(FW.tytul);
+    for (i = 0; i < n; i++) {
+        w[i] = (i < 3) ? FW.pola[i] : FW.menu[i];
+        len = (int)strlen(w[i]);
+        if (len > maxlen) maxlen = len;
+    }
+    w[n] = "<Esc>";
+    xm = FW.xp + maxlen + 3;
+    if (xm > MXR_MAX) xm = MXR_MAX;
+    ym = FW.yp + n + 2;
+    if (ym > MYR_MAX) ym = MYR_MAX;
+    budz_rysuj_okno(FW.yp, FW.xp, ym, xm, FW.tytul, w, n + 1, FW.sel, 2);
+}
+
+/* Rysuje liste i otwarty formularz: zawsze gdy wymus != 0, poza tym
+   raz na sekunde (odliczanie na liscie). */
+static void budz_odswiez_ekran(int wymus)
+{
+    static time_t ostatnio = 0;
+    time_t teraz = time(NULL);
+    int y, kom;
+    if (!wymus && teraz == ostatnio) return;
+    ostatnio = teraz;
+    if (FW.menu != NULL && FW.tlo != NULL) {
+        /* najpierw tlo: formularz mogl sie zwezic */
+        kom = term_save_image(0, 0, "a", 0);
+        for (y = 0; y < FW.tlo_n; y++)
+            term_restore_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
+    }
+    if (BW.count > 0) budz_rysuj_liste();
+    if (FW.menu != NULL) budz_rysuj_formularz();
+    term_flush();
+}
+
+/* Wspolna obsluga klawiszy listy i formularza.
+   Zwraca wybrana pozycje (Enter), -1 (Esc) albo BUDZ_NIC. */
+static int budz_klawisz_menu(int ch, int *sel, int count)
+{
+    ch &= 0x00ff;
+    switch (ch) {
+    case NLCR:
+    case CR:
+        return *sel;
+    case Esc:
+        return -1;
+    case SPEC:
+        ch = GETchar() & 0x00ff;
+        switch (ch) {
+        case UP:
+        case BBS:  if (--(*sel) < 0) *sel = count - 1; break;
+        case DOWN:
+        case FFR:  if (++(*sel) >= count) *sel = 0; break;
+        case Home: *sel = 0; break;
+        case End:  *sel = count - 1; break;
+        default:   break;
+        }
+        budz_odswiez_ekran(1);
+        break;
+    default:
+        break;
+    }
+    return BUDZ_NIC;
+}
+
 /* ============ Persystencja budzikow ================================ */
 
 struct budz_rekord_pliku {
@@ -171,6 +318,7 @@ static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int cur
     nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
     setcursor(cursor);
     for (;;) {
+        budz_odswiez_ekran(0); /* lista i formularz zostaja na ekranie */
         term_printf(MY_MAX, X_L0, ATTR_A,
                     L_BUDZ_PROMPT_INT, prompt, min_val, max_val, buf);
         ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
@@ -204,6 +352,7 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
     nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
     setcursor(cursor);
     for (;;) {
+        budz_odswiez_ekran(0); /* lista i formularz zostaja na ekranie */
         term_printf(MY_MAX, X_L0, ATTR_A,
                     L_BUDZ_PROMPT_TXT, prompt, tmp);
         ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
@@ -228,38 +377,67 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
 
 /* Formularz edycji jednego budzika.
    Zwraca indeks wybranej pozycji (>= 3 = akcja, < 0 = Escape). */
+/* Formularz edycji jednego budzika (pola 0-2, dalej akcje z menu[]).
+   Zwraca indeks wybranej akcji (>= 3) albo -1 dla Esc.
+   Formularz rysuje budz_odswiez_ekran(), wiec zostaje widoczny takze
+   podczas wpisywania wartosci, a lista pod nim dalej odlicza. */
 static int budz_formularz(struct agenda *A, struct budzik *B,
-                           char *tytul, char **menu, int nmenu)
+                          char *tytul, char **menu, int nmenu)
 {
     (void)A;
-    char e0[80], e1[80], e2[80];
-    int ew = 0, w;
-    for (;;) {
-        snprintf(e0, sizeof(e0), L_BUDZ_FIELD_NAME, B->nazwa);
-        snprintf(e1, sizeof(e1), L_BUDZ_FIELD_TIME, B->godz, B->min);
-        snprintf(e2, sizeof(e2), L_BUDZ_FIELD_EVERY,
-                 B->co_ile, B->wyprzedz);
-        menu[0] = e0; menu[1] = e1; menu[2] = e2;
-        w = okno_menu(menu, nmenu, ew, attr, at_wpis,
-                      Y_G0 + 2, X_L0 + 2, -1, tytul, 1);
-        ew = (w >= 0) ? w : 0;
+    int w, ch, y, kom;
+
+    FW.B = B; FW.menu = menu; FW.nmenu = nmenu; FW.sel = 0; FW.tytul = tytul;
+    /* pod lista, zeby bylo widac jej odliczanie; gdy sie nie miesci -
+       na liscie, jak dawniej */
+    FW.yp = Y_G0 + 2; FW.xp = X_L0 + 2;
+    if (BW.count > 0 && BW.ym + 1 + nmenu + 2 <= MYR_MAX) FW.yp = BW.ym + 1;
+    /* tlo pod formularzem: pelna szerokosc, bo szerokosc formularza
+       zmienia sie razem z dlugoscia wpisanej Sprawy */
+    FW.tlo_x = X_L0; FW.tlo_dl = MXR_MAX - X_L0 + 1;
+    FW.tlo_n = nmenu + 3;
+    if (FW.yp + FW.tlo_n - 1 > MYR_MAX) FW.tlo_n = MYR_MAX - FW.yp + 1;
+    kom = term_save_image(0, 0, "a", 0);
+    FW.tlo = (char *)malloc((size_t)FW.tlo_n * FW.tlo_dl * kom);
+    if (FW.tlo != NULL)
+        for (y = 0; y < FW.tlo_n; y++)
+            term_save_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
+
+    w = BUDZ_NIC;
+    while (w == BUDZ_NIC) {
+        budz_odswiez_ekran(1);
+        while ((ch = GET_char()) == -1) budz_odswiez_ekran(0);
+        w = budz_klawisz_menu(ch, &FW.sel, nmenu);
         switch (w) {
         case 0:
             budz_czytaj_text(B->nazwa, sizeof(B->nazwa), L_BUDZ_ASK_NAME);
+            w = BUDZ_NIC;
             break;
         case 1:
             B->godz     = budz_czytaj_int(L_BUDZ_ASK_HOUR, 0, 23, B->godz);
             B->min      = budz_czytaj_int(L_BUDZ_ASK_MIN,  0, 59, B->min);
             B->mod_time = 1;
+            w = BUDZ_NIC;
             break;
         case 2:
             B->co_ile   = budz_czytaj_int(L_BUDZ_ASK_EVERY, 1, 1440, B->co_ile);
             B->wyprzedz = budz_czytaj_int(L_BUDZ_ASK_LEAD,  1, 1440, B->wyprzedz);
+            w = BUDZ_NIC;
             break;
         default:
-            return w; /* akcja lub Escape */
+            break; /* akcja albo Esc (-1) albo nawigacja (BUDZ_NIC) */
         }
     }
+
+    if (FW.tlo != NULL) {
+        for (y = 0; y < FW.tlo_n; y++)
+            term_restore_image(FW.yp + y, FW.tlo_x, FW.tlo + (size_t)y * FW.tlo_dl * kom, FW.tlo_dl);
+        free(FW.tlo);
+        FW.tlo = NULL;
+    }
+    FW.menu = NULL;
+    term_flush();
+    return w;
 }
 
 int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
@@ -291,7 +469,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
         w = budz_menu_live(lista, n, lw, L_BUDZ_LIST_TITLE);
         lw = (w >= 0) ? w : 0;
 
-        if (w < 0 || w == n + 1) return BLANKIET_UI_EXIT;
+        if (w < 0 || w == n + 1) { BW.count = 0; return BLANKIET_UI_EXIT; }
 
         if (w == n) {
             /* ---------- Nowy budzik ---------- */
@@ -375,151 +553,30 @@ static float budz_pozostalo_teraz(struct agenda *A)
 
 static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *tytul)
 {
-    int yp = Y_G0 + 1, xp = X_L0;
-    int count = nbudz + 2;
-    int ym, xm, i, maxlen, ch, sel, need_redraw;
-    unsigned int att;
-    char *koniec = "<Esc>";
-    time_t last_refresh;
-    char rows[AG_SIZE + 3][80];
-    char prev[AG_SIZE + 3][80];
+    char wiersz[80];
+    int i, len, maxlen, ch, w;
 
-    if (count <= 0) return -1;
-    sel = (opcja0 >= 0 && opcja0 < count) ? opcja0 : 0;
-    last_refresh = 0;
-    need_redraw = 1;
-    for (i = 0; i < AG_SIZE + 3; i++) prev[i][0] = EOS;
-    maxlen = (int)strlen(koniec);
+    BW.lista = lista; BW.nbudz = nbudz; BW.count = nbudz + 2; BW.tytul = tytul;
+    BW.sel = (opcja0 >= 0 && opcja0 < BW.count) ? opcja0 : 0;
+    maxlen = 5; /* "<Esc>" */
     if (tytul != NULL && (int)strlen(tytul) > maxlen) maxlen = (int)strlen(tytul);
-    for (i = 0; i < count; i++)
-    {
-        int len;
-        if (i < nbudz)
-        {
-            struct budzik* B = (struct budzik*)(lista[i]->data);
-            len = snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33s",
-                           B->godz, B->min, "00:00", B->nazwa);
-        }
-        else if (i == nbudz)
-        {
-            len = snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_ADD);
-        }
-        else
-        {
-            len = snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_EXIT);
-        }
-        if (len >= (int)sizeof(rows[i])) len = (int)sizeof(rows[i]) - 1;
+    for (i = 0; i < BW.count; i++) {
+        budz_wiersz_listy(i, wiersz, sizeof(wiersz));
+        len = (int)strlen(wiersz);
         if (len > maxlen) maxlen = len;
     }
-    xm = xp + maxlen + 3;
-    if (xm > MXR_MAX) xm = MXR_MAX;
-    ym = yp + count + 2;
-    if (ym > MYR_MAX) ym = MYR_MAX;
+    BW.yp = Y_G0 + 1; BW.xp = X_L0;
+    BW.xm = BW.xp + maxlen + 3;
+    if (BW.xm > MXR_MAX) BW.xm = MXR_MAX;
+    BW.ym = BW.yp + BW.count + 2;
+    if (BW.ym > MYR_MAX) BW.ym = MYR_MAX;
 
-    for (;;)
-    {
-        time_t now;
-        now = time(NULL);
-        if (now != last_refresh)
-        {
-            last_refresh = now;
-            for (i = 0; i < count; i++)
-            {
-                const char *txt = "";
-                if (i < nbudz)
-                {
-                    char pozostal[20];
-                    struct budzik* B = (struct budzik*)(lista[i]->data);
-                    budz_format_pozostalo(budz_pozostalo_teraz(lista[i]), pozostal, sizeof(pozostal));
-                    /* linia menu: nazwa celowo ucinana, by zmiescic sie w 79 kolumnach */
-                    snprintf(rows[i], sizeof(rows[i]), "  %02d:%02d  [%8s]  %-33.40s",
-                             B->godz, B->min, pozostal, B->nazwa);
-                    txt = rows[i];
-                }
-                else if (i == nbudz)
-                {
-                    snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_ADD);
-                    txt = rows[i];
-                }
-                else
-                {
-                    snprintf(rows[i], sizeof(rows[i]), L_BUDZ_MENU_EXIT);
-                    txt = rows[i];
-                }
-                if (strncmp(prev[i], txt, sizeof(prev[i])) != 0)
-                {
-                    snprintf(prev[i], sizeof(prev[i]), "%.*s", (int)sizeof(prev[i]) - 1, txt);
-                    need_redraw = 1;
-                }
-            }
-        }
-
-        if (need_redraw)
-        {
-            Okno(yp, xp, ym, xm, attr);
-            maluj_ramke(yp, xp, ym, xm, attr);
-            if (tytul != NULL)
-            {
-                int xt = xp + ((xm - xp + 1) - (int)strlen(tytul)) / 2;
-                if (xt < xp + 1) xt = xp + 1;
-                term_type(yp, xt, tytul, 0, attr);
-            }
-            /* czyscimy cale wnetrze okna: po zmianie rozmiaru listy nie moze
-               zostac fragment ramki poprzedniego, mniejszego okna */
-            for (i = 0; i < ym - yp - 1; i++)
-            {
-                int y = yp + 1 + i;
-                int x;
-                att = (i == sel) ? at_wpis : attr;
-                for (x = xp + 1; x < xm; x++) term_type(y, x, " ", 1, att);
-                if (i < count) term_type(y, xp + 1, prev[i], 0, att);
-            }
-            term_cur(yp + 1 + sel, xp + 2);
-            term_flush();
-            need_redraw = 0;
-        }
-
+    budz_odswiez_ekran(1);
+    for (;;) {
         ch = GET_char();
-        if (ch == -1) continue;
-        ch &= 0x00ff;
-        switch (ch)
-        {
-        case NLCR:
-        case CR:
-            return sel;
-        case Esc:
-            return -1;
-        case SPEC:
-            ch = GETchar() & 0x00ff;
-            switch (ch)
-            {
-            case UP:
-            case BBS:
-                sel--;
-                if (sel < 0) sel = count - 1;
-                need_redraw = 1;
-                break;
-            case DOWN:
-            case FFR:
-                sel++;
-                if (sel >= count) sel = 0;
-                need_redraw = 1;
-                break;
-            case Home:
-                sel = 0;
-                need_redraw = 1;
-                break;
-            case End:
-                sel = count - 1;
-                need_redraw = 1;
-                break;
-            default:
-                break;
-            }
-            break;
-        default:
-            break;
-        }
+        if (ch == -1) { budz_odswiez_ekran(0); continue; }
+        w = budz_klawisz_menu(ch, &BW.sel, BW.count);
+        if (w != BUDZ_NIC) return w;
     }
 }
 
