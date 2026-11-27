@@ -10,9 +10,8 @@
 #include "loc.h"
 #include "randf.h"
 #include "scheduler.h"
+#include "core.h"
 
-extern unsigned int cursor, nocursor;
-extern int lwmall;
 
 #define L_REP_MAX 5
 

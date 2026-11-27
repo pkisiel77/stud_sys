@@ -14,11 +14,9 @@
 #include "sensor_sim.h"
 #include "loc.h"
 #include "scheduler.h"
+#include "core.h"
 #include "zlecenia.h"
 
-extern struct Service *Service;
-extern unsigned int attr, at_wpis;
-extern int lwmall;
 
 /* stan lokalny uslugi — po jednej kopii na modul (Etap 1a) */
 static struct agenda *Anew = NULL, *Aserv = NULL;

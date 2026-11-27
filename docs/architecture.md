@@ -245,6 +245,7 @@ To były źródła migania i problemów z interfejsem w ostatnich iteracjach.
 ## Pliki kluczowe
 
 - `core.c` - start systemu i główne menu
+- `core.h` - wspólny stan aplikacji dla modułów (`Service`, kolory `attr`/`at_wpis`, `X_time`, ...)
 - `scheduler.c` - scheduler RT: agenda `SysA`, kolejka `SysQ`, cykl życia rekordów
 - `zlecenia.c` - wspólne formularze i decyzje modułów usług (`dane_agendy()`, `decyzje_run()`, ...)
 - `konfig.c` - definicja usług

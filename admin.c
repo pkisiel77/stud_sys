@@ -8,17 +8,12 @@ Autor: gonzo77@poczta.fm
 #include "admin.h"
 #include "loc.h"
 #include "scheduler.h"
+#include "core.h"
 
 void PrzegladajLog(void);//char *buffor[20]);
 int InfoSystem(int ret);
 
 int nr_poz=-1;
-extern struct Service *Service;
-extern struct agenda *Agenda;
-extern unsigned int attr_title;
-extern unsigned int attr, at_wpis;
-extern int X_time, X_tyt;
-extern unsigned int cursor, nocursor;
 
 /* ================================================================ */
 int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
