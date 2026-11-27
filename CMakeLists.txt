@@ -83,6 +83,7 @@ set(STUDSYS_COMMON_SOURCES
     blank/wewy_blankiet.c
     blank/wewy_liczby.c
     budz.c
+    ui_wpis.c
     admin.c
     sys_rap.c
     sprawdz.c

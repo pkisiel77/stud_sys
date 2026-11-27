@@ -3,6 +3,7 @@
 #include "loc.h"
 #include "scheduler.h"
 #include "core.h"
+#include "ui_wpis.h"
 
 #ifdef _MQTT_
 #include <MQTTClient.h>
@@ -234,64 +235,73 @@ int mqtt_main(void *DA)
 }
 
 /* ================================================================ */
-/* Pomocnicze: wczytaj tekst w wierszu statusu                      */
+/* Formularz MQTT: rysuje go mqtt_odswiez_ekran(), wiec zostaje na  */
+/* ekranie takze podczas wpisu wartosci (ui_czytaj_*).              */
 /* ================================================================ */
-static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
+#define MQTT_N_MENU 10
+static struct {
+    struct mqtt_cfg *cfg;   /* NULL: formularz zamkniety */
+    char pola[7][80];
+    char *menu[MQTT_N_MENU];
+    int sel;
+    struct ui_tlo tlo;
+} MW;
+
+/* Licznikami i stanem polaczenia zarzadza zlecenie RT w agendzie;
+   formularz pokazuje je na zywo, gdy zlecenie istnieje. */
+static const struct mqtt_cfg *mqtt_stan_rt(void)
 {
-    char tmp[MQTT_BROKER_LEN];
-    int  len, ch, nowa;
-    strncpy(tmp, buf, sizeof(tmp) - 1);
-    tmp[sizeof(tmp) - 1] = 0;
-    len = (int)strlen(tmp);
-    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
-    setcursor(cursor);
-    for (;;) {
-        term_printf(MY_MAX, X_L0, ATTR_A,
-                    L_BUDZ_PROMPT_TXT, prompt, tmp);
-        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
-        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
-        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
-        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
-        if (ch == 27) { len = -1; break; }
-        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0)
-            { tmp[--len] = 0; nowa = 0; }
-        else if (ch >= 32 && ch < 256 && len < max_len - 1)
-            { if (nowa) { len = 0; nowa = 0; } tmp[len++] = (char)ch; tmp[len] = 0; }
+    int i;
+    for (i = 1; i <= AgendaMax; i++) {
+        struct agenda *A = SysA[i];
+        if (A != NULL && (A->S)->decyzje == dec_mqtt)
+            return (const struct mqtt_cfg *)(A->data);
     }
-    term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
-    setcursor(nocursor);
-    if (len > 0) snprintf(buf, (size_t)max_len, "%s", tmp);
+    return MW.cfg;
 }
 
-static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
+static void mqtt_odswiez_ekran(int wymus)
 {
-    char buf[12];
-    int  len, ch, val, nowa;
-    snprintf(buf, sizeof(buf), "%d", cur);
-    len = (int)strlen(buf);
-    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
-    setcursor(cursor);
-    for (;;) {
-        term_printf(MY_MAX, X_L0, ATTR_A,
-                    L_BUDZ_PROMPT_INT,
-                    prompt, min_v, max_v, buf);
-        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
-        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
-        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
-        if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
-        if (ch == 27) { len = -1; break; }
-        if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0)
-            { buf[--len] = 0; nowa = 0; }
-        else if (ch >= '0' && ch <= '9' && len < (int)(sizeof(buf) - 2))
-            { if (nowa) { len = 0; nowa = 0; } buf[len++] = (char)ch; buf[len] = 0; }
+    static time_t ostatnio = 0;
+    time_t teraz = time(NULL);
+    const struct mqtt_cfg *c = MW.cfg, *rt;
+    char *w[MQTT_N_MENU + 1];
+    int i, len, maxlen, xm, ym, yp = Y_G0 + 1, xp = X_L0;
+    if (c == NULL) return;
+    if (!wymus && teraz == ostatnio) return;
+    ostatnio = teraz;
+    rt = mqtt_stan_rt();
+    snprintf(MW.pola[0], 80, L_MQTT_STATUS_LINE,
+             rt->connected ? L_MQTT_STATE_CONNECTED : L_MQTT_STATE_DISCONNECTED,
+             rt->pub_count, rt->err_count);
+    snprintf(MW.pola[1], 80, L_MQTT_FIELD_BROKER, c->broker);
+    snprintf(MW.pola[2], 80, L_MQTT_FIELD_PORT, c->port);
+    snprintf(MW.pola[3], 80, L_MQTT_FIELD_TOPIC, c->topic);
+    snprintf(MW.pola[4], 80, L_MQTT_FIELD_NODE_ID, c->node_id);
+    snprintf(MW.pola[5], 80, L_MQTT_FIELD_QOS, c->qos);
+    snprintf(MW.pola[6], 80, L_MQTT_FIELD_INTERVAL, c->interval);
+    maxlen = (int)strlen(L_MQTT_TITLE);
+    if (maxlen < 5) maxlen = 5; /* "<Esc>" */
+    for (i = 0; i < MQTT_N_MENU; i++) {
+        w[i] = (i < 7) ? MW.pola[i] : MW.menu[i];
+        len = (int)strlen(w[i]);
+        if (len > maxlen) maxlen = len;
     }
+    w[MQTT_N_MENU] = "<Esc>";
+    xm = xp + maxlen + 3;
+    if (xm > MXR_MAX) xm = MXR_MAX;
+    ym = yp + MQTT_N_MENU + 2;
+    if (ym > MYR_MAX) ym = MYR_MAX;
+    ui_przywroc_tlo(&MW.tlo); /* formularz mogl sie zwezic */
+    ui_rysuj_okno(yp, xp, ym, xm, L_MQTT_TITLE, w, MQTT_N_MENU + 1, MW.sel, 2);
+    term_flush();
+}
+
+/* Komunikat w wierszu statusu, czeka na klawisz */
+static void mqtt_komunikat_status(void)
+{
+    ui_czekaj_klawisz(mqtt_odswiez_ekran);
     term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
-    setcursor(nocursor);
-    if (len <= 0) return cur;
-    val = atoi(buf);
-    if (val < min_v) val = min_v;
-    if (val > max_v) val = max_v;
-    return val;
 }
 
 /* ================================================================ */
@@ -302,9 +312,7 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                   int kod_uslugi, char *adres_rek0_uslugi)
 {
     struct mqtt_cfg cfg;
-    char m0[80], m1[80], m2[80], m3[80], m4[80], m5[80], m6[80];
-    char *menu[10];
-    int  w, lw = 0;
+    int  w;
 
     (void)nr_rekordu; (void)ob_pocz;  (void)ob_konc;
     (void)x_lewy_gorny; (void)y_lewy_gorny;
@@ -320,44 +328,34 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
 #endif
 
     /* Statyczne pozycje akcji */
-    menu[7] = L_MQTT_MENU_CONNECT;
-    menu[8] = L_MQTT_MENU_DISCONNECT;
-    menu[9] = L_BUDZ_MENU_EXIT;
+    MW.menu[7] = L_MQTT_MENU_CONNECT;
+    MW.menu[8] = L_MQTT_MENU_DISCONNECT;
+    MW.menu[9] = L_BUDZ_MENU_EXIT;
+    MW.cfg = &cfg;
+    MW.sel = 0;
+    ui_zapamietaj_tlo(&MW.tlo, Y_G0 + 1, MQTT_N_MENU + 3);
 
     for (;;) {
-        /* Wypelnij dynamiczne pola */
-        snprintf(m0, 80, L_MQTT_STATUS_LINE,
-                 cfg.connected ? L_MQTT_STATE_CONNECTED : L_MQTT_STATE_DISCONNECTED,
-                 cfg.pub_count, cfg.err_count);
-        snprintf(m1, 80, L_MQTT_FIELD_BROKER, cfg.broker);
-        snprintf(m2, 80, L_MQTT_FIELD_PORT, cfg.port);
-        snprintf(m3, 80, L_MQTT_FIELD_TOPIC, cfg.topic);
-        snprintf(m4, 80, L_MQTT_FIELD_NODE_ID, cfg.node_id);
-        snprintf(m5, 80, L_MQTT_FIELD_QOS, cfg.qos);
-        snprintf(m6, 80, L_MQTT_FIELD_INTERVAL, cfg.interval);
-        menu[0] = m0;
-        menu[1] = m1;
-        menu[2] = m2;
-        menu[3] = m3;
-        menu[4] = m4;
-        menu[5] = m5;
-        menu[6] = m6;
+        w = ui_klawisz_menu(ui_czekaj_klawisz(mqtt_odswiez_ekran), &MW.sel,
+                            MQTT_N_MENU, mqtt_odswiez_ekran);
+        if (w == UI_NIC) continue;
 
-        if (lw > 9) lw = 0;
-        w = okno_menu(menu, 10, lw, attr, at_wpis,
-                      Y_G0 + 1, X_L0, -1, L_MQTT_TITLE, 1);
-        lw = (w >= 0) ? w : 0;
-
-        if (w < 0 || w == 9) return BLANKIET_UI_EXIT;
+        if (w < 0 || w == 9) {
+            ui_przywroc_tlo(&MW.tlo);
+            ui_zwolnij_tlo(&MW.tlo);
+            MW.cfg = NULL;
+            term_flush();
+            return BLANKIET_UI_EXIT;
+        }
 
         switch (w) {
         case 0: break; /* Status — tylko podglad */
-        case 1: mqtt_czytaj_text(cfg.broker,    sizeof(cfg.broker),    L_MQTT_PROMPT_BROKER); break;
-        case 2: cfg.port     = mqtt_czytaj_int(L_MQTT_PROMPT_PORT,    1, 65535, cfg.port);    break;
-        case 3: mqtt_czytaj_text(cfg.topic,     sizeof(cfg.topic),     L_MQTT_PROMPT_TOPIC);  break;
-        case 4: cfg.node_id  = mqtt_czytaj_int(L_MQTT_PROMPT_NODE_ID, 1, 9999,  cfg.node_id); break;
-        case 5: cfg.qos      = mqtt_czytaj_int(L_MQTT_PROMPT_QOS,     0, 2,     cfg.qos);    break;
-        case 6: cfg.interval = mqtt_czytaj_int(L_MQTT_PROMPT_INTERVAL, 1, 3600, cfg.interval); break;
+        case 1: ui_czytaj_text(cfg.broker,    sizeof(cfg.broker),    L_MQTT_PROMPT_BROKER, mqtt_odswiez_ekran); break;
+        case 2: cfg.port     = ui_czytaj_int(L_MQTT_PROMPT_PORT,    1, 65535, cfg.port, mqtt_odswiez_ekran);    break;
+        case 3: ui_czytaj_text(cfg.topic,     sizeof(cfg.topic),     L_MQTT_PROMPT_TOPIC, mqtt_odswiez_ekran);  break;
+        case 4: cfg.node_id  = ui_czytaj_int(L_MQTT_PROMPT_NODE_ID, 1, 9999,  cfg.node_id, mqtt_odswiez_ekran); break;
+        case 5: cfg.qos      = ui_czytaj_int(L_MQTT_PROMPT_QOS,     0, 2,     cfg.qos, mqtt_odswiez_ekran);    break;
+        case 6: cfg.interval = ui_czytaj_int(L_MQTT_PROMPT_INTERVAL, 1, 3600, cfg.interval, mqtt_odswiez_ekran); break;
 
         case 7: /* Polacz i zapisz */
             snprintf(cfg.client_id, sizeof(cfg.client_id), "stud_sys_%d", cfg.node_id);
@@ -393,14 +391,12 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                 term_printf(MY_MAX, X_L0, ATTR_A,
                             L_MQTT_OK_MSG,
                             cfg.broker, cfg.port, cfg.topic, cfg.node_id);
-                GET_char();
-                term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
+                mqtt_komunikat_status();
             } else {
                 term_printf(MY_MAX, X_L0, ATTR_A,
                             L_MQTT_ERR_MSG,
                             cfg.broker, cfg.port, cfg.err_count);
-                GET_char();
-                term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
+                mqtt_komunikat_status();
             }
             /* Synchronizuj stan z agenda */
             {
