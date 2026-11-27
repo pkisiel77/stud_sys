@@ -19,7 +19,7 @@ Pozostałe usługi (np. `MQTT Publisher`) są ukryte, ale logika systemu pozosta
 Formularz budzika ma pola `Sprawa`, `Godzina` oraz `Co ile` / `wyprzedz`.
 Kursor na polu, `Enter`, wpisz wartość na dole ekranu, `Enter`.
 
-Monity zaczynają się `Wyprzedzenie` minut przed `Godziną` i powtarzają się co `Co ile` minut.
+Monity zaczynają się `Wyprzedzenie` minut przed Godziną i powtarzają się co `Co ile` minut.
 Czas ustawia się z dokładnością do minuty, a wyprzedzenie to co najmniej 1 minuta, dlatego:
 
 - `Godzina` = teraz + 3 min, `Co ile` = 1, `Wyprzedzenie` = 1 → pierwszy monit po ok. 1-2 min, odliczanie widać na liście;
@@ -110,7 +110,7 @@ Najlepiej przygotować budzik A tuż przed pokazem (np. teraz + 3 min), żeby al
 4. Dodaj budzik B (teraz + 6 min).
 5. Pokaż, że wpisy można edytować albo usuwać.
 6. `Esc`, wejdź w `Demo IoT: czujnik symulowany`.
-7. Pokaż w `Stanie systemu` rekordy `Budzik` i `Czujnik Sim` i omów:
+7. Pokaż w Stanie systemu rekordy `Budzik` i `Czujnik Sim` i omów:
    - `NAST.` i `CYKL`,
    - priorytet,
    - pomiar w `WARTOSC`.
@@ -148,7 +148,7 @@ Najlepiej przygotować budzik A tuż przed pokazem (np. teraz + 3 min), żeby al
 1. Dodaj budzik A (teraz + 3 min).
 2. Dodaj budzik B (teraz + 6 min).
 3. `Esc`, `Enter` na `Demo IoT: czujnik symulowany`.
-4. `Góra/Dół` - przełączaj zaznaczony rekord i pokaż szczegóły pod tabelą.
+4. Góra/Dół - przełączaj zaznaczony rekord i pokaż szczegóły pod tabelą.
 5. `Esc`, wróć do `Budzik`.
 6. Poczekaj na alarm budzika A.
 7. Pokaż, że budzik B nadal czeka na wykonanie.
@@ -157,8 +157,11 @@ Najlepiej przygotować budzik A tuż przed pokazem (np. teraz + 3 min), żeby al
 
 `T` = bieżąca godzina i minuta.
 
-| Budzik | `Sprawa` | `Godzina` | `Co ile` | `Wyprzedzenie` | Pierwszy monit |
+| | Sprawa | Godzina | Co ile | Wyprz. | 1. monit |
 |---|---|---|---|---|---|
-| A | `Demo A` | `T + 3 min` | `1` | `1` | po ok. 1-2 min |
-| B | `Demo B` | `T + 6 min` | `1` | `1` | po ok. 4-5 min |
-| C | `Demo C` | `T + 10 min` | `2` | `4` | po ok. 5-6 min, potem co 2 min |
+| A | `Demo A` | `T+3` | `1` | `1` | 1-2 min |
+| B | `Demo B` | `T+6` | `1` | `1` | 4-5 min |
+| C | `Demo C` | `T+10` | `2` | `4` | 5-6 min |
+
+`Wyprz.` = `Wyprzedzenie`, `1. monit` = po ilu minutach od zapisu pojawi się pierwszy monit
+(budzik C powtarza monity co 2 minuty aż do swojej godziny).

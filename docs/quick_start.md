@@ -67,7 +67,7 @@ W aktualnym trybie prezentacyjnym menu pokazuje:
 
 ## Podstawowe klawisze
 
-- `Strzałki góra/dół` - zmiana pozycji
+- Strzałki góra/dół - zmiana pozycji
 - `Enter` - wejście / akceptacja
 - `Esc` - wyjście (w polu wpisu: anulowanie)
 
