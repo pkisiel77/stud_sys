@@ -1,16 +1,24 @@
+#include "blank/moje.h"
+#include "konfig.h"
+#include "rap_bl.h"
+
+extern struct Service* Service;
+extern int Liczba_opcji, y_shift;
+extern unsigned int attr, at_wpis;
 /* ======================================================================= */
 int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
 					int kto, int r_pocz, int lrek, struct Service *S)
- {int ret, max_l_data_blank;       /*liczba danych obslugiwana przez bl */
+ {int ret;
 	int y_gorny, x_lewy=0, y_danej, y_dolny, x_prawy;
-	int decyzja,  kod_decyzji, nr_dec, nr_rekordu, p_konc, i;
-	int old_raport, old_rekord, j, np=0;
+	int decyzja,  kod_decyzji, nr_dec, nr_rekordu, i;
+	int old_raport, old_rekord;
 	char czynny=1, zapis=0, poziom=0;
 	signed char kod_uslugi, kolor=0, ramka=1;
 /* ==================================================================== */
 	kod_uslugi=Kod_uslugi;
 	nr_rekordu=Nr_rekordu;
-	y_gorny=Y_G0+1;  npzl=npzl;  x_lewy=X_L0;
+	(void)npzl; (void)kto; (void)r_pocz; (void)lrek;
+	y_gorny=Y_G0+1;  x_lewy=X_L0;
 	y_dolny=MY_MAX;  x_prawy=MX_MAX-1;
 	do
 	 {old_raport=kod_uslugi;  old_rekord=nr_rekordu;

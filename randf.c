@@ -1,4 +1,5 @@
 #include <math.h>
+#include "randf.h"
 /* ---------------------- GENERATORY LICZ LOSOWYCH ------------------ */
 static unsigned int M=0xffffffff,A=251171,IX=217013;
 /* --------------------- GENERATOR LICZ LOSOWYCH <0, 1> --------------- */
