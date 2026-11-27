@@ -98,7 +98,7 @@ Odpowiedzialność:
 
 Pliki:
 
-- `blank/wewy.c`
+- `blank/wewy*.c` (`wewy.c`, `wewy_pola.c`, `wewy_raporty.c`, `wewy_dane.c`, `wewy_blankiet.c`, `wewy_liczby.c`)
 - `rap_bl.c`
 - `blank/term_ncurses.c`
 
