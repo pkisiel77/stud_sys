@@ -4,7 +4,7 @@
 #        make clean
 
 CC     = gcc
-CFLAGS = -D_NCURSES_ -I. -Iblank -Iopcjesys -Wall -Wno-format -Wno-pointer-sign -Wno-comment
+CFLAGS = -D_NCURSES_ -I. -Iblank -Iopcjesys -Wall -Wextra -Wno-format -Wno-pointer-sign -Wno-comment
 LDFLAGS = -lncurses -lm
 TARGET  = stud_sys
 OBJDIR  = obj

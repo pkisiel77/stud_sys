@@ -55,6 +55,7 @@ static int build_presentation_menu(char* menu_view[], int menu_map[], char* grap
 
 int main(int argc, char* argv[])
 {
+    (void)argc; (void)argv;
     int ret, Ret, l_poz_menu, y_logo = 3;
     char* graf_text[2] = {L_CORE_MODE_GRAPH, L_CORE_MODE_TEXT};
     char* menu_view[L_SYS + 3];

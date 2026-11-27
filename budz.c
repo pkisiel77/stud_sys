@@ -241,6 +241,7 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
 static int budz_formularz(struct agenda *A, struct budzik *B,
                            char *tytul, char **menu, int nmenu)
 {
+    (void)A;
     char e0[80], e1[80], e2[80];
     int ew = 0, w;
     for (;;) {
@@ -275,6 +276,7 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                   int x_lewy_gorny, int y_lewy_gorny, int kod_uslugi,
                   char *adres_rek0_uslugi)
 {
+    (void)kod_uslugi;
     struct agenda *lista[AG_SIZE];
     struct agenda *A;
     struct agenda *Awrk;
@@ -561,6 +563,7 @@ static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src)
 extern time_t sek_akt;
 char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
+	(void)ob_pocz; (void)ob_konc;
 	static struct agenda *A;
 	struct budzik *Bu;
 	int x,y;
@@ -586,6 +589,7 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
 void wpis_budz(int ob_pocz, int ob_konc,
 					 char *D, int rozmiar_ob, char zapis[], char *Kod_op)
  {struct agenda *A;
+	(void)ob_pocz; (void)ob_konc; (void)rozmiar_ob; (void)zapis; (void)Kod_op;
 	 A=(struct agenda *)D;
 	 (void)A;
  }
@@ -697,6 +701,7 @@ void ustaw_delay_budzika(struct agenda *A, struct budzik *B)
 
 int dec_budz(int decyzja, int kod_decyzji, int nr_dec, int kod_uslugi, int np, int *nr_rekordu)
 {
+	(void)nr_dec; (void)np;
 	struct agenda *A;
 	struct budzik *B;
 	int sek, min, godz;

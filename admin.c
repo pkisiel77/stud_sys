@@ -25,6 +25,7 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
 									   int x_lewy_gorny,	int y_lewy_gorny,
 									   int anim_pid, char *D)
 {
+	(void)ob_pocz; (void)ob_konc; (void)x_lewy_gorny; (void)y_lewy_gorny; (void)anim_pid;
 	int ret=-1, nr_rek;
 	struct admin *d0, *dp, *d;
 
@@ -54,6 +55,7 @@ int admin_blankiet(int nr_rekordu, int ob_pocz,	int ob_konc,
 
 char *dane_admin(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {
+	(void)ob_pocz; (void)ob_konc;
 	static struct Service *S;
     struct admin *St;
 	int x,y;
@@ -68,10 +70,12 @@ char *dane_admin(int ob_pocz, int ob_konc, int *rozmiar_ob)
 
 void wpis_admin(int ob_pocz, int ob_konc, char *D, int rozmiar_ob, char zapis[], char *Kod_op)
 {
+    (void)ob_pocz; (void)ob_konc; (void)D; (void)rozmiar_ob; (void)zapis; (void)Kod_op;
 }
 
 int dec_admin(int decyzja, int kod_decyzji, int nr_dec, int kod_raportu, int np, int *nr_rekordu)
 {
+	(void)nr_dec; (void)np; (void)nr_rekordu;
 	switch(kod_decyzji)
 	 {case DEC_GEN_KOD:
 	 	 switch(decyzja)

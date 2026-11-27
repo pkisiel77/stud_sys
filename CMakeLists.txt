@@ -33,6 +33,7 @@ target_compile_definitions(studsys_build_options INTERFACE
 )
 target_compile_options(studsys_build_options INTERFACE
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wall>
+    $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wextra>
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-format>
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-pointer-sign>
     $<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-comment>
