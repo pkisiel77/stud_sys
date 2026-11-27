@@ -701,7 +701,7 @@ void free_service(struct agenda* A)
 
 struct agenda* rekord_zlecenia_agendy(int* nr_rekordu, int nr_w_agendzie, int kod_uslugi)
 {
-    struct agenda *A, **SA;
+    struct agenda *A = NULL, *last = NULL, **SA;
     int na, lzl, rap_no;
     SA = getAgendaPtr(&lzl);
     freeAgendaPtr();
@@ -711,6 +711,7 @@ struct agenda* rekord_zlecenia_agendy(int* nr_rekordu, int nr_w_agendzie, int ko
         if ((SA[na]->S)->kod_uslugi == kod_uslugi)
         {
             rap_no++;
+            last = SA[na];
             if (nr_w_agendzie < 0)
             {
                 if (rap_no == (*nr_rekordu))
@@ -736,6 +737,9 @@ struct agenda* rekord_zlecenia_agendy(int* nr_rekordu, int nr_w_agendzie, int ko
         return NULL;
     }
     if (rap_no < (*nr_rekordu)) (*nr_rekordu) = rap_no;
+    /* brak dokladnego dopasowania: ostatni rekord uslugi (zgodnie z
+       przycieciem *nr_rekordu powyzej) */
+    if (A == NULL) A = last;
     return A;
 }
 
