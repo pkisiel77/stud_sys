@@ -17,7 +17,7 @@ Widoczne pozycje:
 - Strzałka góra/dół - przesunięcie zaznaczenia
 - `Enter` - otwarcie pozycji / zatwierdzenie pola
 - `Esc` - wyjście z okna / anulowanie wpisu
-- cyfry, `Backspace` - pole wpisu na dole ekranu
+- cyfry, `Backspace` - pole wpisu na dole ekranu (pierwsza cyfra zastępuje starą wartość)
 - w Stanie systemu: `PgUp/PgDn` strona, `R` odświeżenie
 
 ## Demo 3 min

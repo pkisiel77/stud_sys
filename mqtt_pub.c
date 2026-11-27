@@ -239,10 +239,11 @@ int mqtt_main(void *DA)
 static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
 {
     char tmp[MQTT_BROKER_LEN];
-    int  len, ch;
+    int  len, ch, nowa;
     strncpy(tmp, buf, sizeof(tmp) - 1);
     tmp[sizeof(tmp) - 1] = 0;
     len = (int)strlen(tmp);
+    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
@@ -253,9 +254,9 @@ static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
         if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0)
-            tmp[--len] = 0;
+            { tmp[--len] = 0; nowa = 0; }
         else if (ch >= 32 && ch < 256 && len < max_len - 1)
-            { tmp[len++] = (char)ch; tmp[len] = 0; }
+            { if (nowa) { len = 0; nowa = 0; } tmp[len++] = (char)ch; tmp[len] = 0; }
     }
     term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
@@ -265,9 +266,10 @@ static void mqtt_czytaj_text(char *buf, int max_len, const char *prompt)
 static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
 {
     char buf[12];
-    int  len, ch, val;
+    int  len, ch, val, nowa;
     snprintf(buf, sizeof(buf), "%d", cur);
     len = (int)strlen(buf);
+    nowa = 1; /* pierwszy znak zastepuje stara wartosc, Backspace ja edytuje */
     setcursor(cursor);
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
@@ -279,9 +281,9 @@ static int mqtt_czytaj_int(const char *prompt, int min_v, int max_v, int cur)
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
         if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0)
-            buf[--len] = 0;
+            { buf[--len] = 0; nowa = 0; }
         else if (ch >= '0' && ch <= '9' && len < (int)(sizeof(buf) - 2))
-            { buf[len++] = (char)ch; buf[len] = 0; }
+            { if (nowa) { len = 0; nowa = 0; } buf[len++] = (char)ch; buf[len] = 0; }
     }
     term_printf(MY_MAX, X_L0, ATTR_A, "%-*s", MX_MAX, " ");
     setcursor(nocursor);
