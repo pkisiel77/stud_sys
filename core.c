@@ -148,9 +148,7 @@ int main(int argc, char* argv[])
     zamknij_raporty();
     term_fill(TERM_WHITE | TERM_BLACK_BG);
     Endgraph();
-#ifdef _NCURSES_
     CloseConsole();
-#endif
     ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
     (void)ret;
     return 0;
@@ -168,13 +166,7 @@ static int build_presentation_menu(char* menu_view[], int menu_map[], char* grap
     menu_view[idx] = Menu[L_SYS];
     menu_map[idx] = L_SYS;
     idx++;
-#ifndef _NCURSES_
-    menu_view[idx] = graph_text;
-    menu_map[idx] = -1;
-    idx++;
-#else
     (void)graph_text;
-#endif
     menu_view[idx] = NULL;
     return idx;
 }

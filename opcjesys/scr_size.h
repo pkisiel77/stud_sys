@@ -15,37 +15,12 @@
 #define WEW_EXT extern
 #endif
 #ifndef WEW_EXT
-#ifdef _QNX_  
-int MY_MAX=24;
-int MYR_MAX=23;
-int MX_MAX= 80;
-int MXR_MAX=79;
-int X_L0=0;
-int Y_G0=0;
-#elif defined(_DOS_)  // Changed to elif
-#ifndef _CVC_
-int MYR_MAX=24;
-int MY_MAX=25;
-int MX_MAX=80;
-int MXR_MAX=79;
-int X_L0=1;
-int Y_G0=1;
-#endif
-#elif defined(_NCURSES_)  // Changed to elif
 int MYR_MAX=24;
 int MY_MAX=25;
 int MX_MAX=80;
 int MXR_MAX=79;
 int X_L0=0;
 int Y_G0=0;
-#elif defined(_CVC_)  // Changed to elif
-int MYR_MAX=24;
-int MY_MAX=25;
-int MX_MAX=80;
-int MXR_MAX=79;
-int X_L0=0;
-int Y_G0=0;
-#endif
 #else           /* else dla ifdef WEW_EXT */
 WEW_EXT int MY_MAX;
 WEW_EXT int MYR_MAX;

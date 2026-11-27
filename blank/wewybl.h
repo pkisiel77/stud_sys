@@ -10,7 +10,6 @@
 #define BAZA_SPOJNA 0
 #define BAZA_WEKTOR 1
 #define BAZA_LISTOW 2
-#if defined(_DOS_) || defined(_NCURSES_)
 int Get_Char(void);
 int Get_char(void);
 #define GETchar Get_char
@@ -75,32 +74,15 @@ int Get_char(void);
 #define HILIGHT             0x0008
 #define TERM_BLINK          BLINK
 /*--------------------------KONIEC--------------------------*/
-#endif
 
 #define TERM_CLS_SCR        1
 
-#ifdef _DOS_WC
-#define HILIGHT 0x0008
-#define TERM_BLINK          BLINK
-#else
 // #define TERM_BLINK        0x0800
 // #define HILIGHT 0x0038
-#endif
 #define TERM_HILIGHT       HILIGHT
 #define ATTR_A TERM_WHITE|HILIGHT|TERM_RED_BG //0x043f
 #define MTERM_HILIGHT TERM_HILIGHT /*0*/
 
-#ifndef _NCURSES_
-/* Function declarations - not needed for ncurses as they're in term_ncurses.h */
-int term_printf(int y, int x, unsigned int attr, char* format, ...);
-int term_type(int y, int x, char* text, int len, unsigned int attr);
-void term_cur(int y, int x);
-int term_save_image(int y0, int x0, char* bufor, int dlug);
-void term_restore_image(int y0, int x0, char* bufor, int dlug);
-void term_flush(void);
-void term_clear(int co);
-void term_color(int attr);
-#endif
 #define TermColor(attr)\
  {int textkol, bgkol, cc, l, i;\
 	textkol=attr&0x00ff;\
@@ -111,46 +93,6 @@ void term_color(int attr);
  }
 void term_fill(int attr);
 /* The following block defines alternate key codes - only for non-DOS/non-ncurses platforms */
-#if !defined(_DOS_) && !defined(_NCURSES_)
-#define GETchar GET_char
-#define Malloc malloc
-#define DOWN     169
-#define BBS      164
-#define FFR      166
-#define UP       161
-#define LEFT     164
-#define PgUp     162
-#define Home     160
-#define End      168
-#define KPDMINUS 163
-#define KPDPLUS  167
-#define PgDn     170
-#define Ins      171
-#define Del      172
-#define Esc      27
-#define CR       13
-#define BS       127
-#define SPEC     255
-#define TAB        9
-#define SHIFT_TAB 128
-#define FONT1    129
-#define FONT2    130
-#define FONT3    131
-#define FONT4    132
-#define FONT5    133
-#define FONT6    134
-#define FONT7    135
-#define FONT8    136
-#define FONT9    137
-#define FONT10   138
-#define FONT11   139
-#define FONT12   140
-#define CTRL_TAB 159
-#define INVERSE TERM_INVERSE
-/*#define BLINK TERM_HILIGHT */
-#define ATTR_A TERM_WHITE|MTERM_HILIGHT|TERM_RED_BG|TERM_FLUSH
-#define MTERM_HILIGHT TERM_HILIGHT /*0*/
-#endif /* End of alternate key codes block */
 #define _GRAFIKA_ 31234
 #define LHELP 26
 #define EOS 0

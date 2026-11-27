@@ -1,17 +1,9 @@
 // Platform-specific includes
-#ifndef _NCURSES_
-// Windows version
-#include <windows.h>
-#define farmalloc malloc
-#define farfree free
-#define _CVC_
-#else
 // ncurses version
 #define farmalloc malloc
 #define farfree free
 #define _CVC_
 #define HWND void*
-#endif
 
 #ifndef _GLOBAL_OPCJESYS_
 #define _GLOBAL_OPCJESYS_
@@ -25,9 +17,6 @@ struct BUFOR_EKRANU
 };
 //struct BUFOR_EKRANU be;
 //HANDLE hConsoleOutput, hConsoleInput;
-#ifndef _NCURSES_
-extern HWND handle_window_device;
-#endif
 
 #ifdef WEWY_MAIN // dla wewy_main
  #include "../opcjesys/shintdef.h"
@@ -36,28 +25,14 @@ extern HWND handle_window_device;
  #include <stddef.h>
  #include <stdio.h>
  #include <stdlib.h>
- #ifndef _NCURSES_
- #include <conio.h>
- #endif
  #include <math.h>
  #include <time.h>
  #include <string.h>
  #include <ctype.h>
- #if defined(_DOS_) || defined(_NCURSES_) // dla DOS lub ncurses
-  #ifndef _NCURSES_
-  #include <dos.h>
-  #endif
   #include "alloc.h"
-  #ifndef _NCURSES_
-  #include <process.h>
-  typedef  int shint;
   typedef  int pid_t;
-  #else
-  typedef  int pid_t;
-  #endif
   #include "../blank/wewybl.h"
   #include "../opcjesys/scr_size.h"
- #endif // koniec DOS/ncurses
 #endif // koniec hedrow dla moje.h
 #ifdef _WEWYBL_H_INCLUDE // hedery dla wewybl.h
  #include "../opcjesys/shintdef.h"
@@ -66,11 +41,5 @@ extern HWND handle_window_device;
 #ifdef _WEWY1_H_INCLUDE
 # include "../opcjesys/scr_size.h"
 #endif
-#ifdef GRAF
-//extern HDC hdc;
-//extern HWND hwnd;
-//#define getch VCGetch
-//#define MAX_LICZBA_KOLOROW 25 // do kolorow systemowch w WEWYBL.H
-#endif // koniec dla win_graf
 #endif
 

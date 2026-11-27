@@ -1,17 +1,3 @@
-//#define _QNX
-#define _DOS_
-#define GRAF
-//#define _DOS_WC   /* tylko dla Watcom - NT */
-#ifdef _QNX_
-#undef _DOS_
-#undef _DOS_WC
-#undef GRAF
-#elif defined(_NCURSES_)
-#undef _DOS_
-#undef GRAF
-#else
-#undef _TERM_QNX_
-#endif
 #define WEWY_MAIN
 #include <stdio.h>
 //#include <conio.h>
@@ -38,14 +24,9 @@ extern HWND handle_window_device;
 #pragma clang diagnostic ignored "-Wchar-subscripts"
 #endif
 /* -------------------- Headery QNX'a ---------------------------- */
-#ifndef _DOS_
 #define Get_char GET_char
 #define Get_Char GET_char  /* Also define Get_Char for compatibility */
-#ifdef _NCURSES_
 char real_time = 0;  /* Definition for NCURSES */
-#else
-extern char real_time;  /* Declaration for QNX */
-#endif
 /*#include <malloc.h>
 #include <sys/dev.h>
 #include <sys/qnxterm.h>
@@ -56,18 +37,6 @@ extern char real_time;  /* Declaration for QNX */
 #include <sys/qioctl.h>
 void exit(int status), clear_cur(char);
 #include <process.h> */
-#else
-//#include <dos.h>
-void clear_cur(char);
-char real_time;
-#define Get_Char GET_char
-
-#ifdef _CBC_
-#include <alloc.h>
-#else
-//#include <malloc.h>
-#endif
-#endif
 //#include "../aj/dim.h"
 
 #include "moje.h"
@@ -110,9 +79,6 @@ void przepisz(char* do_ob, char* z_ob, int ile);
 void open_konsole_mouse(int fd_in);
 int BUF_com_size = 0, nr_komunik = -1;
 void* BUF_com = NULL;
-#if defined(_TERM_QNX_)
-static char wait_for_synch_trig = 0;
-#endif
 int igraf = 0;
 
 /* ================Procedura czytania danych i slow z klawiatury=========*/
@@ -135,9 +101,6 @@ int (*odbior_komunik)(void* b, pid_t a) = NULL;
 #undef buttons
 /* ---------------------- struktura dla obslugi grafiki ------------ */
 #define _TYLKO_RYS_
-#if defined(_TERM_QNX_) && !defined(_DOS_)
-#include "../aj/graf.h"
-#endif
 #define MAX_GRAFS 20
 
 struct baza_grafik
@@ -908,12 +871,7 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
             if (nEOS < liczba_znakow)
             {
                 lz--;
-#ifdef GRAF
-                if (igraf != 0) backspace(&text[lz]);
-                else term_cur(y_akt, x_akt - 1);
-#else
                 term_cur(y_akt, x_akt - 1);
-#endif
             }
             goto DEL;
         }
@@ -946,12 +904,7 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
             {
                 if (lz == 0) continue;
                 lz--;
-#ifdef GRAF
-                if (igraf != 0) backspace(&text[lz]);
-                else { m_gotoxy(x_pocz + lz, y_cursor); }
-#else
                 m_gotoxy(x_pocz + lz, y_cursor); /* term_cur(y_akt,x_akt+lz); */
-#endif
                 continue;
             }
             if (c == FFR)
@@ -967,9 +920,6 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
             }
             if (c == Home)
             {
-#ifdef GRAF
-                if (igraf != 0) clear_cur(text[lz]);
-#endif
                 x_akt = x_pocz;
                 lz = 0;
                 term_cur(y_akt, x_akt); /*m_gotoxy(x_akt,y_cursor); */
@@ -1204,12 +1154,7 @@ int czytaj_has(char* text, int lz0, int liczba_znakow)
             if (nEOS < liczba_znakow)
             {
                 lz--;
-#ifdef GRAF
-                if (igraf != 0) backspace(&text[lz]);
-                else m_gotoxy(x_akt - 1, y_akt);
-#else
                 m_gotoxy(x_akt - 1, y_akt); /*  term_cur(y_akt,x_akt); */
-#endif
             }
             goto DEL;
         }
@@ -1236,16 +1181,7 @@ int czytaj_has(char* text, int lz0, int liczba_znakow)
             {
                 if (lz == 0) continue;
                 lz--;
-#ifdef GRAF
-                if (igraf != 0) backspace(&text[lz]);
-                else
-                {
-                    m_gotoxy(x_pocz + lz, y_akt);
-                    term_cur(y_akt, x_akt);
-                }
-#else
                 m_gotoxy(x_pocz + lz, y_akt); term_cur(y_akt, x_akt);
-#endif
                 continue;
             }
             if (c == FFR)
@@ -1262,9 +1198,6 @@ int czytaj_has(char* text, int lz0, int liczba_znakow)
             if (c == Home)
             {
                 x_akt = x_pocz;
-#ifdef GRAF
-                if (igraf != 0) { for (i = lz; i >= 0; i--) backspace(&text[i]); }
-#endif
                 lz = 0;
                 m_gotoxy(x_akt, y_akt);
                 term_cur(y_akt, x_akt);
@@ -1507,7 +1440,6 @@ void mAbort()
 /*------------------------------------------------------------------------*/
 void bip(char mod)
 {
-#ifndef _TERM_QNX_
     if (mod == 0)
     {
         sound(500);
@@ -1519,7 +1451,6 @@ void bip(char mod)
         delay(200);
     }
     nosound();
-#endif
 }
 
 /* -----------------------------------------------------------------------*/
@@ -1538,375 +1469,6 @@ void xplus(void)
 
 
 /*  ======================== Procedury dla DOS'a ========================*/
-#if !defined(_TERM_QNX_) && !defined(_NCURSES_)
-#include "../blank/term_dos.c"
-
-#ifndef _CVC_
-int Get_char(void) { return getch(); }
-#else
-
-int Get_char(void) { return term_new_getch_char(-1); }
-#endif
-
-
-void zamknij_grafiki(int a)
-{
-};
-
-int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
-                                                char* pdane, char* Text, void*(*Dane_Wykr)(void* Rd), void* R))
-{
-    return 0;
-}
-
-
-#elif defined(_TERM_QNX_)
-void clear_cur(char znak) { ; }
-void setcursor(unsigned int cursor) { ; }
-/* int GETchar(void){return getchar();} */
-int Get_Char(void) { return getchar(); }
-#define L_EVENT 2
-#define SPEC1 255
-int GET_char(void) /* ======= odczyt znaku z myszki lub klawiatury === */
-{
-    static int znak = -2;
-    static int buf_znak = -2;
-    int siz;
-    int l_events, armed, i;
-    pid_t proxy = 0;
-    char** buf_adr = NULL;
-    //  if(Mouse_ctrl==NULL) return getchar();
-    /* fprintf(mystderr,"\nwewy.c - GetChar(): buf_znak=%d znak=%d",buf_znak,znak); */
-    if (buf_znak > -2)
-    {
-        znak = buf_znak;
-        buf_znak = -2;
-        /* fprintf(mystderr," RETURN %d/%c",znak,znak); */
-        return znak;
-    }
-    buf_znak = -2;
-    znak = -2;
-    do
-    {
-        if (odbior_komunik != NULL)
-        {
-            M_ev = BUF_com;
-            siz = BUF_com_size;
-        }
-        else
-        {
-            M_ev = &Mouse_ev[0];
-            siz = sizeof(struct sd1);
-            if (siz < M_BUF_SIZ) siz = M_BUF_SIZ;
-        }
-        buf_adr = (char**)M_ev;
-        buf_adr[0] = NULL;
-        buf_adr[1] = NULL;
-        w_pid = Receive(0, M_ev, siz); //M_BUF_SIZ);
-        /* fprintf(mystderr,"\nwewy-Receive: w_pid=%d Mprx=%d kprx=%d odbior_komunik=%d siz=%d wait_for_synch_trig=%d",w_pid,Mproxy,kproxy,odbior_komunik,siz,wait_for_synch_trig); */
-        if (Mouse_ctrl != NULL && w_pid == Mproxy)
-        {
-            armed = 0;
-            while (!armed)
-            {
-                l_events = mouse_read(Mouse_ctrl, M_ev, MAX_EVENTS, Mproxy, &armed);
-                /* fprintf(mystderr," l_events=%d",l_events); */
-                for (i = 0; i < l_events; i++, M_ev++)
-                {
-                    if (M_ev->dy > 6) buf_znak = UP;
-                    if (M_ev->dy < -6) buf_znak = DOWN;
-                    if (buf_znak > -2) break;
-                    if (M_ev->dx < -10)
-                    {
-                        buf_znak = LEFT;
-                        znak = BS;
-                        buf_znak = 0;
-                    }
-                    if (M_ev->dx > 10) buf_znak = FFR;
-                    if (buf_znak > -2) break;
-                    if (M_ev->buttons > 0)
-                    {
-                        znak = CR;
-                        buf_znak = 0;
-                    }
-                    if (buf_znak > -2) break;
-                }
-                if (buf_znak > -2) break;
-            }
-            mouse_flush(Mouse_ctrl);
-            /* fprintf(mystderr, "znak=%d/%c buf_znak=%d/%c",znak,znak,buf_znak,buf_znak); */
-            if (buf_znak > 0) znak = SPEC;
-        }
-        else
-        {
-            if (w_pid == kproxy)
-            {
-                int k = 0;
-                armed = 0;
-                while (!armed)
-                {
-                    l_events = dev_read(0, kbuf, LCHAR_DEV, 1, 0, 0, kproxy, &armed);
-                    for (i = 0; i < l_events; i++, k++)
-                    {
-                        if (k == 0) znak = kbuf[i];
-                        else buf_znak = kbuf[i];
-                        /* fprintf(mystderr,"\nDEV: i=%d znak=%c/%d buf_znak=%d armed=%d wait_syn=%d",i,znak,znak,buf_znak,armed,wait_for_synch_trig); */
-                    }
-                    if ((znak == SPEC || znak == SPEC1) && buf_znak == -2)
-                    {
-                        armed = 0;
-                        continue;
-                    }
-                }
-            }
-            else
-            {
-                znak = sygnal_grafiki(w_pid, &Mouse_ev[0]);
-                if (znak > 0)
-                {
-                    buf_znak = -2;
-                    znak = -2;
-                } // obsluzono grafiki - dalej czekac
-                else
-                {
-                    if (odbior_komunik != NULL)
-                    {
-                        nr_komunik = odbior_komunik(BUF_com, w_pid); //GetMessage(w_pid,(char *)buf);
-                        /* fprintf(mystderr,"\nwewy.c Po: nr_komunik=%d lwmall=%d",nr_komunik,lwmall); */
-                        if (nr_komunik > 0)
-                        {
-                            if (nr_komunik == CL_READY) wait_for_synch_trig = 0;
-                            znak = 0;
-                            continue;
-                        }
-                        if (nr_komunik == TIMEOUT)
-                        {
-                            komunikat(MY_MAX, X_L0, ATTR_A,
-                                      L_WEWY_NO_SYNC_TASK);
-                            if (getchar() == 'q') exit(1);
-                            else
-                            {
-                                wait_for_synch_trig = 0;
-                                znak = -1;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (nr_komunik == COM_PROGR)
-                            {
-                                /*fprintf(mystderr," zwoln.");*/
-                                znak = 0;
-                                continue;
-                            }
-                            Reply(w_pid, &BUF_com, sizeof(void*));
-                            wait_for_synch_trig = 0;
-                            znak = -1;
-                            break; //continue;
-                        }
-                    }
-                }
-            }
-        }
-        /* fprintf(mystderr,"\nKon: buf_znak=%d znak=%d wait=%d",buf_znak,znak,wait_for_synch_trig);  */
-    }
-    while (buf_znak == -2 && znak == -2 || wait_for_synch_trig == 1);
-    if (znak != SPEC && znak != SPEC1) buf_znak = -2;
-    /* fprintf(mystderr," RETURN %d/%c",znak,znak); */
-    return znak;
-    /* ------- z /usr/sys/mouse.h
-     SIGIO
-    #define _MOUSE_LEFT     0x0004L
-    #define _MOUSE_MIDDLE   0x0002L
-    #define _MOUSE_RIGHT    0x0001L
-    #define _MOUSE_BUT4     0x0008L
-    #define _MOUSE_BUT5     0x0010L
-    #define _MOUSE_BUT6     0x0020L
-    #define _MOUSE_BUT7     0x0040L
-    #define _MOUSE_BUT8     0x0080L
-    #define _MOUSE_ABS_MIN      0
-    #define _MOUSE_ABS_MAX  16383
-    #define _MSEFLG_REL_ARB         0x0000      / * Mouse * /
-    #define _MSEFLG_ABS_SCREEN      0x0009      / * Touch screen * /
-    #define _MSEFLG_ABS_WORLD       0x000A      / * Digitizing tablet * /
-    #define _MSEFLG_TYPE_MASK       0x000F      /* Type mask * /
-    #define _MSEFLG_UNCALIBRATED    0x0010      / * Raw coordinates * /
-    #define _MSEFLG_Z_DATA          0x0020      / * Some touch screen, pressure * /
-    / * /  mouse_event.mode, _mouse_ctrl.mode and _mouse_param.mode explanation * /
-    0x0001 RO   Screen related
-    0x0002 RO   World related
-    0x0008 RO   Absolute Coordinates (not Relative)
-    0x0010 RW   Uncalibrated data (for Touch Screen and Digitizing Tablets)
-    0x0020 RO   Z Data available
-     _ _ _ _._ _ _ _._ _ _ _._ __ _
-                                            | | | | | |screen related
-                                            | | | | |world related
-                                            | | | |undef.
-                                            | | |0-relative 1-absolute
-                                            | |Uncalibrated data
-                                            |Z available
-    struct mouse_event
-         {short       dx;
-            short       dy;
-            long        buttons;
-            long        timestamp;
-            short       dz;
-            unsigned short mode;
-         } ;
-
-    struct _mouse_param
-         {char                    name[32];
-            unsigned short          mode;
-            long                    buttons;
-            short                   threshold;
-            short                   gain;
-            unsigned short          zero[11];
-            };
-    */
-}
-#ifndef _NCURSES_
-int m_wherex(void) { return term_state.col; }
-int m_wherey(void) { return term_state.row; }
-void set_attr(unsigned int attr) { attryb = attr; }
-void m_gotoxy(int x, int y)
-{
-    if (x < x_akt0) x = x_akt0;
-    if (x > x_maxOkna) x = x_maxOkna;
-    if (y < y_akt0) y = y_akt0;
-    if (y > y_maxOkna) y = y_maxOkna;
-    x_akt = x;
-    y_akt = y;
-    /*   term_state.row=y_akt; term_state.col=x_akt; !!!! To ZAKAZANE !!!! */
-    term_cur(y_akt, x_akt); /* term_flush(); */
-    return;
-}
-#else
-void set_attr(unsigned int attr) { attryb = attr; }
-#endif
-
-
-/*  ------------------------------------------------------------------
-/ / ---------------------- Baza grafik ------------------------------- */
-int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
-                                                char* pdane, char* Text,
-                                                void*(*Dane_Wykr)(void* Rd),
-                                                void* R))
-{
-    if (BGR.akcja_grafik != NULL)
-    {
-        if (BGR.akcja_grafik != akcja_grafik)
-        {
-            komunikat(MY_MAX, X_L0, ATTR_A, "Wykresy_dla_modeli(): Zadeklarowano zla funkcje dla obsugi grafiki");
-            getchar();
-            return -BGR.Lgrafs;
-        }
-    }
-    if (BGR.Lgrafs == MAX_GRAFS) return -BGR.Lgrafs;
-    return BGR.Lgrafs;
-}
-
-int update_wewy_grafs(void* RGn, void* RGs, int raport,
-                      void*(*akcja_grafik)(int typ_kom, int kto,
-                                           char* pdane, char* Text,
-                                           void*(*Dane_Wykr)(void* Rd),
-                                           void* R))
-{
-    int i;
-    if (RGn == RGs) return BGR.Lgrafs;
-    if (RGn == NULL) /* anulowano wykresy */
-    {
-        for (i = 0; i < BGR.Lgrafs; i++) { if (BGR.Grafiki[i] == RGs) break; }
-        if (i < BGR.Lgrafs)
-        {
-            BGR.report[i] = -1;
-            BGR.Lgrafs--;
-            for (; i < BGR.Lgrafs; i++)
-            {
-                BGR.Grafiki[i] = BGR.Grafiki[i + 1];
-                BGR.report[i] = BGR.report[i + 1];
-            }
-        }
-        return BGR.Lgrafs;
-    }
-    if (BGR.akcja_grafik != NULL)
-    {
-        if (BGR.akcja_grafik != akcja_grafik)
-        {
-            komunikat(MY_MAX, X_L0, ATTR_A, "Wykresy_dla_modeli(): Zadeklarowano zla funkcje dla obsugi grafiki");
-            getchar();
-            return -BGR.Lgrafs;
-        }
-    }
-    if (BGR.Lgrafs < MAX_GRAFS)
-    {
-        BGR.Grafiki[BGR.Lgrafs] = RGn;
-        BGR.report[BGR.Lgrafs] = raport;
-        BGR.akcja_grafik = akcja_grafik;
-        BGR.Lgrafs++;
-        /* fprintf(mystderr,"\n wewy: Nowy RG=%d Lgrafs=%d",RGn,BGR.Lgrafs); */
-        return BGR.Lgrafs;
-    }
-    komunikat(MY_MAX, X_L0, ATTR_A, "Wykresy_dla_modeli(): Brak miejsca na nowe wykresy ");
-    getchar();
-    return -BGR.Lgrafs;
-}
-
-int sygnal_grafiki(pid_t pid, void* D)
-{
-    int i, n;
-    struct sd1* pd1;
-    RYS *R, *Rn;
-    pd1 = (struct sd1*)D;
-    for (i = 0; i < BGR.Lgrafs; i++)
-    {
-        R = BGR.Grafiki[i];
-        for (n = R->rys_min; n <= R->rys_max; n++)
-        {
-            if (R->aktywny[n] < 0) continue;
-            if (R->w_pid[n] == pid)
-            {
-                Reply(pid, D, 20);
-                if (BGR.akcja_grafik != NULL)
-                    Rn = BGR.akcja_grafik(pd1->D1.rs_par, getpid(), pd1->BOX.textbx, NULL, NULL, R);
-                if (Rn == NULL) update_wewy_grafs(Rn, R, -1, BGR.akcja_grafik);
-                break;
-            }
-        }
-        if (n <= R->rys_max) return 1;
-    }
-    return 0;
-}
-
-void zamknij_grafiki(int report)
-{
-    int i;
-    /* fprintf(mystderr,"\nZamknij: Lgrafs=%d report=%d",BGR.Lgrafs,report); */
-    for (i = BGR.Lgrafs - 1; i >= 0; i--)
-    {
-        if (BGR.Grafiki[i] != NULL)
-        /* fprintf(mystderr," Gafiki[%d]=%d",i,BGR.Grafiki[i]); */
-        {
-            if (report < 0 || BGR.report[i] == report)
-            {
-                if (BGR.akcja_grafik != NULL)
-                    BGR.Grafiki[i] = BGR.akcja_grafik(-1, getpid(), NULL, NULL, NULL, BGR.Grafiki[i]);
-                BGR.Grafiki[i] = NULL;
-                BGR.report[i] = -1;
-                BGR.Lgrafs--;
-            }
-        }
-    }
-    /* fprintf(mystderr,"\n wewy: Koniec Lgrafs=%d akcja=%d",BGR.Lgrafs, BGR.akcja_grafik); */
-    if (BGR.Lgrafs <= 0)
-    {
-        BGR.Lgrafs = 0;
-        BGR.akcja_grafik = NULL;
-        BGR.Grafiki[0] = NULL;
-    }
-    return;
-}
-
-#elif defined(_NCURSES_)
 /* NCURSES implementations - most functions are in term_ncurses.c */
 void zamknij_grafiki(int a)
 {
@@ -1926,7 +1488,6 @@ int zamknij_jeden_wykres(void* R, pid_t pid)
     return 0;
 }
 
-#endif
 /*====================================================================== */
 int Term_Typef(int y, int x, char* text, int lenth, unsigned int attr)
 {
@@ -2205,27 +1766,7 @@ void maluj_ramke(int yp, int xp, int ym, int xm, unsigned int attr)
     if (yp < Y_G0) yp = Y_G0;
     if (xm > MXR_MAX) xm = MXR_MAX;
     if (ym > MYR_MAX) ym = MYR_MAX;
-#ifdef _NCURSES_
     ramka_graficzna(yp, xp, ym, xm, attr);
-#else
-#ifdef GRAF
-    if (igraf != 0) ramka_graficzna(yp, xp, ym, xm, attr);
-    else
-#endif
-    {
-        term_type(yp, xp, "\xC9", 1, attr);
-        for (i = xp + 1; i < xm; i++) term_type(yp, i, "\xCD", 1, attr);
-        term_type(yp, xm, "\xBB", 1, attr);
-        for (i = yp + 1; i < ym; i++)
-        {
-            term_type(i, xp, "\xBA", 1, attr);
-            term_type(i, xm, "\xBA", 1, attr);
-        }
-        term_type(ym, xp, "\xC8", 1, attr);
-        for (i = xp + 1; i < xm; i++) term_type(ym, i, "\xCD", 1, attr);
-        term_type(ym, xm, "\xBC", 1, attr);
-    }
-#endif
 }
 
 /* ====================================================================== */
@@ -2249,9 +1790,6 @@ void Okno(int y0, int x0, int ymax, int xmax, unsigned int attr)
     y_min = y0;
     attryb = attr;
     /*fprintf(mystderr," X_maxBlank=%d/%d ymax=%d y_maxOkna=%d Y_maxBlankO2=%d",X_maxBlank,x_maxOkna,ymax,y_maxOkna,Y_maxBlank); */
-#ifdef GRAF
-    if (igraf != 0) ustaw_okno_graficzne();
-#endif
     /*fprintf(mystderr," X_maxBlank=%d/%d ymax=%d y_maxOkna=%d Y_maxBlankOK=%d",X_maxBlank,x_maxOkna,ymax,y_maxOkna,Y_maxBlank);*/
 }
 
@@ -2259,14 +1797,6 @@ void Okno(int y0, int x0, int ymax, int xmax, unsigned int attr)
 void clr_Okno(void)
 {
     int x, y;
-#ifdef GRAF
-    if (igraf != 0)
-    {
-        term_color(attryb);
-        bar(x0_cur, y0_cur, xmax_cur + char_width, ymax_cur + char_height); //clearviewport();
-    }
-    else
-#endif
     {
         for (y = y_akt0; y <= y_maxOkna; y++)
         {
@@ -2584,26 +2114,6 @@ int otworz_raporty(char nr_op)
         BUF_com_size = 0;
         if (real_time == 0) odbior_komunik = NULL;
     }
-#ifdef _TERM_QNX_
-	else
-    {
-        if (Mouse_ctrl != NULL) mouse_read(Mouse_ctrl, BUF_com, 0, Mproxy, NULL);
-    }
-    if (_TYP_KONSOLI_ == 2) arrow = 26;
-    /*  ......  if(_TYP_KONSOLI_==2) Mouse_ctrl=NULL; */
-    if (kproxy < 0)
-    {
-        open_konsole_mouse(0);
-        if (kproxy > 0) mouse_free = 1;
-    }
-    if (real_time == 1)
-    {
-        BUF_com = &Mouse_ev[0];
-        BUF_com_size = M_BUF_SIZ;
-    }
-    wait_for_synch_trig = 0;
-    BGR.Lgrafs = 0; BGR.akcja_grafik = NULL; BGR.Grafiki[0] = NULL; BGR.report[0] = -1;
-#endif
     lhasel = 0;
     ZAPIS = 0;
     BEZ_HASLA = 0;
@@ -2668,13 +2178,6 @@ int otworz_raporty(char nr_op)
     for (i = 0; i < LBLANK; i++) BL[i] = NULL;
     NR_OPER = nr_op;
     Klucz = 0;
-#ifdef _DOS_
-#ifndef GRAF
-    window(1, 1, 80, 25);
-#else
-    if (igraf == 0) window(1, 1, 80, 25);
-#endif
-#endif
     return i;
 }
 
@@ -3052,45 +2555,7 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
     return ret;
 }
 
-#define WEWY_INCL
-/* =========================== include dla wersji dos'owej =========
-#include "wewy1.c"
-#include "wewy2.c"
-#include "wewy3.c"
-#include "wewy4.c"
-#include "wewy5.c"
- ================================================================== */
-#ifndef WEWY0_INCL
 /* ================### Tu zaczyna sie plik wewy1.c ================== */
-#ifndef WEWY_INCL
-#define _DOS_
-#include <stdio.h>
-#include <process.h>
-#include <conio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "../opcjesys/intdef.h"
-#ifdef _DOS_
-#include <alloc.h>
-#include <dos.h>
-#define Malloc farmalloc
-#define Free farfree
-#else
-#define Free free
-#include <malloc.h>
-#include <sys/qnxterm.h>
-#endif
-#include "wewybl.h"
-#define WEW_EXT extern
-#include "wewy1.h"
-extern int (*odbior_komunik)(void* b, pid_t a);
-extern int BUF_com_size, nr_komunik;
-extern void* BUF_com;
-extern char real_time;
-#endif
 /* =================================================================== */
 int okno_znak(signed char wpis, int y, int x0,
               unsigned int attr_d, unsigned int attr,
@@ -4967,35 +4432,7 @@ WPIS:
     return x_konc;
 }
 
-/*#define WEWY_INCL */
 /* ================### Tu zaczyna sie plik wewy2.c ================== */
-#ifndef WEWY_INCL
-#define _DOS_
-#include <stdio.h>
-#include <process.h>
-#ifdef _DOS_
-#include <alloc.h>
-#define Malloc farmalloc
-#define Free farfree
-#include <dos.h>
-#include "../blank/intdef.h"
-#else
-#define Malloc malloc
-#define Free free
-#include <malloc>
-#include <sys/qnxterm.h>
-#include "../blank/intdef.h"
-#endif
-#include <conio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "wewybl.h"
-#define WEW_EXT extern
-#include "wewy1.h"
-#endif
 /* ====================================================================== */
 int okno_text(signed char wpis, int y, int x0, int size,
               unsigned int attr_d, unsigned int attr,
@@ -5927,20 +5364,6 @@ int zamkniecie_raportow(char kontr_spojnosci)
     bez_potwierdzania = 0;
     Klucz = -1;
     blokada_potwierdzania = 0;
-#ifdef _TERM_QNX_
-    if (mouse_free > 0)
-    {
-        if (kproxy > 0) qnx_proxy_detach(kproxy);
-        kproxy = -1;
-        if (Mouse_ctrl != NULL)
-        {
-            mouse_close(Mouse_ctrl);
-            Mouse_ctrl = NULL;
-            if (Mproxy > 0) qnx_proxy_detach(Mproxy);
-            Mproxy = -1;
-        }
-    }
-#endif
     mouse_free = 0;
     return 1;
 }
@@ -6799,33 +6222,6 @@ void reset_blankiet(int nr_rekordu)
 
 /* ========================= Tu zaczyna sie plik wewy3.c =========== */
 void dane_helpu(char* hformat, char* help[], va_list* ap);
-#ifndef WEWY_INCL
-#define _DOS_
-#include <stdio.h>
-#include <process.h>
-#ifdef _DOS_
-#include <alloc.h>
-#include <dos.h>
-#define Malloc farmalloc
-#define Free farfree
-#include "../blank/intdef.h"
-#else
-#include <malloc.h>
-#include <sys/qnxterm.h>
-#include "../blank/intdef.h"
-#define Malloc malloc
-#define Free free
-#endif
-#include <conio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "wewybl.h"
-#define WEW_EXT extern
-#include "wewy1.h"
-#endif
 /* ========================================================== */
 int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
                        unsigned int attr, unsigned int attr_o,
@@ -8004,7 +7400,6 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
                 else
                     snprintf(format_inny_rek, sizeof(format_inny_rek), "| <%c,%c,%c,%c,Home,End>-inny rek", 24, 25, 26, arrow);
 
-#ifndef _DOS_
                 if (*zapis == 1)
                 {
                     term_printf(MY_MAX, 0, TERM_CYAN | INVERSE | TERM_FLUSH,
@@ -8022,25 +7417,6 @@ int blankiet(signed char* kod_raportu, int* nr_ob, int xp,
       }
                 if (blankiet_ret_read_only(Ret))
                     komun_text(MY_MAX, 0, "|PREZENTACJA DANYCH bez prawa zmian", 0, TERM_CYAN | INVERSE | TERM_FLUSH);
-#else
-                if (*zapis == 1)
-                {
-                    term_printf(MY_MAX, 0,TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "|<Tab>-powrot do edycji | <%c,%c,%c,%c,Home,End>-inny rek|<F2>-ZAPIS|<Esc>-wyjscie|",
-                                24, 25, 26, arrow);
-                    term_printf(MY_MAX, X_L0 + 24,ATTR_A, "%s%s", format_inny_rek, "|<F2>-ZAPIS|");
-                }
-                else
-                {
-                    term_printf(MY_MAX, 0,TERM_CYAN | INVERSE | TERM_FLUSH,
-                                "| <Tab> - powrot do edycji raportu | <%c,%c,%c,%c,Home,End>-inny rek|<Esc>-wyjscie|",
-                                24, 25, 26, arrow);
-                    term_printf(MY_MAX, X_L0 + 35,ATTR_A, "%s%s", format_inny_rek, "|");
-                }
-            }
-            if (blankiet_ret_read_only(Ret))
-                komun_text(MY_MAX, 0, "|PREZENTACJA DANYCH bez prawa zmian", 0,TERM_CYAN | INVERSE | TERM_FLUSH);
-#endif
         }
         /* ================== WYBOR OPCJI JW =========================== */
         ret = Esc_Tab_wybor_toru(Ret, kod_raportu, nr_ob, ob_pocz, ob_konc,
@@ -8190,33 +7566,6 @@ void* get_plot_data(int nr_danej, int kod, int* ind_min,
 
 /* void bez_hasla(void) {BEZ_HASLA=1;} */
 /* ===================== Tu zaczyna sie plik wewy4.c ============= */
-#ifndef WEWY_INCL
-#define _DOS_
-#include <stdio.h>
-#include <process.h>
-#ifdef _DOS_
-#include <alloc.h>
-#include <dos.h>
-#include "../blank/intdef.h"
-#define Malloc farmalloc
-#define Free farfree
-#else
-#include "../blank/intdef.h"
-#include <malloc.h>
-#include <sys/qnxterm.h>
-#define Malloc malloc
-#define Free free
-#endif
-#include <conio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include "wewybl.h"
-#define WEW_EXT extern
-#include "wewy1.h"
-#endif
 
 /*   ================================================================ */
 int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
@@ -8476,14 +7825,8 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
             return znak; /* bylo ret */
         }
         /* ----------------- cos zostalo wpisane ---------------------------- */
-#ifndef _DOS_
         term_type(MY_MAX, X_L0,
                   "|<Tab>-powrot do danych|<F2> -ZAPIS|<q> -WYJSCIE|<Esc> -wyjscie Z ANULOW.ZMIAN |", 0, attr_h);
-#else
-        term_type(MY_MAX, X_L0,
-                  "|<Tab>-powrot do danych|<F2> -ZAPIS|<q> -WYJSCIE|<Esc> -wyjscie Z ANULOW.ZMIAN|", 0, attr_h);
-        term_type(MY_MAX, 24, "|<F2> -ZAPIS|<q> -WYJSCIE|", 0,ATTR_A);
-#endif
         do
         {
             znak = GET_char();
@@ -8909,17 +8252,10 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
         if (wp > 2)
         {
             if (ret >= 0)
-#ifndef _DOS_
             {
                 term_printf(MY_MAX, X_L0, attr_h,
                             "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja   |",
                             24, 25);
-#else
-            {
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja  |",
-                            24, 25);
-#endif
                 term_cur(MY_MAX, X_L0 + 1);
                 if (ok->blok_wpisu == 1)
                 {
@@ -8986,7 +8322,6 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
             if (ok->yo >= MYR_MAX) help = 0;
             if ((ok->typ == 'i' || ok->typ == 'g') && ok->kod_anim >= 0) help += 1;
             if ((ok->typ == 'I' || ok->typ == 'G') && ok->kod_anim >= 0) help += 1;
-#ifndef _DOS_
             switch (help)
             {
             case 7: /* help= 1+2+4- raport+menu+tablica */
@@ -9066,88 +8401,6 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                 else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
             default: break;
             }
-#else
-            switch (help)
-            {
-            case 7: /* help= 1+2+4- raport+menu+tablica */
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c>-dana|<F1>-raport|<F3>-menu|<F4>-tabl",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "ica  | <Esc,Tab>-wyjscie z rap.|", 0, attr_h);
-                break;
-            case 6: /* help= 2+4- menu+tablica */
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c>-wybor danej|<F3>-menu |<F4>-tablica",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu|", 0, attr_h);
-
-                break;
-            case 5: /* help= 1+4- raport+tablica */
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport|<F4>-tablica",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "  | <Esc,Tab>-wyjscie z raportu|", 0, attr_h);
-
-                break;
-            case 4: /* help= 4- tablica */
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F4>- tablica",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja|<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " |<Esc,Tab> - wyjscie z raportu|", 0, attr_h);
-                break;
-            case 14: /* help= 14- tablica i grafika */
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.|<F4>-tabl",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
-                break;
-            case 3:
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c>-wybor danej|<F1>-raport |<F3>-menu ",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
-                break;
-            case 2:
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1,F3>-menu ",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), "| <Esc,Tab> - wyjscie z raportu |", 0, attr_h);
-                break;
-            case 1:
-                term_printf(MY_MAX, X_L0, attr_h,
-                            "|<%c,%c,%c,%c,Home,End>-wybor danej |<F1>-raport ",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0) term_type(MY_MAX, m_wherex(), "|<ENT>-edycja |<Esc,Tab>-wyjscie|", 0, attr_h);
-                else term_type(MY_MAX, m_wherex(), " | <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
-                break;
-            case 0:
-                term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "|<%c,%c,%c,%c, Home, End> - wybor danej ",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie|", 0,
-                              attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
-                break;
-            case 16:
-                term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                            "|<%c,%c,%c,%c,Home,End>-wybor|<F1>-wykr.",
-                            24, 25, 26, arrow);
-                if (ok->blok_wpisu == 0)
-                    term_type(MY_MAX, m_wherex(), "|<ENT> - edycja danej |<Esc,Tab> - wyjscie|", 0,
-                              attr_h);
-                else term_type(MY_MAX, m_wherex(), "do prezent.| <Esc,Tab> - wyjscie z raportu|", 0, attr_h);
-                break;
-            default: break;
-            }
-#endif
             /* klawisze: <UP, DOWN, RIGHT, LEFT, HOME, END, CR, Esc, TAB>  */
             znak = 0;
             for (;;) /* czytanie znaku z klawiatury */
@@ -9183,15 +8436,9 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                         help = 0;
                         Tabl = 0;
                     }
-#ifndef _DOS_
                     term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
                                 "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja   |",
                                 24, 25);
-#else
-                    term_printf(MY_MAX, X_L0, attr_h, /*TERM_CYAN|INVERSE|TERM_FLUSH,*/
-                                "|  Wpis danej: <Esc> - wyjscie|  <Ent> - akceptacja | <%c, %c> - inkrementacja  |",
-                                24, 25);
-#endif
                     term_type(MY_MAX, X_L0 + 1, L_WEWY_DATA_ENTRY, 0, attr_o[2]);
                     break;
                 }
@@ -9351,15 +8598,9 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             mod = 2;
                             wp = 3;
                             if (ok->blok_wpisu == 1) wp = -3;
-#ifndef _DOS_
                             term_printf(MY_MAX, X_L0, attr_h,
                                         "|<%c,%c,%c,%c,Home,End>-wybor opcji  | <Ent> - akceptacja | <Esc> - wyjscie z menu  |",
                                         24, 25, 26, arrow);
-#else
-                            term_printf(MY_MAX, X_L0, attr_h,
-                                        "|<%c,%c,%c,%c,Home,End>-wybor opcji  | <Ent> - akceptacja | <Esc> - wyjscie z menu|",
-                                        24, 25, 26, arrow);
-#endif
                             term_printf(MY_MAX, X_L0 + 1, attr_o[2], "<%c,%c,%c,%c,Home,End> - wybor opcji",
                                         24, 25, 26, arrow);
                         }
@@ -9368,15 +8609,9 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
                             mod = 2;
                             wp = 4; /* if(ok->blok_wpisu==1) wp=-4; ### */
                             if (ok->blok_wpisu == 1) wp = 5; /* wpis w tabl.dodane 27.01.98 */
-#ifndef _DOS_
                             term_printf(MY_MAX, X_L0, attr_h,
                                         "|<%c,%c,%c,%c,Home,End> - wybierz do edycji | <Ent> - akceptacja | <Esc> - wyjscie |",
                                         24, 25, 26, arrow);
-#else
-                            term_printf(MY_MAX, X_L0, attr_h,
-                                        "|<%c,%c,%c,%c,Home,End> - wybierz do edycji | <Ent> - akceptacja | <Esc> - wyjscie|",
-                                        24, 25, 26, arrow);
-#endif
                             if (ok->blok_wpisu == 1)
                                 term_type(MY_MAX, X_L0 + 1, " Przeglad danych bez prawa ich edycji  ", 0, attr_o[2]);
                             else
@@ -9738,36 +8973,7 @@ void Kolory(signed char kolor, unsigned int* attr, unsigned int* tlo,
 }
 
 
-/*#define WEWY_INCL */
 /* ================### Tu zaczyna sie plik wewy5.c ================== */
-#ifndef WEWY_INCL
-#define _DOS_
-#include <stdio.h>
-#include <process.h>
-#ifdef _DOS_
-#include <alloc.h>
-#include <dos.h>
-#define Malloc farmalloc
-#define Free farfree
-#include "../blank/intdef.h"
-#else
-#include <malloc.h>
-#define Malloc malloc
-#define Free free
-#include <sys/qnxterm.h>
-#include "../blank/intdef.h"
-#endif
-#include <conio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-
-#include "wewybl.h"
-#define WEW_EXT extern
-#include "wewy1.h"
-#endif
 /* =================================================================== */
 int dana_float_dec(int y, int x, char* monit, float* w_min,
                    float* w_max, float* wart, int size, char precyzja,
@@ -11297,4 +10503,3 @@ void begin_scroll(int dana_nr) { SCROLL = dana_nr; }
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
-#endif // dla WEWY0_INCL

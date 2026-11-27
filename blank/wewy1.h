@@ -2,28 +2,6 @@
 #define _WEWY1_H_INCLUDE
 #include "../opcjesys/scr_size.h"
 extern signed char _TYP_KONSOLI_;
-#ifdef _TERM_QNX_
-#include <sys/types.h>
-#include <sys/mouse.h>
-#include <sys/dev.h>
-#include <sys/proxy.h>
-#include <sys/kernel.h>
-#define MAX_EVENTS 10
-#define LCHAR_DEV 1
-/*  ---------------------- zmienne globalne z pliku create.c ----------- */
-#define M_BUF_SIZ (MAX_EVENTS*sizeof(struct _mouse_ctrl)) 
-extern struct _mouse_ctrl *Mouse_ctrl;
-extern char *kbuf;
-extern struct mouse_event Mouse_ev[], *M_ev;
-extern struct _mouse_param Mouse_Par, *Mouse_par;
-extern const char *nazwa_myszki="Myszka";
-extern pid_t Mproxy, kproxy; 
-/* --------------------- koniec zmiennych z pliku create.c ------------ */
-
-
-
-pid_t w_pid;
-#endif
 #define LHASEL    7
 #define LHELP    26
 #define LBLANK   10
