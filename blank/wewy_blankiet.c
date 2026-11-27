@@ -204,11 +204,6 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
         if (d0 == dana)
         {
             ustaw_zapis(*nr_rekordu, ZAPIS);
-            /*      if(ZAPIS>0)
-                         {d_oryg=dane_oryginalne(*nr_rekordu,tytul,&d_rek, &rozmiar_ob, &zmiany);
-                    if(zmiany!=NULL) *zmiany=ZAPIS;
-                   }
-            */
             wyjscie(Ok, liczba_danych);
             return -CR;
         }
@@ -729,12 +724,6 @@ int obsluga_wpisu(int dana, struct okno* Ok, int liczba, unsigned int attr_dat[]
             nowa = dana;
             stara = dana;
             BL[nr_blank]->nr_danej = dana;
-            /*          for(i=stara+1;i!=stara;i++)
-                       {if(i==liczba) i=0;
-                        ok=Ok+i; if(ok->ochrona<Upr_max) break;
-                       }
-                      if(i==stara) {i=1; k=4;}
-            */
             ok = Ok + dana;
             Tabl = 0;
             help = 0; /* help=: 1- raport; 2-menu; 4- tablica */
@@ -1147,7 +1136,6 @@ void animuj_blank(int liczba, void* ptrs[])
     XX_max = x_maxOkna;
     Y_akt0 = y_akt0;
     YY_max = y_maxOkna;
-    //fprintf(mystderr,"\nX_akt0=%d XX_max=%d Y_akt0=%d YY_max=%d xkursor=%d ykursor=%d", X_akt0,XX_max,Y_akt0,Y_max,xkursor,ykursor);
     for (no = 0; no < liczba_danych; no++)
     {
         ok = Ok + no;
@@ -1201,14 +1189,12 @@ void animuj_blank(int liczba, void* ptrs[])
     x_maxOkna = XX_max;
     y_akt0 = Y_akt0;
     y_maxOkna = YY_max;
-    //fprintf(mystderr,"\nKoniec: X_akt0=%d XX_max=%d Y_akt0=%d YY_max=%d xkursor=%d ykursor=%d", X_akt0,XX_max,Y_akt0,Y_max,xkursor,ykursor);
     term_cur(ykursor, xkursor); /*m_gotoxy(xkursor,ykursor); */
 }
 
 int kod_rap_aktual_blank(void)
 {
     if (nr_blank < 0) return -1;
-    //	if(nie_animuj==1) return -1;
     return BL[nr_blank]->nr_raportu;
 }
 

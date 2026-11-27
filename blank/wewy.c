@@ -280,13 +280,6 @@ D:
     {
         form++;
         f = *form;
-        /*    if(l_danych > larg)
-               {term_printf(yplus(),x_akt0,attryb,"Za malo danych na liscie. Koniec ?? <q> ");
-                        cc=Get_Char(); f=cc&0x00FF;
-                if(f=='q') {clear_cur(EOS); return 0;}
-                yplus(); x_akt=x_akt0;
-               }
-        */
         f = *form;
         if (f == 's')
         {
@@ -550,13 +543,6 @@ D:
     {
         form++;
         f = *form;
-        /*    if(l_danych > larg)
-               {term_type(yplus(),x_akt0,"Za malo danych na liscie. Koniec ?? <q> ",0,attryb);
-                        cc=Get_Char(); f=cc&0x00FF;
-                if(f=='q') {/ *dev_mode(0,opcje,_DEV_MODES);* / return 0;}
-                        yplus(); x_akt=x_akt0;
-               }
-        */
         f = *form;
         if (f == 's')
         {
@@ -700,14 +686,6 @@ char* szukaj(char* text, char znak)
     };
     return NULL;
 } /*...end szukaj().....*/
-/* ----------------------------------------------------------------------
-int szukaj_znak(char *text,char znak)
- {int i=0;
-  do {if(*text!=znak) text++;
-			else return text;
-     }while(*text!=EOS);
-	return NULL;
- }   ...end szukaj().....*/
 
 /*------------------------------------------------------------------------*/
 int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
@@ -832,7 +810,6 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
         {
             c = Get_char(); /*c=cc&0x00FF*/
             ;
-            //c=VCGetch();
 
             if (c == BBS || c == LEFT)
             {
@@ -940,10 +917,6 @@ int czytaj_we(char* monit, char* text, int lz0, int liczba_znakow)
             if (c == Ins)
             {
                 INSERT = -INSERT;
-                /*         if(x_maxOkna<X_maxBlank) term_type(y_akt,xmax+1,"*",1,TERM_RED|MTERM_HILIGHT);
-                                 if(INSERT==-1) attryb=attryb|TERM_ULINE;
-                                 else           attryb=attryb|(~TERM_ULINE);
-                */
                 continue;
             }
             continue;

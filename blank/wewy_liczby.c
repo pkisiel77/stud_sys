@@ -1160,51 +1160,6 @@ int dana_ogr_wzgl(int y, int x, char* monit, float* w_min, float* w_max,
     return ret;
 }
 
-/* ----------------------------------- pominiete ---------------------
- {struct okno *ok;
-  int i, l;
-   if(Ok==NULL)
-		{komunikat(MY_MAX,X_L0,ATTR_A," Brak adresu dla danej %d blankietu. <Ent> ",
-           nr_danej);
-     GET_char(); return -1;
-    }
-   if(nr_danej>=liczba_danych)
-		{komunikat(MY_MAX,X_L0,ATTR_A," Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-           nr_danej,liczba_danych);
-		 GET_char(); return -1;
-    }
-	 ok=Ok+nr_danej; nr_danej++;
-   ok->format=wpisz_format(ok->format, monit); if(ok->format==NULL) return -1;
-   ok->help[0]=wpisz_format(ok->help[0], format);
-   ok->typ='f';
-    if(format !=NULL)
-     {if(ok->help[0]==NULL) return -1;
-      ok->typ='o';
-      ok->help[1]=(char *)baza;
-      ok->help[2]=(char *)abs_min;
-      ok->help[3]=(char *)abs_max;
-     }
-		else
-     {if(baza!=NULL) {ok->typ='w'; ok->help[1]=(char *)baza;}}
-		ok->wartosc=(float *)wart;
-    ok->kod_anim=kod_animacji;
-    ok->size=size;
-    ok->prec=precyzja;
-    ok->wmin_opcje=(float *)w_min;
-    ok->wmax=(float *)w_max;
-    if(kod_animacji>0) ok->proxy=BL[nr_blank]->anim_pid;
-    ok->yo=y;
-    ok->xo=x;
-    ok->obowiazk=0;
-    if(monit[0]=='#' || monit[1]=='#') ok->obowiazk=1;
-		ok->yplus=0;
-    if(monit[0]=='+' || monit[1]=='+') ok->yplus=1;
-    ok->blok_wpisu=0; if(ochrona==-1) ok->blok_wpisu=1;
-    ok->ochrona=ochrona;
-    if(ochrona<0 || BL[nr_blank]->czynny==0) ok->ochrona=Upr_max;
-   return nr_danej;
- }
- ------------------------------------------------------------------------- */
 int wpis_tabl_float(signed char wpis, int y, int x0,
                     unsigned int attr_d, unsigned int attr, unsigned int attrtx,
                     int* index, char* tabl, int dim, int L_kol, int size,
