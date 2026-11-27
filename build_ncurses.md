@@ -47,12 +47,17 @@ If you need to compile manually:
 gcc -D_NCURSES_ -I. -Iblank -Iopcjesys \
     -o stud_sys \
     core.c \
+    scheduler.c \
+    zlecenia.c \
+    konfig.c \
     blank/term_ncurses.c \
     blank/wewy.c \
     budz.c \
     admin.c \
     sys_rap.c \
     sprawdz.c \
+    rap_bl.c \
+    randf.c \
     mqtt_pub.c \
     sensor_sim.c \
     -lncurses -lm

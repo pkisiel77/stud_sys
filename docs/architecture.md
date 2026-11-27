@@ -23,7 +23,7 @@ Przebieg startu:
 
 1. `main()` inicjalizuje konsolę przez `InitConsole()`.
 2. `open_sys()` buduje konfigurację usług przez `set_services()`.
-3. `open_sys()` inicjalizuje rekordy startowe `agenda` dla usług RT.
+3. `open_sys()` zeruje agendę i kolejkę przez `scheduler_init()` (`scheduler.c`) i inicjalizuje rekordy startowe `agenda` dla usług RT.
 4. menu główne jest budowane przez `build_presentation_menu()`.
 5. wejście w pozycję menu kieruje do `raporty(...)`.
 
@@ -112,7 +112,7 @@ Główny przepływ:
 5. wywoływany jest `A->S->main_modul(A)`,
 6. po wykonaniu rekord wraca do dalszego harmonogramowania albo jest usuwany.
 
-Powiązane funkcje:
+Powiązane funkcje (`scheduler.c`, deklaracje w `scheduler.h` i `blank/sys_dekl.h`):
 
 - `check_agenda()`
 - `insert_to_agenda()`
@@ -244,7 +244,9 @@ To były źródła migania i problemów z interfejsem w ostatnich iteracjach.
 
 ## Pliki kluczowe
 
-- `core.c` - scheduler, start, główne menu
+- `core.c` - start systemu i główne menu
+- `scheduler.c` - scheduler RT: agenda `SysA`, kolejka `SysQ`, cykl życia rekordów
+- `zlecenia.c` - wspólne formularze i decyzje modułów usług (`dane_agendy()`, `decyzje_run()`, ...)
 - `konfig.c` - definicja usług
 - `blank/sys_dekl.h` - struktury `Service` i `agenda`
 - `blank/wewy.c` - silnik blankietów

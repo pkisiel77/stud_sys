@@ -16,7 +16,7 @@ System uruchamia zestaw usług zapisanych jako rekordy `agenda`. Każda usługa 
 - okres wywołania (`Interval`),
 - opóźnienie do najbliższego uruchomienia (`delay`).
 
-Scheduler w `core.c` cyklicznie:
+Scheduler w `scheduler.c` cyklicznie:
 
 - odlicza opóźnienia zadań,
 - wybiera gotowe rekordy,
@@ -80,6 +80,8 @@ Projekt składa się z czterech warstw:
 Pliki:
 
 - `core.c`
+- `scheduler.c`, `scheduler.h`
+- `zlecenia.c`, `zlecenia.h`
 - `konfig.c`
 - `konfig.h`
 - `blank/sys_dekl.h`
@@ -225,7 +227,9 @@ sudo apt-get install libpaho-mqtt-dev
 
 ## Najważniejsze pliki
 
-- `core.c` - scheduler, start systemu, menu główne
+- `core.c` - start systemu, menu główne
+- `scheduler.c` - scheduler RT (agenda, kolejka)
+- `zlecenia.c` - wspólne formularze i decyzje modułów usług
 - `konfig.c` - rejestracja usług
 - `budz.c` - główny moduł demonstracyjny
 - `sys_rap.c` - raport diagnostyczny

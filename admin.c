@@ -7,8 +7,8 @@ Autor: gonzo77@poczta.fm
 #include "blank/moje.h"
 #include "admin.h"
 #include "loc.h"
+#include "scheduler.h"
 
-void chk_time(void);
 void PrzegladajLog(void);//char *buffor[20]);
 int InfoSystem(int ret);
 

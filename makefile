@@ -45,6 +45,8 @@ endif
 # Pliki zrodlowe
 # ----------------------------------------------------------------
 SRCS = core.c \
+       scheduler.c \
+       zlecenia.c \
        konfig.c \
        blank/term_ncurses.c \
        blank/wewy.c \

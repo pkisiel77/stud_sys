@@ -1,7 +1,8 @@
 #include "blank/moje.h"
 #include "dek_budz.h"
 #include "loc.h"
-void chk_time(void);
+#include "scheduler.h"
+#include "zlecenia.h"
 extern struct Service *Service;
 /* extern struct agenda *Agenda; */
 extern unsigned int attr_title;
@@ -10,7 +11,6 @@ extern unsigned int cursor, nocursor;
 
 extern int X_time, X_tyt;
 extern unsigned int attr,at_wpis;
-extern time_t sek_akt;
 #define S_MIN 60l
 /* ------------------ kody decyzji sa w moje.h -------------
 #define DEC_NEW    1
@@ -20,18 +20,8 @@ extern time_t sek_akt;
 #define DEC_DELAY  5
  ----------------------------------------------------------- */
 #define DEC_MOD_TIME 16
-extern int AgendaMax, lwmall;
-extern struct agenda *SysA[];
+extern int lwmall;
 static struct agenda *Anew = NULL, *Aserv = NULL; /* stan lokalny uslugi budzik */
-int dane_agendy(struct agenda *A, struct agenda *An, int cykl_max);
-int pobierz_rekord_uslugi(int *nr_rekordu, int kod_uslugi, int ob_konc,
-									struct agenda **As, struct agenda **An,
-									struct agenda ***SA, char *adres_rek0_uslugi, char *nazwa);
-int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
-                  int *nr_rekordu, int kod_uslugi, char *tytul);
-int pokaz_listy_zlecen(struct agenda *Anew, struct agenda ***SA,
-												 int kod_uslugi, char *tytul);
-void ustaw_typ_uslugi(struct agenda *A, int decyzja);
 static void budz_format_pozostalo(float delay, char *buf, size_t buflen);
 static float budz_pozostalo_teraz(struct agenda *A);
 static int budz_menu_live(struct agenda *lista[], int nbudz, int opcja0, char *tytul);
@@ -562,7 +552,6 @@ static void budz_przepisz_zmiany(struct agenda *dst, struct agenda *src)
     memcpy(dst->data, src->data, sizeof(struct budzik));
 }
 
-extern time_t sek_akt;
 char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
  {static struct Service *S;
 	(void)ob_pocz; (void)ob_konc;

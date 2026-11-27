@@ -72,6 +72,8 @@ if(STUDSYS_MQTT)
 endif()
 
 set(STUDSYS_COMMON_SOURCES
+    scheduler.c
+    zlecenia.c
     konfig.c
     blank/term_ncurses.c
     blank/wewy.c
