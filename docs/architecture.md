@@ -140,7 +140,13 @@ Ważne:
 
 Pliki:
 
-- `blank/wewy.c`
+- `blank/wewy.c` - klawiatura, `okno_menu()`, komunikaty, przełączniki trybu, `wczytaj_*()`; definiuje globalne zmienne silnika
+- `blank/wewy_pola.c` - pola znakowe i grupowe, indeksy tablic, formaty, okno pomocy
+- `blank/wewy_raporty.c` - pola tekstowe, hasła i uprawnienia, definicje i pamięć raportów, zapis raportu
+- `blank/wewy_dane.c` - API pól formularza: `dana_*()`, `tabl_*()`, `grupa_*()`, `blankiet()`
+- `blank/wewy_blankiet.c` - `rap_blank()`: pętla blankietu, obsługa wpisu, otwieranie i animacja
+- `blank/wewy_liczby.c` - pola liczbowe (float/double/int, tablice liczb)
+- `blank/wewy_wsp.h` - wspólny prolog plików `wewy*.c`
 - `rap_bl.c`
 
 Silnik odpowiada za:
@@ -250,7 +256,7 @@ To były źródła migania i problemów z interfejsem w ostatnich iteracjach.
 - `zlecenia.c` - wspólne formularze i decyzje modułów usług (`dane_agendy()`, `decyzje_run()`, ...)
 - `konfig.c` - definicja usług
 - `blank/sys_dekl.h` - struktury `Service` i `agenda`
-- `blank/wewy.c` - silnik blankietów
+- `blank/wewy*.c` - silnik blankietów (podział opisany w sekcji "Silnik blankietów")
 - `rap_bl.c` - przepływ raportu
 - `budz.c` - główny moduł demonstracyjny
 - `sys_rap.c` - raport diagnostyczny
