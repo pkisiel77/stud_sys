@@ -40,11 +40,7 @@
 #define L_CORE_MODE_GRAPH         "Switch to GRAPHICAL mode"
 #define L_CORE_MODE_TEXT          "Switch to TEXT mode      "
 #define L_CORE_MAIN_MENU_TITLE    " MAIN MENU "
-#define L_CORE_DEFAULT_ALARM_NAME " Alarm %d"
 #define L_CORE_ERR_DEF_REPORT     " def_Report failed for service %d (%s). <Ent> "
-#define L_CORE_HDR_SUBSYSTEM      " SUBSYSTEM"
-#define L_CORE_VERSION_BANNER     "      STUD_SYS version 1.0"
-#define L_CORE_USER_LABEL         "      User: "
 #define L_CORE_ERR_AGENDA_FULL    " No room in AGENDA for %s <ENT> "
 #define L_CORE_ERR_NO_MEM_ORDER   " Out of memory for order %s <Ent> "
 #define L_CORE_ERR_QUEUE_FULL     " No room in QUEUE for %s <ENT> "
@@ -82,8 +78,6 @@
 #define L_CORE_FORM_LAUNCH_NEW    " Launch new  <%s> ?? "
 #define L_CORE_INFO_NO_ALARMS     " No alarms in agenda "
 #define L_CORE_LIST_ROW           " %19S type=%c prio=%d count=%d times"
-#define L_CORE_ERR_OPEN_FILE      "File open error"
-#define L_CORE_TITLE_ERROR        " ERROR"
 #define L_CORE_MENU_IOT_DEMO      " Demo IoT: simulated sensor"
 
 /* ===== Admin module ===== */
@@ -280,11 +274,7 @@
 #define L_CORE_MODE_GRAPH         "Zmiana trybu na GRAFICZNY"
 #define L_CORE_MODE_TEXT          "Zmiana trybu na TEKSTOWY "
 #define L_CORE_MAIN_MENU_TITLE    " MENU GLOWNE "
-#define L_CORE_DEFAULT_ALARM_NAME " Budzik %d"
 #define L_CORE_ERR_DEF_REPORT     " Blad def_Report dla uslugi %d (%s). <Ent> "
-#define L_CORE_HDR_SUBSYSTEM      " PODSYSTEM"
-#define L_CORE_VERSION_BANNER     "      STUD_SYS wersja 1.0"
-#define L_CORE_USER_LABEL         "      Uzytkownik: "
 #define L_CORE_ERR_AGENDA_FULL    " Brak miejsca w AGENDZIE na %s <ENT> "
 #define L_CORE_ERR_NO_MEM_ORDER   " Brak pamieci dla zlecenia %s <Ent> "
 #define L_CORE_ERR_QUEUE_FULL     " Brak miejsca w KOLEJCE na %s <ENT> "
@@ -322,8 +312,6 @@
 #define L_CORE_FORM_LAUNCH_NEW    " Uruchomic nowe  <%s> ?? "
 #define L_CORE_INFO_NO_ALARMS     " Brak budzikow w agendzie "
 #define L_CORE_LIST_ROW           " %19S typ=%c prio=%d krotn=%d razy"
-#define L_CORE_ERR_OPEN_FILE      "Blad otwarcia pliku"
-#define L_CORE_TITLE_ERROR        " BLAD"
 #define L_CORE_MENU_IOT_DEMO      " Demo IoT: czujnik symulowany"
 
 /* ===== Admin ===== */

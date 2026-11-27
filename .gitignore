@@ -366,3 +366,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Artefakty buildu (Makefile)
+/stud_sys
+/obj/
