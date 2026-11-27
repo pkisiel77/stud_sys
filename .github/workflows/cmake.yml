@@ -53,3 +53,67 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  mqtt:
+    name: ubuntu-latest / ${{ matrix.compiler }} / MQTT
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+
+    env:
+      CC: ${{ matrix.compiler }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpaho-mqtt-dev
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DSTUDSYS_MQTT=ON
+          -DSTUDSYS_WERROR=ON
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Build with make MQTT=1
+        run: make MQTT=1 CC=${{ matrix.compiler }}
+
+  sanitizers:
+    name: ubuntu-latest / clang / ASan+UBSan
+    runs-on: ubuntu-latest
+
+    env:
+      CC: clang
+      ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libncurses-dev
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DSTUDSYS_MQTT=OFF
+          -DCMAKE_BUILD_TYPE=Debug
+          "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+          "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
