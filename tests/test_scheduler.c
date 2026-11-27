@@ -12,6 +12,9 @@ extern int NoServisMax;
 extern char select_mode;
 
 void check_agenda(time_t dt);
+int data_systemowa(int *dzien, int *miesiac, int *rok);
+int decyzje_run(char decyzja, struct agenda **Aserv, struct agenda **Anew,
+                int *nr_rekordu, int kod_uslugi, char *tytul);
 struct agenda *check_queue(void);
 
 static int failures = 0;
@@ -207,6 +210,36 @@ static void test_sensor_sample_finishes_queue_execution(void)
     CHECK(task.rt.alarm == RT_ALARM_OK);
 }
 
+static void test_system_date_uses_calendar_month(void)
+{
+    int dzien = 0, miesiac = 0, rok = 0;
+    time_t now = time(NULL);
+    struct tm expected = *localtime(&now);
+
+    data_systemowa(&dzien, &miesiac, &rok);
+
+    CHECK(miesiac >= 1 && miesiac <= 12);
+    CHECK(miesiac == expected.tm_mon + 1);
+    CHECK(dzien == expected.tm_mday);
+    CHECK(rok == expected.tm_year + 1900);
+}
+
+static void test_save_without_new_record_does_not_exit_report(void)
+{
+    struct agenda existing;
+    struct agenda *Aserv = &existing;
+    struct agenda *Anew = NULL;
+    int nr_rekordu = 3;
+
+    memset(&existing, 0, sizeof(existing));
+    existing.number_of_calls = 5;
+
+    CHECK(decyzje_run('w', &Aserv, &Anew, &nr_rekordu, 1, "test") == 0);
+    CHECK(Aserv == &existing);
+    CHECK(existing.number_of_calls == 5);
+    CHECK(nr_rekordu == 3);
+}
+
 int main(void)
 {
     test_max_priority_scans_whole_queue();
@@ -217,6 +250,8 @@ int main(void)
     test_agenda_releases_ready_task_to_queue();
     test_status_snapshot_explains_scheduler_state();
     test_sensor_sample_finishes_queue_execution();
+    test_system_date_uses_calendar_month();
+    test_save_without_new_record_does_not_exit_report();
 
     if (failures != 0) {
         fprintf(stderr, "%d scheduler test(s) failed\n", failures);
