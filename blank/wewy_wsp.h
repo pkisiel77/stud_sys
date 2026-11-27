@@ -4,9 +4,8 @@
  *
  * Silnik byl jednym plikiem wewy.c (wczesniej sklejonym z wewy.c i
  * wewy1.c ... wewy5.c). Ten naglowek zawiera prolog, ktory obowiazywal
- * w calym pliku. Globalne zmienne silnika definiuje tylko wewy.c
- * (#define WEWY_MAIN przed dolaczeniem); pozostale pliki dostaja je
- * z wewy1.h i opcjesys/scr_size.h jako extern. */
+ * w calym pliku. Globalne zmienne silnika definiuje wewy.c;
+ * wewy1.h i opcjesys/scr_size.h maja dla nich tylko deklaracje extern. */
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -20,7 +19,7 @@
 #include <malloc.h>
 #endif
 #include "../opcjesys/opcje.h"
-#include "../opcjesys/shintdef.h" /* opcje.h dolacza go tylko przy WEWY_MAIN */
+#include "../opcjesys/shintdef.h"
 
 #define Get_char GET_char
 #define Get_Char GET_char

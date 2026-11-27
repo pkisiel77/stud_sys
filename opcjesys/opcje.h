@@ -18,9 +18,6 @@ struct BUFOR_EKRANU
 //struct BUFOR_EKRANU be;
 //HANDLE hConsoleOutput, hConsoleInput;
 
-#ifdef WEWY_MAIN // dla wewy_main
- #include "../opcjesys/shintdef.h"
-#endif // koniec wewy_main
 #ifdef _MOJE_H_ // hedery dla moje.h
  #include <stddef.h>
  #include <stdio.h>
