@@ -2408,7 +2408,7 @@ float wczytaj_float(int y, int x, char* monit, int size, int prec,
                     unsigned int attr_monit, unsigned int attr_wpis)
 {
     int x0, ret;
-    char buf[WLMAX], format[20], oblig = 0;
+    char buf[WLMAX], format[32], oblig = 0;
     float liczba;
     unsigned int attr_old;
     if (size >= WLMAX) size = WLMAX - 1;
@@ -2439,7 +2439,8 @@ char wczytaj_char(int y, int x, char* monit, unsigned char w_def,
                   unsigned int attr_monit, unsigned int attr_wpis)
 {
     unsigned int attr_old;
-    unsigned char format[5], buf[2], liczba, w_min = 0, w_max = 'z';
+    char format[5], buf[2];
+    unsigned char liczba, w_min = 0, w_max = 'z';
     int oblig = 0, size = 1, x0, ret;
     if (!isalnum(w_def)) { w_def = w_max; }
     attr_old = attryb;
@@ -2447,7 +2448,7 @@ char wczytaj_char(int y, int x, char* monit, unsigned char w_def,
     if (monit[0] == '#') oblig = 1;
     x0 = ustaw_buf_wpisu(y, x, monit, &size, attr_monit, attr_wpis);
     y = m_wherey();
-    snprintf((char*)format, sizeof(format), "%%c");
+    snprintf(format, sizeof(format), "%%c");
     macro_wczyt("%c");
     return liczba;
 }
@@ -3036,7 +3037,7 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
     unsigned int att;
     int k_inv, i, id, y, l_linii, k, tx_size, ret, ip, kmax, nr, k_ost, nrh;
     int xp, xpf = 0, xm, yp, ym, yd, Ym, y_kur = 0, x_kur = 0, n, ik, x, ind, ip_old, ind_size;
-    char znak, **buf, *koniec = "<Esc>", form_dat[10], *form_d, *menu, *zle, jest;
+    char znak, **buf, *koniec = "<Esc>", form_dat[24], *form_d, *menu, *zle, jest;
     int dl_tyt = 0, opcja0 = 0;
     float w, *wart = NULL;
     char err = 0;

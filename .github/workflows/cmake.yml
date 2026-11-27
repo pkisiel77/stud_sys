@@ -45,6 +45,7 @@ jobs:
           cmake -S . -B build
           -DSTUDSYS_LANG=${{ matrix.lang }}
           -DSTUDSYS_MQTT=OFF
+          -DSTUDSYS_WERROR=ON
           -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
