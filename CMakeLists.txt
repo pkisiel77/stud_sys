@@ -77,6 +77,11 @@ set(STUDSYS_COMMON_SOURCES
     konfig.c
     blank/term_ncurses.c
     blank/wewy.c
+    blank/wewy_pola.c
+    blank/wewy_raporty.c
+    blank/wewy_dane.c
+    blank/wewy_blankiet.c
+    blank/wewy_liczby.c
     budz.c
     admin.c
     sys_rap.c
