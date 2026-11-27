@@ -62,14 +62,6 @@ struct agenda
 };
 
 
-struct _dane_pacjenta_
-{
-    int pac_nr_ew;
-    int pac_imie;
-    int pac_nazwisko;
-};
-
-
 int insert_to_queue(struct agenda* A);
 void cancel_serv(struct agenda* A, int i);
 int insert_to_agenda(struct agenda* A);
