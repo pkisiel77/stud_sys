@@ -1,20 +1,15 @@
 #define _MAIN_MODUL_
 #define _WEWY_TERM_
-// #define GRAF
 // #define _NCURSES_  // Defined in Makefile with -D_NCURSES_
-// miejsce dla opcjesys.h
 #include "blank/moje.h"
-// koniec miejsca dla opcjesys.h
-// #include "helper/helper.cpp"
 struct agenda* Agenda = NULL;
 int X_time = 30, X_tyt = 0, Liczba_opcji;
-// kolory pocz�tkowe
+// kolory poczatkowe
 unsigned int attr = TERM_WHITE_BG | TERM_BLACK | TERM_FLUSH;
 unsigned int at_wpis = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
 unsigned int attr_time = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
 unsigned int attr_title = TERM_WHITE | MTERM_HILIGHT | TERM_BLUE_BG | TERM_FLUSH;
 extern unsigned int cursor, nocursor;
-int podsNameLen = 0;
 #define L_REP_MAX 5
 struct agenda* SysA[AG_SIZE];
 struct agenda* SysQ[Q_SIZE];
@@ -29,15 +24,8 @@ int ag_rep, q_rep;
 #include "loc.h"
 #include "randf.c"
 /* ----------------------------------------------------------- */
-void logo(int yg, int xg, unsigned int attr_logo, char* imie, char* nazwisko, signed char mode);
-void naglowek(unsigned int attr_logo);
 void term_clear(int co);
 int open_sys(void);
-/* struct queue
- {struct agenda *A;
-	time_t last_time;
-	int cur_prior;
- }; */
 char select_mode = MAX_PRIOR;
 int AgendaMax = -1, NoServisMax = -1;
 void check_services(void);
@@ -54,21 +42,13 @@ char Dec = 'p', typ_raportu = ' ';
 time_t sek_akt;
 int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
 int y_shift = 0;
-/*extern unsigned _stklen=50000U; */
 /* ---------------------------------------------------------------- */
 int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
             int kto, int r_pocz, int lrek, struct Service* S);
 /* ---------------------------------------------------------------- */
-// dodatkowe funkcje dla logowania plus sta�e symboliczne
-#define DL_NAZWY_UZYT 12
-#define DL_NAZWY_HASLA 12
-// ustawienie scie�ek do katalog�w pacjenta
 #define PATH_LOG   "/tmp/stud_sys.log"
-#define PATH_HASLA "/tmp/stud_sys_hasla.dat"
-//
+
 int ZapiszDoLog(char* sciezka, char* tryb);
-int ZapiszLog(char* uzytkownik, char* haslo);
-int SprawdzLog(char* uzytkownik, char* haslo);
 static int build_presentation_menu(char* menu_view[], int menu_map[], char* graph_text);
 /* ---------------------------------------------------------------- */
 
@@ -83,85 +63,16 @@ int main(int argc, char* argv[])
     int visible_options;
     /* ---------------------------------------------------------------- */
 
-    // printf("%d",add(1, 2));
 
     InitConsole();
     term_fill(TERM_WHITE | TERM_BLACK_BG);
     Cls();
-    /*
-    { char *text[]={" Praca magisterska",
-    " System RT w srodowisku Windows NT",
-    " Modul RT ",
-    " Wersja 1.0.0",
-    " Data 29.10.2001",
-    " Logowanie do systemu pomiarowego"};
-    int xg=0,yg=1,sprawdz=0,krok=0;
-    FILE *fp;
-    term_type(yg,xg,text[0],strlen(text[0]),TERM_WHITE);
-    term_type(yg++,xg,text[1],strlen(text[1]),TERM_WHITE);
-    term_type(yg++,xg,text[2],strlen(text[2]),TERM_WHITE);
-    term_type(yg++,xg,text[3],strlen(text[3]),TERM_WHITE);
-    term_type(yg++,xg,text[4],strlen(text[4]),TERM_WHITE);
-    term_type(yg+=2,xg,text[5],strlen(text[5]),TERM_WHITE);
-    // start wpis�w do systemu
-    ret=ZapiszDoLog(PATH_LOG,"START");
-    // funkcje interaktywne
-    yg+=2;
-    do{
-    Uzytkownik[0]=EOS;
-    wczytaj_string(yg, xg, "# Uzytkownik: ",Uzytkownik,DL_NAZWY_UZYT, TERM_WHITE, TERM_BLACK_BG);
-    if(strlen(Uzytkownik)>0) uzytkownik=Uzytkownik;
-    Haslo[0]=EOS;
-    wczytaj_string(yg+1, xg, "# Numer: ",Haslo, DL_NAZWY_HASLA, TERM_WHITE, TERM_BLACK);
-    if(strlen(Haslo)>0) haslo=Haslo;
-    //zapisanie logowanie do pliku log.dat
-    ret=ZapiszLog(uzytkownik,haslo);
-    // sprawdzanie wprowadzonych danych
-    ret=SprawdzLog(uzytkownik,haslo);
-    if(ret==1) sprawdz=1;
-    else {MessageBox(NULL," Uwaga!!! brak poprawnosi logowania "," Log ",MB_ICONERROR);sprawdz=0;krok++;}
-    if(krok>3)
-    {MessageBox(NULL," Nie misiu tak sie bawic nie bedziemy "," Znasz czy nie znasz siebie ",MB_OK);
-    ret=ZapiszDoLog(PATH_LOG,"BRAK HASLA");
-    return 0;}
-    }while(sprawdz!=1);
-    }
-    //
-    #ifdef _CVC_
-    // sprawdzenie czy system zosta� zamkni�ty prawid�owo plik tmp.dat
-    { FILE *fp,*nfp;
-    fp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\tmp.dat","r");
-    if(fp==NULL) {nfp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\tmp.dat","a");
-    fprintf(nfp,"start systemu");
-    fclose(nfp);
-    }
-    else
-    { MessageBox(NULL," System zosta� �le zmkni�ty "," B��d zamykania systemu ",MB_OK);
-    system(del *.*);
-    fclose(fp);
-    }
-    }
-    #endif
-    */
     Liczba_opcji = open_sys();
     /* Ignore long-lived allocations created during system startup when
        reporting per-session memory growth in the report engine. */
     lwmallp = lwmall;
     Ret = Liczba_opcji - 1;
-    /*
-        for(nd=1;nd<argc;nd++)
-        {if(argv[nd][0]!='-') continue;
-        switch(argv[nd][1])
-        {case 'n': nazwisko=&argv[nd][2];  break;
-        case 'f': imie=&argv[nd][2];      break;
-        case 'm': mode=atoi(&argv[nd][2]);break;
-        case 'o': Ret=atoi(&argv[nd][2]); break;
-        default:  break;
-        }
-        }
-        */
     term_fill(TERM_WHITE | TERM_BLUE_BG);
-    //	logo(y_logo,x_logo,attr_logo, imie , nazwisko, mode);
     /* ------------------------------------------------------------- */
     YZ_max_text = MY_MAX;
     Yz_max_graf = YZ_max_text;
@@ -175,8 +86,6 @@ int main(int argc, char* argv[])
     do
     {
         term_fill(TERM_WHITE | TERM_BLUE_BG);
-        setcursor(nocursor);
-        // logo(y_logo,x_logo,attr_logo, imie , nazwisko, mode);
         setcursor(nocursor);
         {
             int y_menu;
@@ -244,7 +153,6 @@ int main(int argc, char* argv[])
 #endif
     ZapiszDoLog(PATH_LOG, "KONIEC PRACY");
     (void)ret;
-    /*	if(mystderr!=NULL) fclose(mystderr); */
     return 0;
 }
 
@@ -322,40 +230,6 @@ int open_sys(void)
         A->last_time = sek_akt;
         SysA[0] = A;
     }
-    /* ------------------ Uruchamiamy dla testu 10 zlecen -------------
-        {int rozmiar, zl, zlb=-1, zlo=-1, nr;
-         for(i=1;i<L_SYS; i++)
-            {if(Serv[i]->def_blankiet==budz_blankiet) zlb=i;
-             //if(Serv[i]->def_blankiet==obl_blankiet) zlo=i;
-            }
-         for(i=1;i<10; i++)
-         {if((i%2)==0) zl=zlb; //else {//zl=zlo;
-
-             A=service_default(Serv[zl]->decyzje);
-             if(A==NULL) continue;
-         A->Interval=1000; A->delay=2000; A->number_of_calls=1000;
-             if(zl!=zlb) {A->mode='p';}
-             else
-                {struct budzik *Bu;
-                 int godz, min, sek;
-                 A->mode='s';
-                 Bu=(struct budzik *)(A->data);
-                 snprintf(Bu->nazwa, sizeof(Bu->nazwa), L_CORE_DEFAULT_ALARM_NAME, i); if(i==1) Bu->nazwa[0]=0;
-                 czas_zegarowy(&godz, &min, &sek);
-                 Bu->min=min; Bu->godz=godz+i;
-                 if(Bu->godz>=24) Bu->godz-=24;
-                 Bu->co_ile=2; Bu->wyprzedz=15+i;
-           ustaw_czas_budzika(A, Bu);
-                }
-             A->prior=100-i;
-             nr=insert_to_agenda(A);
-             Free(A); lwmall--;
-    //		 SysA[i]=A; //(struct agenda *)Malloc(Serv[L_SYS]->str_size);
-    //								 A=SysA[0]; A->S=Serv[L_SYS];
-            }
-         free_service(SysA[4]);
-        }
-        */
     wewy_abort_off();
     wpis_danych_bez_potwierdz();
 def_haslo("st", "Student");
@@ -383,57 +257,7 @@ def_haslo("st", "Student");
     return liczba_opcji;
 }
 
-/* -------------------------------------------------------------- */
-void naglowek(unsigned int attr_logo)
-{
-    int i, len;
-    term_printf(Y_G0, X_L0, attr_logo, L_CORE_HDR_SUBSYSTEM);
-    X_tyt = m_wherex();
-    for (i = 0, podsNameLen = 24; i < Liczba_opcji; i++)
-    {
-        len = strlen(Menu[i]);
-        if (len > podsNameLen) podsNameLen = len;
-    }
-    if (podsNameLen > 24)
-    {
-        i = podsNameLen - 24;
-        X_tyt -= i;
-    }
-    len = X_tyt + podsNameLen;
-    for (i = X_tyt; i < len; i++) term_type(Y_G0, i, " ", 1, attr_logo);
-    X_tyt++;
-    X_time = m_wherex();
-    chk_time();
-}
-
-void logo(int yg, int xg, unsigned int attr_logo, char* imie,
-          char* nazwisko, signed char mode)
-{
-    char* text = "                                              ";
-    int xtxt;
-    naglowek(attr_logo);
-    chk_time();
-    if (yg <= Y_G0) { yg = Y_G0 + 1; }
-    if (xg <= X_L0) { xg = X_L0 + 1; }
-    Okno(yg, xg, yg + 9, xg + 3 + strlen(text) + 3, attr_logo);
-    clr_Okno();
-    xtxt = xg + 5;
-    term_printf(yg + 2, xtxt, attr_logo, text);
-    term_printf(yg + 8, xtxt, attr_logo, L_CORE_VERSION_BANNER);
-    if (nazwisko != NULL || imie != NULL)
-    {
-        term_printf(yg + 6, xtxt, attr_logo, L_CORE_USER_LABEL);
-        if (imie != NULL) term_printf(yg + 6, m_wherex(), attr_logo, "%s", imie);
-        if (nazwisko != NULL) term_printf(yg + 6, m_wherex(), attr_logo, " %s", nazwisko);
-        term_printf(yg + 6, m_wherex(), attr_logo, " (Mode=****)");
-    }
-}
-
 /* ==================================================================== */
-/*	--------------- struktura tm w time.h ---------------------------
-struct	tm{int tm_sec;  int	tm_min;	 int tm_hour;	int	tm_mday;	int	tm_mon;
-		 int tm_year; int	tm_wday; int tm_yday;	int tm_isdst;};
- ------------------------------------------------------------------- */
 int czas_zegarowy(int* godz, int* min, int* sek)
 {
     time_t sek1970;
@@ -446,7 +270,6 @@ int czas_zegarowy(int* godz, int* min, int* sek)
     return (Time->tm_hour * 60l) + (*min);
 }
 
-// Kisiel
 int data_systemowa(int* dzien, int* miesiac, int* rok)
 {
     time_t sek1970;
@@ -1161,16 +984,6 @@ int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* 
             *Anew = NULL;
         }
         else (*Aserv)->number_of_calls = 0;
-        /*
-                                         { FILE *fp;
-                                         fp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\info.dat","w");
-                                         if(fp==NULL) {;}
-                                         else
-                                         { fprintf(fp,"0");
-                                         fclose(fp);
-                                         }
-                                         }
-                                         */
         break;
     case 'w': if (*Anew != NULL)
         {
@@ -1178,16 +991,6 @@ int decyzje_run(char decyzja, struct agenda** Aserv, struct agenda** Anew, int* 
             *Aserv = rekord_zlecenia_agendy(nr_rekordu, i, kod_uslugi); /*  Szukamy rekordu nowego zlecenia */
             free_agenda_mem(*Anew);
             *Anew = NULL;
-            /*
-                                                 { FILE *fp;
-                                                 fp=fopen("c:\\proba\\pacjent\\pacjent\\tmp\\info.dat","w");
-                                                 if(fp==NULL) {;}
-                                                 else
-                                                 { fprintf(fp,"1");
-                                                 fclose(fp);
-                                                 }
-                                                 }
-                                                 */
         }
         break;
     case 'm': return -1;
@@ -1213,49 +1016,6 @@ int ZapiszDoLog(char* sciezka, char* tryb)
         data_systemowa(&dzien, &miesiac, &rok);
         fprintf(fp, "\n#LOG:[%.2d.%.2d.%.2d](czas) [%.2d.%.2d.%.4d](data)#%s", godz, min, sek, dzien, miesiac, rok,
                 tryb);
-        fclose(fp);
-    }
-    return 0;
-}
-
-int ZapiszLog(char* uzytkownik, char* haslo)
-{
-    FILE* fp;
-    fp = fopen(PATH_LOG, "a");
-    if (fp == NULL) { fprintf(stderr, "Blad otwarcia LOG: %s\n", PATH_LOG); return 0; }
-    else
-    {
-        fprintf(fp, "\n%s %s", uzytkownik, haslo);
-        fclose(fp);
-    }
-    return 0;
-}
-
-int SprawdzLog(char* uzytkownik, char* haslo)
-{
-    char Uzytkownik[DL_NAZWY_UZYT], Haslo[DL_NAZWY_HASLA];
-    int ret;
-    FILE* fp;
-    fp = fopen(PATH_HASLA, "r");
-    if (fp == NULL)
-    {
-        char* menu_blad[] = {L_CORE_ERR_OPEN_FILE};
-        okno_menu(menu_blad, 1, 0, attr, at_wpis, 10, 25, -1, L_CORE_TITLE_ERROR, 1);
-        return -1;
-    }
-    else
-    {
-        do
-        {
-            ret = fscanf(fp, "%11s %11s", Uzytkownik, Haslo);
-            if (ret == 2 && strcmp(uzytkownik, Uzytkownik) == 0 && strcmp(haslo, Haslo) == 0)
-            {
-                fclose(fp);
-                return 1;
-            }
-        }
-        while (ret != EOF);
-
         fclose(fp);
     }
     return 0;
