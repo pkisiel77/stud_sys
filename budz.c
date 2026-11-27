@@ -172,7 +172,9 @@ static int budz_czytaj_int(const char *prompt, int min_val, int max_val, int cur
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
                     L_BUDZ_PROMPT_INT, prompt, min_val, max_val, buf);
-        ch = getch();
+        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
+        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
+        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
         if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
@@ -202,7 +204,9 @@ static void budz_czytaj_text(char *buf, int max_len, const char *prompt)
     for (;;) {
         term_printf(MY_MAX, X_L0, ATTR_A,
                     L_BUDZ_PROMPT_TXT, prompt, tmp);
-        ch = getch();
+        ch = GET_char();   /* GET_char wola check_services(): scheduler dziala w trakcie wpisu */
+        if (ch < 0) continue;              /* timeout - nic nie wcisnieto */
+        if (ch == 0) { GET_char(); continue; } /* klawisz specjalny (strzalka, F1..): pomijamy */
         if (ch == '\n' || ch == '\r' || ch == KEY_ENTER) break;
         if (ch == 27) { len = -1; break; }
         if ((ch == KEY_BACKSPACE || ch == 127 || ch == 8) && len > 0) {
