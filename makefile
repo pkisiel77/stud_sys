@@ -53,6 +53,8 @@ SRCS = core.c \
        admin.c \
        sys_rap.c \
        sprawdz.c \
+       rap_bl.c \
+       randf.c \
        mqtt_pub.c \
        sensor_sim.c
 

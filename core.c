@@ -22,7 +22,8 @@ int ag_rep, q_rep;
 #include "sensor_sim.h" /* demonstracyjny monitor IoT */
 #include "sys_rep.h"    /* czytelny dashboard stanu systemu */
 #include "loc.h"
-#include "randf.c"
+#include "randf.h"
+#include "rap_bl.h"
 /* ----------------------------------------------------------- */
 void term_clear(int co);
 int open_sys(void);
@@ -43,8 +44,6 @@ time_t sek_akt;
 int if_graf = 0, YZ_max_text, Yz_max_graf, Y_MAX_graf = 34;
 int y_shift = 0;
 /* ---------------------------------------------------------------- */
-int raporty(signed char Kod_uslugi, int Nr_rekordu, int npzl,
-            int kto, int r_pocz, int lrek, struct Service* S);
 /* ---------------------------------------------------------------- */
 #define PATH_LOG   "/tmp/stud_sys.log"
 
@@ -1022,14 +1021,3 @@ int ZapiszDoLog(char* sciezka, char* tryb)
 }
 
 /*-------------------------------------------------------------*/
-
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
-#pragma clang diagnostic ignored "-Wunused-but-set-variable"
-#pragma clang diagnostic ignored "-Wself-assign"
-#endif
-#include "rap_bl.c"
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
