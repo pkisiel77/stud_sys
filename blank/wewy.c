@@ -1749,14 +1749,11 @@ void clr_Okno(void)
 }
 
 /* ---------------------------------------------------------------------- */
-int komunikat(int y, int x, unsigned int attr, char* format, ...)
+static int vkomunikat(int y, int x, unsigned int attr, char* format, va_list arg)
 {
     int l, i = 0, max_len;
     char bufor[120];
-    va_list arg;
-    va_start(arg, format);
     vsnprintf(bufor, sizeof(bufor), format, arg);
-    va_end(arg);
     l = strlen(bufor);
     max_len = MX_MAX - x;
     if (max_len < 0) max_len = 0;
@@ -1771,6 +1768,27 @@ int komunikat(int y, int x, unsigned int attr, char* format, ...)
     term_color(TERM_WHITE | TERM_BLACK_BG);
     term_type(y, MXR_MAX, " ", 1,TERM_WHITE | TERM_BLACK_BG);
     return m_wherex();
+}
+
+int komunikat(int y, int x, unsigned int attr, char* format, ...)
+{
+    int ret;
+    va_list arg;
+    va_start(arg, format);
+    ret = vkomunikat(y, x, attr, format, arg);
+    va_end(arg);
+    return ret;
+}
+
+/* Komunikat jak komunikat() i czekanie na klawisz ("... <Ent>").
+   Zwraca nacisniety klawisz (0 dla klawisza specjalnego). */
+int komunikat_ent(int y, int x, unsigned int attr, char* format, ...)
+{
+    va_list arg;
+    va_start(arg, format);
+    vkomunikat(y, x, attr, format, arg);
+    va_end(arg);
+    return czekaj_na_klawisz();
 }
 
 int komun_text(int y, int x, char* bufor, int lz, unsigned int attr)
@@ -1863,9 +1881,8 @@ char* szukaj_formatow(char* format, char typ, char** zp)
             }
             if (typ != zn)
             {
-                komunikat(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_tabl_..(). <Ent> ",
-                          format);
-                czekaj_na_klawisz();
+                komunikat_ent(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_tabl_..(). <Ent> ",
+                              format);
                 z = NULL;
                 break;
             }
@@ -1983,8 +2000,7 @@ char czy_format(char* form, int* cd)
             if (k == 0) return form[j];
             else
             {
-                komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                czekaj_na_klawisz();
+                komunikat_ent(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
             }
             *cd = j + 1;
             return EOS;
@@ -1998,8 +2014,7 @@ char czy_format(char* form, int* cd)
             }
             else
             {
-                komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                czekaj_na_klawisz();
+                komunikat_ent(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
             }
             return EOS;
         }
@@ -2012,8 +2027,7 @@ char czy_format(char* form, int* cd)
             }
             else
             {
-                komunikat(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
-                czekaj_na_klawisz();
+                komunikat_ent(5, 1,ATTR_A, " Bledny format %s. <Ent>", form);
             }
             return EOS;
         }
@@ -2064,8 +2078,7 @@ int otworz_raporty(char nr_op)
     blokada_zapisu = ZAPIS_DOWOLNY;
     if (Klucz != -1)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_REPORTS_OPEN);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_REPORTS_OPEN);
         return -1;
     }
     for (i = 0; i < LHASEL; i++)
@@ -2075,9 +2088,8 @@ int otworz_raporty(char nr_op)
     }
     if (lwmall > 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_ALLOCS_LEFT,
-                  lwmall);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, L_WEWY_PREV_ALLOCS_LEFT,
+                      lwmall);
     }
     lwmallp = lwmall;
     if (nr_blank >= 0 || Czy_Blankiet_otwarty != 0)
@@ -2157,11 +2169,10 @@ signed char zamknij_blankiet(int* nr_rekordu)
         i = 0;
         if (BL[nr_blank] == NULL)
         {
-            komunikat(5, 1,ATTR_A, " Zla specyfikacja blankietu %d: <Ent>", nr_blank);
+            komunikat_ent(5, 1,ATTR_A, " Zla specyfikacja blankietu %d: <Ent>", nr_blank);
             nr_blank--;
             i = 1;
             k = 1;
-            czekaj_na_klawisz();
         }
     }
     while (i == 1);
@@ -2200,10 +2211,9 @@ signed char zamknij_blankiet(int* nr_rekordu)
         lwmall--;
         if (*nr_rekordu != BL[nr_blank]->nr_rekordu)
         {
-            komunikat(MY_MAX, X_L0,ATTR_A,
-                      " Niezgodnosc rekordu dekl.(%d) z zapisem (%d) w zamykanym blankiecie %d. <ENT> ",
-                      *nr_rekordu, BL[nr_blank]->nr_rekordu, nr_blank);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0,ATTR_A,
+                          " Niezgodnosc rekordu dekl.(%d) z zapisem (%d) w zamykanym blankiecie %d. <ENT> ",
+                          *nr_rekordu, BL[nr_blank]->nr_rekordu, nr_blank);
         }
         if (nr_blank == 0)
         {
@@ -2234,10 +2244,9 @@ signed char zamknij_blankiet(int* nr_rekordu)
         *nr_rekordu = BL[nr_blank]->nr_rekordu;
         if (nr_raportu < 0 || nr_raportu > LRAP_BL)
         {
-            komunikat(5, 1,ATTR_A, " Zla specyfikacja blankietu %d (nr_raportu=%d): <Ent>",
-                      nr_blank, nr_raportu);
+            komunikat_ent(5, 1,ATTR_A, " Zla specyfikacja blankietu %d (nr_raportu=%d): <Ent>",
+                          nr_blank, nr_raportu);
             if (nr_blank >= 0) nr_blank--;
-            czekaj_na_klawisz();
             return -1;
         }
         if (RAP[nr_raportu] != NULL) return RAP[nr_raportu]->kod_raportu;

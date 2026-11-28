@@ -952,10 +952,9 @@ int disp_dana(signed char wp, int y0, int x,
         ret = wpis_koment(y, x, attrtx, ok->format);
         break;
     default:
-        komunikat(MY_MAX - 1, X_L0,ATTR_A, " Bledny typ okna danej: ok=%d form=%c%c%c%c.... wp=%d y=%d typ= (%c) <Ent>",
-                  ok, ok->format[1], ok->format[2], ok->format[3],
-                  ok->format[4], wp, y, ok->typ);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX - 1, X_L0,ATTR_A, " Bledny typ okna danej: ok=%d form=%c%c%c%c.... wp=%d y=%d typ= (%c) <Ent>",
+                      ok, ok->format[1], ok->format[2], ok->format[3],
+                      ok->format[4], wp, y, ok->typ);
         ret = -1;
     }
     return ret;
@@ -1051,20 +1050,7 @@ int def_float(int y, int x, char* monit, int ind_min, int ind_max,
               float* abs_min, float* abs_max)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
@@ -1222,9 +1208,8 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
             if (typ == EOS) continue;
             if (typ != 'f')
             {
-                komunikat(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_float_wzgl(). <Ent> ",
-                          format_ogr);
-                czekaj_na_klawisz();
+                komunikat_ent(MY_MAX, 1,ATTR_A, " Bledny format %s w okno_float_wzgl(). <Ent> ",
+                              format_ogr);
                 dlh_ogr = 0;
                 break;
             }

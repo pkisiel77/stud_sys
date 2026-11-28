@@ -199,9 +199,8 @@ def_haslo("st", "Student");
                              Serv[i]->def_blankiet, Serv[i]->dane_rap_bl, Serv[i]->wpis_rap_bl);
         if (rap_idx < 0)
         {
-            komunikat(MY_MAX, X_L0, ATTR_A, L_CORE_ERR_DEF_REPORT,
-                      kod_uslugi, Serv[i]->name);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0, ATTR_A, L_CORE_ERR_DEF_REPORT,
+                          kod_uslugi, Serv[i]->name);
         }
     }
     budz_wczytaj_z_pliku();

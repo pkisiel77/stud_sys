@@ -2,6 +2,9 @@
    Utrwalaja obecne zachowanie przed refaktorem silnika - takze dziwactwa,
    oznaczone komentarzem. */
 #include "blank/moje.h"
+#include "wewy1.h"          /* Ok, nr_danej, liczba_danych */
+
+int sprawdz_nr_danej(void);  /* wewy_wsp.h - wewnetrzne dla silnika */
 #include "test_util.h"
 
 static void test_szukaj(void)
@@ -95,11 +98,27 @@ static void test_sprawdz_znak(void)
     CHECK(sprawdz_znak('x', tn, 4, &sukces, &iopt) == EOS);
 }
 
+static void test_sprawdz_nr_danej(void)
+{
+    struct okno pola[2];
+    /* sciezka bledu wypisuje komunikat i czeka na <Ent>: tylko sciezka OK */
+    Ok = pola;
+    liczba_danych = 2;
+    nr_danej = 0;
+    CHECK(sprawdz_nr_danej() == 0);
+    nr_danej = 1;
+    CHECK(sprawdz_nr_danej() == 0);
+    Ok = NULL;
+    liczba_danych = 0;
+    nr_danej = 0;
+}
+
 int main(void)
 {
     test_szukaj();
     test_podzial_na_slowa();
     test_znaki_liczby();
     test_sprawdz_znak();
+    test_sprawdz_nr_danej();
     return test_wynik("wewy");
 }

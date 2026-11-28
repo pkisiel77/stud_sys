@@ -302,8 +302,7 @@ void def_haslo(char* hasl, char* kod)
     char l;
     if (Klucz != 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
         return;
     }
     if (lhasel < LHASEL)
@@ -556,8 +555,7 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
     struct reports* R;
     if (Klucz != 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, L_WEWY_NO_REPORTS_OPEN);
         return -1;
     }
     if (typ_bazy != BAZA_SPOJNA)
@@ -567,8 +565,7 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
     }
     if (ob_konc < ob_pocz)
     {
-        komunikat(MY_MAX, 1,ATTR_A, "%s. Brak obiektow raportu !! <Ent> ", tytul);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, 1,ATTR_A, "%s. Brak obiektow raportu !! <Ent> ", tytul);
         return -1;
     }
     for (i = 0; i < LRAP_BL; i++)
@@ -622,10 +619,9 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
             zn = tytul[40];
             tytul[40] = 0;
         }
-        komunikat(MY_MAX, 1,ATTR_A, "%s. Brak miejsca na dane !! <Ent> ",
-                  tytul);
+        komunikat_ent(MY_MAX, 1,ATTR_A, "%s. Brak miejsca na dane !! <Ent> ",
+                      tytul);
         if (zn != 0) tytul[40] = zn;
-        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
@@ -679,11 +675,10 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
                 int l = strlen(tytul), zn = 0;
                 if (l > 30) zn = tytul[30];
                 tytul[30] = 0;
-                komunikat(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci na notatnik. Bedzie tylko bierny. <ENT> ",
-                          tytul);
+                komunikat_ent(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci na notatnik. Bedzie tylko bierny. <ENT> ",
+                              tytul);
                 if (zn != 0) tytul[30] = zn;
                 R->uprawnienia = -1;
-                czekaj_na_klawisz();
             }
             else
             {
@@ -919,9 +914,8 @@ int zamkniecie_raportow(char kontr_spojnosci)
     }
     if (lwmall > lwmallp)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, L_WEWY_NEW_ALLOCS_SESS,
-                  lwmallp, lwmall);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, L_WEWY_NEW_ALLOCS_SESS,
+                      lwmallp, lwmall);
     }
     /* komunikat(MY_MAX,X_L0,ATTR_A," Wszystkie rap. zamkn"); GET_char(); */
     lwmallp = lwmall;
@@ -1112,12 +1106,11 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
             int l = strlen(R->tytul), zn = 0;
             if (l > 30) zn = R->tytul[30];
             R->tytul[30] = 0;
-            komunikat(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci na notatnik. Bedzie tylko bierny. <ENT> ",
-                      R->tytul);
+            komunikat_ent(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci na notatnik. Bedzie tylko bierny. <ENT> ",
+                          R->tytul);
             if (zn != 0) R->tytul[30] = zn;
             R->uprawnienia = 0;
             R->d_oryg = NULL;
-            czekaj_na_klawisz();
         }
         else
         {
@@ -1221,24 +1214,21 @@ char* dane_raportowanego_rekordu(int (*def_blank)(int nr_ob, int ob_pocz,
     if (BL[nr_blank] == NULL)
     {
     P:
-        komunikat(MY_MAX, X_L0,ATTR_A, " Otworz blankiet dla rekordu %d. <ENT> ", *nr_rekordu);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Otworz blankiet dla rekordu %d. <ENT> ", *nr_rekordu);
         *nr_rekordu = -1;
         return NULL;
     }
     R = RAP[BL[nr_blank]->nr_raportu];
     if (R == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Otworz raport %d dla rekordu %d. <ENT> ",
-                  BL[nr_blank]->nr_raportu, *nr_rekordu);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Otworz raport %d dla rekordu %d. <ENT> ",
+                      BL[nr_blank]->nr_raportu, *nr_rekordu);
         *nr_rekordu = -1;
         return NULL;
     }
     if (R->def_blankiet != def_blank)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Niezgodnosc funkcji generujacej %s. <ENT> ", R->tytul);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Niezgodnosc funkcji generujacej %s. <ENT> ", R->tytul);
         *nr_rekordu = -1;
         return NULL;
     }
@@ -1392,12 +1382,8 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
     }
     if (i == LRAP_BL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak raportu %d do alokacji bufora %s(%d) i=%d <Ent>    ",
-                  kod_raportu, txt, size, i);
-        /*		for(k=0;k<=i;k++)
-                 {komunikat(MY_MAX-k,X_L0,TERM_WHITE|TERM_BLUE_BG," RAP[%d]=%p",k,RAP[k]);
-                 } */
-        czekaj_na_klawisz(); /*term_color(TERM_WHITE|TERM_BLUE_BG); */
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak raportu %d do alokacji bufora %s(%d) i=%d <Ent>    ",
+                      kod_raportu, txt, size, i);
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
@@ -1405,9 +1391,8 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
     {
         if (strlen(txt) > 0)
         {
-            komunikat(MY_MAX, X_L0,ATTR_A, " Niewlasciwy rozmiar=%d bufora %s dla raportu %d  <Ent>    ",
-                      size, txt, kod_raportu);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0,ATTR_A, " Niewlasciwy rozmiar=%d bufora %s dla raportu %d  <Ent>    ",
+                          size, txt, kod_raportu);
         }
         if (znak != 0) txt[TXM] = znak;
         return NULL;
@@ -1416,9 +1401,8 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
     buf = (char*)Malloc(size + ds);
     if (buf == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak pamieci na %s(%d) dla raportu %d (tot.siz=%d) <Ent> ",
-                  txt, size, kod_raportu, total_size);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak pamieci na %s(%d) dla raportu %d (tot.siz=%d) <Ent> ",
+                      txt, size, kod_raportu, total_size);
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
@@ -1458,9 +1442,8 @@ struct lista* szukaj_adr_alloc(int kod_raportu, char* txt,
     }
     if (i == LRAP_BL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak raportu %d do %s %s <Ent>    ",
-                  kod_raportu, co, txt);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak raportu %d do %s %s <Ent>    ",
+                      kod_raportu, co, txt);
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
@@ -1524,9 +1507,8 @@ void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
     if (lp == NULL || liczba < 0) return adres;
     if (lp->adr_nast == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak wskazanego adresu na liscie: %s(%d) dla rap.%d (tot.siz=%d) <Ent> ",
-                  txt, size, kod_raportu, total_size);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak wskazanego adresu na liscie: %s(%d) dla rap.%d (tot.siz=%d) <Ent> ",
+                      txt, size, kod_raportu, total_size);
         if (znak != 0) txt[TXM] = znak;
         return adres;
     }
@@ -1539,9 +1521,8 @@ void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
         lp->adr_nast = dalej;
         total_size -= i;
         lwmall--;
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak pamieci na realok.%s(%d) dla rap.%d (tot.siz=%d) <Ent> ",
-                  txt, size, kod_raportu, total_size);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak pamieci na realok.%s(%d) dla rap.%d (tot.siz=%d) <Ent> ",
+                      txt, size, kod_raportu, total_size);
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
@@ -1579,8 +1560,7 @@ int Zapisz_raport(int kod_raportu)
     }
     if (i == LRAP_BL)
     {
-        komunikat(MY_MAX, 0,ATTR_A, " Brak raportu %d do zapisu !!! Nacisnij <Ent> ", kod_raportu);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, 0,ATTR_A, " Brak raportu %d do zapisu !!! Nacisnij <Ent> ", kod_raportu);
         return 0;
     }
     return zapis_raportu(R, poprz_dec, wymag_uprawn);
@@ -1595,8 +1575,7 @@ int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
     int lrek, ret = 0;
     if (Uprawn < 1 && wymag_uprawn > 0)
     {
-        komunikat(MY_MAX, 0,ATTR_A, " Za niskie uprawnienia (Uprawn=%d) <Ent> ", Uprawn);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, 0,ATTR_A, " Za niskie uprawnienia (Uprawn=%d) <Ent> ", Uprawn);
         return 0;
     }
     if (poprz_dec < 0)
@@ -1617,36 +1596,32 @@ int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
         {
             if (poprz_dec == UNDO) return -1;
             {
-                komunikat(MY_MAX, 0,ATTR_A, " Brak blankietu. Zastosuj fkcje: Zapisz_raport(kod_raportu,%d,%d); <Ent> ",
-                          poprz_dec, wymag_uprawn);
-                czekaj_na_klawisz();
+                komunikat_ent(MY_MAX, 0,ATTR_A, " Brak blankietu. Zastosuj fkcje: Zapisz_raport(kod_raportu,%d,%d); <Ent> ",
+                              poprz_dec, wymag_uprawn);
                 return 0;
             }
         }
         nr_raportu = BL[nr_blank]->nr_raportu;
         if (nr_raportu < 0)
         {
-            komunikat(MY_MAX, X_L0,ATTR_A, " Bledny numer raportu %d w blank.%d. <Ent> ",
-                      nr_raportu, nr_blank);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0,ATTR_A, " Bledny numer raportu %d w blank.%d. <Ent> ",
+                          nr_raportu, nr_blank);
             if (poprz_dec == UNDO) return -1;
             return 0;
         }
         R = RAP[nr_raportu];
         if (R == NULL)
         {
-            komunikat(MY_MAX, X_L0,ATTR_A, " Brak raportu %d w blank.%d. <Ent> ",
-                      nr_raportu, nr_blank);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak raportu %d w blank.%d. <Ent> ",
+                          nr_raportu, nr_blank);
             if (poprz_dec == UNDO) return -1;
             return 0;
         }
     }
     if (R->zapis == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak rejestracji zmian w raporcie %d, blank.%d. <Ent> ",
-                  nr_raportu, nr_blank);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak rejestracji zmian w raporcie %d, blank.%d. <Ent> ",
+                      nr_raportu, nr_blank);
         if (poprz_dec == UNDO) return -1;
         return 0;
     }

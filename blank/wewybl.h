@@ -578,6 +578,7 @@ char sprawdz_znak(char zn, char opcje[], int dlopt, char* sukces, int* iopt);
 int czytaj_has(char* text, int lz0, int liczba_znakow);
 int Zapisz_raport(int kod_raportu);
 int komunikat(int y, int x, unsigned int attr, char* format, ...);
+int komunikat_ent(int y, int x, unsigned int attr, char* format, ...);
 int komun_text(int y, int x, char* bufor, int l, unsigned int attr);
 void begin_scroll(int dana_nr);
 int czy_mozna_nowe_wykresy(void*(*akcja_grafik)(int typ_kom, int kto,
