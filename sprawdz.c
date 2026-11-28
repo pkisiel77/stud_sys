@@ -46,7 +46,7 @@ int sprawdz(void* DA)
         if (kod_uslugi_blank >= 0)
         {
             SA = getAgendaPtr(&lzl);
-            Ag = (void**)Malloc(7 * lzl * sizeof(void*));
+            Ag = (void**)malloc(7 * lzl * sizeof(void*));
             if (Ag != NULL)
             {
                 for (i = 0, lza = 0; i < lzl; i++)

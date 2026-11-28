@@ -958,7 +958,6 @@ int dana_koment(int yo, int xo, char* format, ...)
                       bufor);
         return -1;
     }
-    lwmall++;
     przepisz(text, bufor, l);
     if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;

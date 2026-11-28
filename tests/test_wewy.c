@@ -2,7 +2,7 @@
    Utrwalaja obecne zachowanie przed refaktorem silnika - takze dziwactwa,
    oznaczone komentarzem. */
 #include "blank/moje.h"
-#include "wewy1.h"          /* Ok, nr_danej, liczba_danych */
+#include "wewy1.h"          /* Ok, nr_danej, liczba_danych, lwmall */
 
 int sprawdz_nr_danej(void);  /* wewy_wsp.h - wewnetrzne dla silnika */
 #include "test_util.h"
@@ -113,6 +113,21 @@ static void test_sprawdz_nr_danej(void)
     nr_danej = 0;
 }
 
+/* Malloc/Free licza bloki w lwmall (raport pamieci po sesji raportow). */
+static void test_licznik_alokacji(void)
+{
+    int przed = lwmall;
+    char *a = (char *)Malloc(10), *b = (char *)Malloc(20);
+    CHECK(a != NULL && b != NULL);
+    CHECK(lwmall == przed + 2);
+    Free(a);
+    CHECK(lwmall == przed + 1);
+    Free(NULL);                       /* NULL: bez zmiany licznika */
+    CHECK(lwmall == przed + 1);
+    Free(b);
+    CHECK(lwmall == przed);
+}
+
 int main(void)
 {
     test_szukaj();
@@ -120,5 +135,6 @@ int main(void)
     test_znaki_liczby();
     test_sprawdz_znak();
     test_sprawdz_nr_danej();
+    test_licznik_alokacji();
     return test_wynik("wewy");
 }

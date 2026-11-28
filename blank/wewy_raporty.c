@@ -93,7 +93,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
         if (pznak > 0) monit[pznak] = ' ';
         return -1;
     }
-    lwmall++;
     form = &format[8];
     format[7] = EOS;
     bufor = &form[ms + 3 * sizeof(char)];
@@ -152,7 +151,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
                 if (buf != NULL)
                 {
                     term_save_image(y + 1, xmax - size, buf, sizh);
-                    lwmall++;
                     for (k = 0; k < w_max; k++)
                     {
                         objasn_grupy(y + 1, xmax - size, k, k, k, attr, attrtx, skok, dltn,NULL, help);
@@ -162,7 +160,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
                     xmax_h = w_min;
                     term_restore_image(y + 1, xmax - size, buf, sizh);
                     Free(buf);
-                    lwmall--;
                 }
                 w_min = 0;
                 size_helpu = 0;
@@ -220,7 +217,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
         if (ret < 0)
         {
             Free(format);
-            lwmall--;
             if (pznak > 0) monit[pznak] = ' ';
             return -5;
         }
@@ -241,7 +237,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
         {
             strncpy(string, textn, size+1);
             Free(format);
-            lwmall--;
             if (pznak > 0) monit[pznak] = ' ';
             return 0;
         }
@@ -259,7 +254,6 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
         }
     } /* else (wpis==1) */
 D: Free(format);
-    lwmall--;
     if (pznak != 0) monit[pznak] = ' ';
     return x_konc;
 }
@@ -559,16 +553,13 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
                         {
                             Free(R->d_oryg[j]);
                             R->d_oryg[j] = NULL;
-                            lwmall--;
                         }
                     }
                     Free(R->d_oryg);
-                    lwmall--;
                 }
                 if ((R->free_mem & 0x01) == 0x01)
                 {
                     Free(R->zapis);
-                    lwmall--;
                     R->free_mem &= 0xfe;
                 }
             }
@@ -592,7 +583,6 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
         if (zn != 0) tytul[40] = zn;
         return -1;
     }
-    lwmall++;
     R->typ_bazy = typ_bazy;
     R->kod_raportu = kod_raportu;
     R->anim_pid = anim_pid;
@@ -651,7 +641,6 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
             else
             {
                 R->free_mem = 0x01;
-                lwmall++;
                 for (i = 0; i < l; i++) R->zapis[i] = 0;
                 R->d_oryg = Malloc(l * sizeof(char**));
                 if (R->d_oryg == NULL)
@@ -665,13 +654,11 @@ int def_Report(signed char kod_raportu, int anim_pid, int ob_pocz,
                     Free(R->zapis);
                     R->free_mem &= 0xfe;
                     R->zapis = NULL;
-                    lwmall--;
                     R->uprawnienia = -1;
                     czekaj_na_klawisz();
                 }
                 else
                 {
-                    lwmall++;
                     for (i = 0; i < l; i++) R->d_oryg[i] = NULL;
                 }
             }
@@ -700,7 +687,6 @@ char* zwolnij_baze(struct reports* R)
             if (baza[k] != NULL)
             {
                 Free(baza[k]);
-                lwmall--;
             }
         }
     }
@@ -714,7 +700,6 @@ char* zwolnij_baze(struct reports* R)
     }
     Free(R->D);
     R->free_mem &= 0xfd;
-    lwmall--;
     return NULL;
 }
 
@@ -744,14 +729,11 @@ void zamknij_rap_kod(int kod_raportu)
                         {
                             Free(R->d_oryg[j]);
                             R->d_oryg[j] = NULL;
-                            lwmall--;
                         }
                     }
                     Free(R->d_oryg);
-                    lwmall--;
                 }
                 Free(R->zapis);
-                lwmall--;
             }
             R->D = zwolnij_baze(R);
         }
@@ -759,7 +741,6 @@ void zamknij_rap_kod(int kod_raportu)
         free_all_rep_mem(R);
         /* komunikat(MY_MAX,X_L0,ATTR_A," Zamyk.raport nr %d R=%p ",i, R); GET_char(); */
         Free(R);
-        lwmall--;
         RAP[i] = NULL;
     }
 }
@@ -862,14 +843,11 @@ int zamkniecie_raportow(char kontr_spojnosci)
                         {
                             Free(R->d_oryg[j]);
                             R->d_oryg[j] = NULL;
-                            lwmall--;
                         }
                     }
                     Free(R->d_oryg);
-                    lwmall--;
                 }
                 Free(R->zapis);
-                lwmall--;
             }
             R->D = zwolnij_baze(R);
         }
@@ -877,7 +855,6 @@ int zamkniecie_raportow(char kontr_spojnosci)
         free_all_rep_mem(R);
         /* komunikat(MY_MAX,X_L0,ATTR_A," Zamyk.raport nr %d R=%p ",i, R); GET_char(); */
         Free(R);
-        lwmall--;
         RAP[i] = NULL;
     }
     if (lwmall > lwmallp)
@@ -937,7 +914,6 @@ void* alloc_list(void* (*L), long int size)
         (*L) = (void*)Malloc(size);
         if ((*L) == NULL) return NULL;
         *((void**)(*L)) = NULL;
-        lwmall++;
         return (*L);
     }
     l = (*L);
@@ -950,7 +926,6 @@ void* alloc_list(void* (*L), long int size)
     next = Malloc(size);
     if (next == NULL) return next;
     *(void**)l = next;
-    lwmall++;
     *(void**)next = NULL;
     return next;
 }
@@ -968,7 +943,6 @@ void* free_list(void* (*L), void* lf)
         next = *(void**)l;
     }
     Free(l);
-    lwmall--;
     if (lp != NULL) *((void**)lp) = next;
     else *L = next;
     return *L;
@@ -1083,7 +1057,6 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
         else
         {
             R->free_mem |= 0x01;
-            lwmall++;
             for (i = 0; i < l; i++) R->zapis[i] = 0;
             R->d_oryg = Malloc(l * sizeof(char**));
             if (R->d_oryg == NULL)
@@ -1097,7 +1070,6 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
                 if ((R->free_mem & 0x01) == 1 && R->zapis != NULL)
                 {
                     Free(R->zapis);
-                    lwmall--;
                     R->free_mem &= 0xfe;
                 }
                 R->uprawnienia = -1;
@@ -1105,7 +1077,6 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
             }
             else
             {
-                lwmall++;
                 for (i = 0; i < l; i++) R->d_oryg[i] = NULL;
             }
         }
@@ -1126,21 +1097,17 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
             if ((R->free_mem & 0x01) == 1 && R->zapis != NULL)
             {
                 Free(R->zapis);
-                lwmall--;
                 R->free_mem &= 0xfe;
                 if (R->d_oryg != NULL)
                 {
                     Free(R->d_oryg);
-                    lwmall--;
                 }
             }
             Free(R);
             RAP[i] = NULL;
-            lwmall--;
             czekaj_na_klawisz();
             return NULL;
         }
-        lwmall++;
         R->free_mem |= 0x02;
     }
     if (R->rozmiar_ob > 0 && R->rozmiar_ob != *rozmiar_ob)
@@ -1151,12 +1118,10 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
         {
             Free(R->zapis);
             R->zapis = NULL;
-            lwmall--;
             R->free_mem &= 0xfe;
             if (R->d_oryg != NULL)
             {
                 Free(R->d_oryg);
-                lwmall--;
             }
         }
 
@@ -1164,7 +1129,6 @@ char* strukt_danych_raportu(struct reports* R, int* rozmiar_ob, int i)
         zamknij_grafiki(R->kod_raportu);
         free_all_rep_mem(R);
         Free(R);
-        lwmall--;
         RAP[i] = NULL;
         czekaj_na_klawisz();
         return NULL;
@@ -1374,7 +1338,6 @@ void* calloc_rep_mem(long int size, int kod_raportu, int rekord, char* txt)
         if (znak != 0) txt[TXM] = znak;
         return NULL;
     }
-    lwmall++;
     l = (struct lista*)&R->bufs;
     while (l->adr_nast != NULL) { l = (struct lista*)(l->adr_nast); }
     l->adr_nast = buf;
@@ -1438,7 +1401,6 @@ void* free_rep_mem(void* adres, int kod_raportu, int rekord, char* txt)
     lp->adr_nast = l->adr_nast;
     total_size -= (l->size + sizeof(struct lista));
     Free(l);
-    lwmall--;
     return NULL;
 }
 
@@ -1454,7 +1416,6 @@ void* free_all_rep_mem(struct reports* R)
         lp->adr_nast = l->adr_nast;
         total_size -= (l->size + ds);
         Free(l);
-        lwmall--;
     }
     return NULL;
 }
@@ -1488,6 +1449,7 @@ void* realloc_rep_mem(void* adres, long int size, int kod_raportu,
     {
         lp->adr_nast = dalej;
         total_size -= i;
+        /* blok porzucony przez liste (nie zwolniony): nie liczymy go */
         lwmall--;
         komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak pamieci na realok.%s(%d) dla rap.%d (tot.siz=%d) <Ent> ",
                       txt, size, kod_raportu, total_size);
@@ -1644,7 +1606,7 @@ int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
                         przepisz(R->D + i * R->rozmiar_ob, R->d_oryg[i], R->rozmiar_ob);
                         R->zapis[i] = 0;
                         ret = -1; /* jest UNDO */
-                        /*          if(R->d_oryg[i]!=NULL) {Free(R->d_oryg[i]); lwmall--;} */
+                        /*          if(R->d_oryg[i]!=NULL) Free(R->d_oryg[i]); */
                     }
                 }
             }
@@ -1662,7 +1624,6 @@ int zapis_raportu(struct reports* Rp, int poprz_dec, int wymag_uprawn)
                     {
                         Free(R->d_oryg[i]);
                         R->d_oryg[i] = NULL;
-                        lwmall--;
                     }
                 }
             }
@@ -1684,7 +1645,6 @@ void reset_blankiet(int nr_rekordu)
         if (ok->format != NULL)
         {
             Free(ok->format);
-            lwmall--;
         }
         ok->format = NULL;
         ok->wpis = 0;
@@ -1693,7 +1653,7 @@ void reset_blankiet(int nr_rekordu)
         {
         case 'g': case 'G': case 's':
         case 'f': case 'F': case 'W': case 'w': case 'o':
-            if (ok->help[0] != NULL) { Free(ok->help[0]); lwmall--; }
+            if (ok->help[0] != NULL) Free(ok->help[0]);
             break;
         default:
             break;

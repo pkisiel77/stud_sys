@@ -30,6 +30,21 @@ shint INSERT=-1, HELP=0, ZAPIS=0, BEZ_HASLA=0, SLEDZIC=0;
 struct okno *Ok=NULL;
 shint nr_danej=0, liczba_danych=0;
 shint lwmall=0, lwmallp=0;
+
+/* Alokacja/zwolnienie z licznikiem lwmall (liczba blokow niezwolnionych). */
+void* Malloc(size_t rozmiar)
+{
+    void* p = malloc(rozmiar);
+    if (p != NULL) lwmall++;
+    return p;
+}
+
+void Free(void* p)
+{
+    if (p == NULL) return;
+    free(p);
+    lwmall--;
+}
 char Uprawn=6, Upr_max=10, Uprawn_max=0, *Kod_operatora_max=NULL;
 signed char NR_OPER=-1;
 struct blankiet *BL[LBLANK];
@@ -1546,7 +1561,6 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
         czekaj_na_klawisz();
         return -1;
     }
-    lwmall++;
     attr = attr & (~TERM_FLUSH);
     attr_o = attr_o & (~TERM_FLUSH);
     tx_size++;
@@ -1561,14 +1575,11 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
             for (k = 0; k < n; k++)
             {
                 Free(buf[k]);
-                lwmall--;
             }
             Free(buf);
-            lwmall--;
             czekaj_na_klawisz();
             return -1;
         }
-        lwmall++;
         term_save_image(y, Xp, buf[n], tx_size);
     }
     /*fprintf(mystderr,"\nokno_menu(przed Okno): Yp,Xp,Ym,Xm=%d %d %d %d; x_maxOkna=%d y_maxOkna=%d; X_L0,Y_G0,MXR_MAX,MY_MAX=%d %d %d %d",Yp,Xp,Ym,Xm,x_maxOkna,y_maxOkna,X_L0,Y_G0,MXR_MAX,MY_MAX); */
@@ -1693,10 +1704,8 @@ int okno_menu(char* opcje[], int kmax, int opcja0,
         n = y - Yp;
         term_restore_image(y, Xp, buf[n], tx_size);
         Free(buf[n]);
-        lwmall--;
     }
     Free(buf);
-    lwmall--;
     blok_anim->ym = -1;
     return (k_inv);
 }
@@ -2157,11 +2166,9 @@ signed char zamknij_blankiet(int* nr_rekordu)
                     if (ok->format != NULL)
                     {
                         Free(ok->format);
-                        lwmall--;
                     }
                 }
                 Free(Ok);
-                lwmall--;
             }
             Ok = NULL;
             return -1;
@@ -2187,11 +2194,9 @@ signed char zamknij_blankiet(int* nr_rekordu)
             if (ok->typ == 'k' && ok->format != NULL)
             {
                 Free(ok->format);
-                lwmall--;
             }
         }
         Free(Ok);
-        lwmall--;
         czekaj_na_klawisz();
     }
     Czy_Blankiet_otwarty = 2;
@@ -2203,12 +2208,10 @@ signed char zamknij_blankiet(int* nr_rekordu)
             if (ok->typ == 'k' && ok->format != NULL)
             {
                 Free(ok->format);
-                lwmall--;
             }
         }
         Free(Ok);
         Ok = NULL;
-        lwmall--;
         if (*nr_rekordu != BL[nr_blank]->nr_rekordu)
         {
             komunikat_ent(MY_MAX, X_L0,ATTR_A,
@@ -2220,7 +2223,6 @@ signed char zamknij_blankiet(int* nr_rekordu)
         }
         Free(BL[nr_blank]);
         BL[nr_blank] = NULL;
-        lwmall--;
         nr_blank--;
         nr_danej = 0;
         X_0 = X_L0;
@@ -2489,7 +2491,6 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
     buf = (char*)Malloc(tx_size * k + 1);
     if (buf != NULL)
     {
-        lwmall++;
         term_save_image(yp, xp, buf, tx_size);
     }
     term_type(yp, xp, text, 0, attr);
@@ -2498,7 +2499,6 @@ int monit_textowy(int yp, int xp, unsigned int attr, char* text)
     {
         term_restore_image(yp, xp, buf, tx_size);
         Free(buf);
-        lwmall--;
     }
     text[tx_size] = znak;
     attryb = old_attr;

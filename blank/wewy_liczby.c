@@ -180,7 +180,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
     ms = strlen(monit);
     format = (char*)Malloc((xmax - x0 + 20) * sizeof(char));
     if (format == NULL) return -1;
-    lwmall++;
     form = &format[13];
     format[12] = EOS;
     bufor = &form[ms + 3 * sizeof(char)];
@@ -238,7 +237,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
         if (ret < 0)
         {
             Free(format);
-            lwmall--;
             return -x_konc;
         }
         if (wartn < w_min || wartn > w_max)
@@ -262,7 +260,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
             if (buffer != NULL)
             {
                 term_save_image(y, xa, buffer, i);
-                lwmall++;
                 term_type(y, xa, " ", 1,ATTR_A);
                 term_type(y, xa + 1, text, 0,ATTR_A);
             }
@@ -271,7 +268,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
             {
                 term_restore_image(y, xa, buffer, i);
                 Free(buffer);
-                lwmall--;
             }
             wartn = *wart;
             goto WPIS;
@@ -280,7 +276,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
         {
             *wart = wartn;
             Free(format);
-            lwmall--;
             return 0;
         }
         term_printf(y, xmax - size + 1, attr, format, wartn);
@@ -296,7 +291,6 @@ int okno_double(signed char wpis, int y, int x0, int size,
         }
     }
     Free(format);
-    lwmall--;
     return x_konc;
 }
 
@@ -443,7 +437,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
     if (xmax == 0) return 0;
     format = (char*)Malloc((size + 15) * sizeof(char));
     if (format == NULL) return -1;
-    lwmall++;
     if (size > 0)
     {
         snprintf(format, size + 15, " %dd", size);
@@ -585,7 +578,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
         }
         Free(format);
         HELP = 0;
-        lwmall--;
         /*fprintf(mystderr, " po Free(%d) x_konc=%d",format,x_konc); */
         return x_konc;
     } /* koniec dla wpis!=1 */
@@ -650,7 +642,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
                 *index = i;
                 Free(format);
                 HELP = 0;
-                lwmall--;
                 /*         term_printf(y,xp_ind,attr,i); term_printf(y,xp,attr,*wart); */
                 return -1;
             }
@@ -679,7 +670,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
             {
                 Free(format);
                 HELP = 0;
-                lwmall--;
                 /*         if(wartn<W_min) *wart=W_min;
                          if(wartn>w_max) *wart=w_max;   */
                 return -x_konc;
@@ -742,7 +732,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
             *wart = wartn;
             Free(format);
             HELP = 0;
-            lwmall--;
             return 0; /*x_konc;*/
         }
         term_printf(y, xmax - size + 1, attr, format, wartn);
@@ -753,7 +742,6 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
     }
     Free(format);
     HELP = 0;
-    lwmall--;
     return x_konc;
 }
 
@@ -994,7 +982,7 @@ int def_float(int y, int x, char* monit, int ind_min, int ind_max,
     ok->format = wpisz_format(ok->format, monit);
     if (ok->format == NULL) return -1;
     if (format != NULL) ok->help[0] = wpisz_format(ok->help[0], format);
-    else if (ok->help[0] != NULL) { Free(ok->help[0]); lwmall--; ok->help[0] = NULL; }
+    else if (ok->help[0] != NULL) { Free(ok->help[0]); ok->help[0] = NULL; }
     ok->ind_min = ind_min;
     ok->L_kol = L_kol;
     ok->decyzja = -1;
@@ -1216,7 +1204,6 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     if (xmax_tab == 0) return 0;
     format = (char*)Malloc((size + 40) * sizeof(char));
     if (format == NULL) return -1;
-    lwmall++;
     snprintf(format, size + 40, " %d.%df", size, precyzja);
     format[0] = '%';
     form = &format[11];
@@ -1345,7 +1332,6 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
         if (format != NULL)
         {
             Free(format);
-            lwmall--;
         }
         return x_konc;
     } /* koniec dla wpis!=1 */
@@ -1372,7 +1358,6 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
                 *index = i;
                 Free(format);
                 HELP = 0;
-                lwmall--;
                 return -1;
             }
             nrkol = 0;
@@ -1403,7 +1388,6 @@ int wpis_tabl_float(signed char wpis, int y, int x0,
     if (format != NULL)
     {
         Free(format);
-        lwmall--;
     }
     return x_konc;
 }

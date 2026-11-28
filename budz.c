@@ -387,7 +387,6 @@ int budz_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                 if (lw >= n - 1) lw = 0;
             }
             Free(Awrk);
-            lwmall--;
         }
     }
 }
@@ -456,7 +455,6 @@ static struct agenda *budz_kopia_robocza(struct agenda *A)
     size = A->S->str_size;
     Acopy = (struct agenda*)Malloc(size);
     if (Acopy == NULL) return NULL;
-    lwmall++;
     memcpy(Acopy, A, size);
     Acopy->data = (char*)(Acopy + 1);
     memcpy(Acopy->data, A->data, (size_t)(size - (int)sizeof(struct agenda)));
@@ -489,7 +487,6 @@ char *dane_budz(int ob_pocz, int ob_konc, int *rozmiar_ob)
 	S=Service;
 	*rozmiar_ob=sizeof(struct agenda)+sizeof(struct budzik);
 	A=(struct agenda *)Malloc(*rozmiar_ob);
-	lwmall++;
 	A->S=S; A->data=(A+1);
 	Bu=(struct budzik *)(A->data);
 	memset(Bu, 0, sizeof(struct budzik));

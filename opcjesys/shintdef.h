@@ -6,16 +6,14 @@
 typedef int shint;
 typedef unsigned int Uint;
 typedef unsigned int Ushint;
-#define Free free
-#define Malloc malloc
 #ifdef _SYS_32B_
 typedef short int shint;
 typedef unsigned short int Uint;
 typedef unsigned short int Ushint;
-#define Free free
-#define Malloc malloc
-#else
-#define Free free
-#define Malloc malloc
 #endif
+/* Alokacje silnika formularzy z licznikiem lwmall (blank/wewy.c):
+   raport pamieci po sesji raportow. Trwale struktury systemu
+   (uslugi, agenda) uzywaja zwyklego malloc/free. */
+void* Malloc(size_t rozmiar);
+void Free(void* p);
 #endif
