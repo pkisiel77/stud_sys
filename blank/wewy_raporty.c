@@ -22,7 +22,7 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
 {
     int ret, pznak;
     char *bufor, *format = NULL, text[80], *form = NULL;
-    char textn[80], *buffer, *taknie = "<t/n>? ";
+    char textn[80], *taknie = "<t/n>? ";
     int xmax, xp, ins, i, k, im = 0, x_konc, zn, txl, dltn = 0, dlstr, ms;
     char blok = 0;
     if (wpis < -2)
@@ -246,49 +246,17 @@ int okno_text_menu(signed char wpis, int y, int x0, int size,
             return 0;
         }
         Term_Typef(y, xmax - size + 1, textn, size, attr);
-        if (bez_potwierdzania == 1)
+        if (bez_potwierdzania == 1) zn = 't';
+        else zn = potwierdz_tn(y, xmax + 1, taknie, dltn,
+                               xmax + dltn > X_maxBlank ? X_maxBlank - xmax : dltn,
+                               attrtx);
+        if (zn == 'n') goto WPIS;
+        if (zn == 't')
         {
-            zn = 't';
-            goto TAK;
+            strncpy(string, textn, size+1);
+            Term_Typef(y, xmax - size + 1, string, size, attr);
+            wpisano_dana = 1;
         }
-        if (xmax + dltn > X_maxBlank)
-        {
-            i = X_maxBlank - xmax;
-            taknie[i] = EOS;
-        }
-        k = term_save_image(y, xmax + 1, taknie, 0);
-        do
-        {
-            buffer = (char*)Malloc(dltn * k + 1);
-            if (buffer != NULL)
-            {
-                term_save_image(y, xmax + 1, buffer, dltn);
-                lwmall++;
-            }
-            term_type(y, xmax + 1, taknie, 0, attrtx);
-            i = m_wherex();
-            if (i < MXR_MAX) i--;
-            i--;
-            term_cur(y, i);
-            term_flush();
-            zn = czekaj_na_klawisz();
-            zn = zn & 0x00ff;
-            if (buffer != NULL)
-            {
-                term_restore_image(y, xmax + 1, buffer, dltn);
-                Free(buffer);
-                lwmall--;
-            }
-            if (zn == 'n') goto WPIS;
-            if (zn == 't')
-            TAK:
-                {
-                    strncpy(string, textn, size+1);
-                    Term_Typef(y, xmax - size + 1, string, size, attr);
-                    wpisano_dana = 1;
-                }
-        }
-        while (zn != Esc && zn != 't');
     } /* else (wpis==1) */
 D: Free(format);
     lwmall--;

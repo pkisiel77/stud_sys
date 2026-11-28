@@ -162,6 +162,18 @@ if(BUILD_TESTING)
                      COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/ui_smoke.py"
                              $<TARGET_FILE:stud_sys> ${STUDSYS_LANG_NORMALIZED})
             set_tests_properties(ui_smoke PROPERTIES TIMEOUT 120)
+
+            # pytanie <t/n> silnika formularzy (potwierdz_tn) w pty
+            add_executable(tn_probe
+                tests/tn_probe.c
+                $<TARGET_OBJECTS:studsys_common>
+                $<TARGET_OBJECTS:studsys_test_core>
+            )
+            target_link_libraries(tn_probe PRIVATE studsys_build_options)
+            add_test(NAME ui_tn
+                     COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/ui_tn.py"
+                             $<TARGET_FILE:tn_probe>)
+            set_tests_properties(ui_tn PROPERTIES TIMEOUT 60)
         elseif(STUDSYS_UI_TESTS STREQUAL "ON")
             message(FATAL_ERROR "STUDSYS_UI_TESTS=ON requires Python 3 with pyte (pip install pyte)")
         else()

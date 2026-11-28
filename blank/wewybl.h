@@ -419,6 +419,8 @@ int wydruk_monitu(int wpis, char* opis_danej, int dl_zakr, char* taknie,
                   int* dl_menu, int* size, int y, int* xp_naz,
                   int* xp, int* txl, unsigned int attrtx, int w_min,
                   int w_max, char typ, int skok, void* R, void* Rh, char* help[]);
+int potwierdz_tn(int y, int x, const char* taknie, int dltn, int dl,
+                 unsigned int attrtx);
 int wpis_indexu(int y, int xp_ind, int ind_size, int* wart,
                 char* index_helpu, int size_helpu,
                 int w_min, int w_max, char* adr, int dim,
