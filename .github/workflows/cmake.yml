@@ -40,9 +40,16 @@ jobs:
           brew install ncurses
           echo "CMAKE_PREFIX_PATH=$(brew --prefix ncurses)" >> "$GITHUB_ENV"
 
+      - name: Install pyte (UI smoke test)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet pyte
+
       - name: Configure
         run: >-
           cmake -S . -B build
+          -DSTUDSYS_UI_TESTS=ON
+          "-DPython3_EXECUTABLE=$RUNNER_TEMP/venv/bin/python"
           -DSTUDSYS_LANG=${{ matrix.lang }}
           -DSTUDSYS_MQTT=OFF
           -DSTUDSYS_WERROR=ON
@@ -72,9 +79,16 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libncurses-dev libpaho-mqtt-dev
 
+      - name: Install pyte (UI smoke test)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet pyte
+
       - name: Configure
         run: >-
           cmake -S . -B build
+          -DSTUDSYS_UI_TESTS=ON
+          "-DPython3_EXECUTABLE=$RUNNER_TEMP/venv/bin/python"
           -DSTUDSYS_MQTT=ON
           -DSTUDSYS_WERROR=ON
           -DCMAKE_BUILD_TYPE=Release
@@ -104,9 +118,16 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libncurses-dev
 
+      - name: Install pyte (UI smoke test)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet pyte
+
       - name: Configure
         run: >-
           cmake -S . -B build
+          -DSTUDSYS_UI_TESTS=ON
+          "-DPython3_EXECUTABLE=$RUNNER_TEMP/venv/bin/python"
           -DSTUDSYS_MQTT=OFF
           -DCMAKE_BUILD_TYPE=Debug
           "-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"

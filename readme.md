@@ -177,9 +177,24 @@ Dostępne opcje:
 
 - `-DSTUDSYS_LANG=PL` lub `-DSTUDSYS_LANG=EN`,
 - `-DSTUDSYS_MQTT=ON` — wymaga biblioteki Eclipse Paho MQTT C,
-- `-DBUILD_TESTING=OFF` — pomija budowanie testów.
+- `-DBUILD_TESTING=OFF` — pomija budowanie testów,
+- `-DSTUDSYS_UI_TESTS=AUTO|ON|OFF` — smoke test UI (domyślnie `AUTO`: uruchamiany, gdy jest Python 3 z pakietem `pyte`; `ON` wymaga go, jak w CI).
 
 Plik wykonywalny powstaje jako `build/stud_sys`.
+
+Testy (`tests/`, uruchamiane przez `ctest`):
+
+- `scheduler`, `terminal` — harmonogram RT i warstwa terminala,
+- `test_budz`, `test_mqtt` — Budzik (czas alarmu, format odliczania, plik budzików) i konfiguracja MQTT; plik testu włącza testowany `.c`, więc sprawdza też funkcje `static`,
+- `test_wewy` — funkcje tekstowe silnika formularzy (podział na słowa, kontrola liczb i znaków),
+- `ui_smoke` — program uruchamiany w pseudoterminalu, ekran czytany przez `pyte`: menu, dodanie i usunięcie budzika, odliczanie, Stan systemu, wyjście `Esc`.
+
+Testy używają tymczasowego `HOME`, więc nie dotykają plików `~/.stud_sys_*`. Lokalnie `pyte` najprościej zainstalować w venv:
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install pyte
+cmake -S . -B build -DPython3_EXECUTABLE=$PWD/.venv/bin/python
+```
 
 ### Makefile
 
