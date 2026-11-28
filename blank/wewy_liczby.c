@@ -284,48 +284,16 @@ int okno_double(signed char wpis, int y, int x0, int size,
             return 0;
         }
         term_printf(y, xmax - size + 1, attr, format, wartn);
-        if (bez_potwierdzania == 1)
+        if (bez_potwierdzania == 1) zn = 't';
+        else zn = potwierdz_tn(y, xmax + 1, taknie, dltn,
+                               xmax + dltn > X_maxBlank ? X_maxBlank - xmax : dltn,
+                               attrtx);
+        if (zn == 'n') goto WPIS;
+        if (zn == 't')
         {
-            zn = 't';
-            goto TAK;
+            *wart = wartn;
+            term_printf(y, xmax - size + 1, attr, format, wartn);
         }
-        if (xmax + dltn > X_maxBlank)
-        {
-            i = X_maxBlank - xmax;
-            taknie[i] = EOS;
-        }
-        k = term_save_image(y, xmax + 1, taknie, 0);
-        do
-        {
-            buffer = (char*)Malloc(dltn * k + 1);
-            if (buffer != NULL)
-            {
-                term_save_image(y, xmax + 1, buffer, dltn);
-                lwmall++;
-            }
-            term_type(y, xmax + 1, taknie, 0, attrtx);
-            i = m_wherex();
-            if (i < MXR_MAX) i--;
-            i--;
-            term_cur(y, i);
-            term_flush();
-            zn = czekaj_na_klawisz();
-            zn = zn & 0x00ff;
-            if (buffer != NULL)
-            {
-                term_restore_image(y, xmax + 1, buffer, dltn);
-                Free(buffer);
-                lwmall--;
-            }
-            if (zn == 'n') goto WPIS;
-            if (zn == 't')
-            TAK:
-                {
-                    *wart = wartn;
-                    term_printf(y, xmax - size + 1, attr, format, wartn);
-                }
-        }
-        while (zn != Esc && zn != 't');
     }
     Free(format);
     lwmall--;
@@ -425,11 +393,11 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
 {
     int wartn, *wart, ind_size, dl_zakr, W_min, W_min_wpis, index_h, W_max;
     char *bufor, *format = NULL, text[80], *form = NULL, *c, grupa;
-    char *buffer, *taknie = "<t/n>? ", hash = '*';
+    char *taknie = "<t/n>? ", hash = '*';
     char opis_danej[80], f_nazwy[40], *zle = " ?? ", *menu;
     char *f_ind = NULL, *fk_nazwy = NULL;
     char *fmon, *f_pocz, err = 0;
-    int xmax, xp, xp_ind, ret, nr_zm, xp_naz, ins, i, k, x_konc, txl;
+    int xmax, xp, xp_ind, ret, nr_zm, xp_naz, ins, i, x_konc, txl;
     int iobl, dltn = 0, dx_ind = 0, x_k_help, zn, lsmax;
     unsigned int attr_t;
     char blok = 0;
@@ -778,40 +746,10 @@ int wpis_tabl_int(signed char wpis, int y, int x0, char* monit_pocz,
             return 0; /*x_konc;*/
         }
         term_printf(y, xmax - size + 1, attr, format, wartn);
-        if (bez_potwierdzania == 1)
-        {
-            zn = 't';
-            goto TAK;
-        }
-        k = term_save_image(y, x_konc, taknie, 0);
-        do
-        {
-            buffer = (char*)Malloc(dltn * k + 1);
-            if (buffer != NULL)
-            {
-                term_save_image(y, x_konc, buffer, dltn);
-                lwmall++;
-            }
-            term_type(y, x_konc, taknie, 0, attrtx);
-            i = m_wherex();
-            if (i < MXR_MAX) i--;
-            i--;
-            term_cur(y, i);
-            term_flush();
-            zn = czekaj_na_klawisz();
-            zn = zn & 0x00ff;
-            if (buffer != NULL)
-            {
-                term_restore_image(y, x_konc, buffer, dltn);
-                Free(buffer);
-                lwmall--;
-            }
-            if (zn == 'n') goto WPIS;
-            if (zn == 't')
-            TAK:
-                *wart = wartn;
-        }
-        while (zn != Esc && zn != 't');
+        if (bez_potwierdzania == 1) zn = 't';
+        else zn = potwierdz_tn(y, x_konc, taknie, dltn, dltn, attrtx);
+        if (zn == 'n') goto WPIS;
+        if (zn == 't') *wart = wartn;
     }
     Free(format);
     HELP = 0;

@@ -187,7 +187,8 @@ Testy (`tests/`, uruchamiane przez `ctest`):
 - `scheduler`, `terminal` — harmonogram RT i warstwa terminala,
 - `test_budz`, `test_mqtt` — Budzik (czas alarmu, format odliczania, plik budzików) i konfiguracja MQTT; plik testu włącza testowany `.c`, więc sprawdza też funkcje `static`,
 - `test_wewy` — funkcje tekstowe silnika formularzy (podział na słowa, kontrola liczb i znaków),
-- `ui_smoke` — program uruchamiany w pseudoterminalu, ekran czytany przez `pyte`: menu, dodanie i usunięcie budzika, odliczanie, Stan systemu, wyjście `Esc`.
+- `ui_smoke` — program uruchamiany w pseudoterminalu, ekran czytany przez `pyte`: menu, dodanie i usunięcie budzika, odliczanie, Stan systemu, wyjście `Esc`,
+- `ui_tn` — pytanie `<t/n>?` silnika formularzy (`potwierdz_tn()`) w pseudoterminalu: tekst, obcięcie, odtworzenie tła, odpowiedzi `t`/`n`/`Esc`.
 
 Testy używają tymczasowego `HOME`, więc nie dotykają plików `~/.stud_sys_*`. Lokalnie `pyte` najprościej zainstalować w venv:
 

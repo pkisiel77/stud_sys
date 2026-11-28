@@ -40,6 +40,46 @@ int objasn_grupy(int y, int x, int w_min, int w_max, int wartn,
 }
 
 /* ------------------------------------------------------------------- */
+/* Pytanie o potwierdzenie danej: w (y,x) pokazuje pierwsze dl znakow
+   taknie ("<t/n>? "), czeka na 't', 'n' albo Esc (inne klawisze ponawiaja
+   pytanie) i odtwarza dltn komorek tla. Zwraca wcisniety klawisz. */
+int potwierdz_tn(int y, int x, const char* taknie, int dltn, int dl,
+                 unsigned int attrtx)
+{
+    char tekst[16], *buffer;
+    int i, k, zn;
+
+    if (dl < 0) dl = 0;
+    if (dl > (int)sizeof(tekst) - 1) dl = (int)sizeof(tekst) - 1;
+    snprintf(tekst, sizeof(tekst), "%.*s", dl, taknie);
+    k = term_save_image(y, x, tekst, 0);
+    do
+    {
+        buffer = (char*)Malloc(dltn * k + 1);
+        if (buffer != NULL)
+        {
+            term_save_image(y, x, buffer, dltn);
+            lwmall++;
+        }
+        term_type(y, x, tekst, 0, attrtx);
+        i = m_wherex();
+        if (i < MXR_MAX) i--;
+        i--;
+        term_cur(y, i);
+        term_flush();
+        zn = czekaj_na_klawisz() & 0x00ff;
+        if (buffer != NULL)
+        {
+            term_restore_image(y, x, buffer, dltn);
+            Free(buffer);
+            lwmall--;
+        }
+    }
+    while (zn != Esc && zn != 't' && zn != 'n');
+    return zn;
+}
+
+/* ------------------------------------------------------------------- */
 int wydruk_monitu(int wpis, char* opis_danej, int dl_zakr, char* taknie,
                   int* dltn, char* text, int* x0, int dx_ind,
                   int* dl_menu, int* size, int y, int* xp_naz,
@@ -862,7 +902,7 @@ int okno_tabl_znak(signed char wpis, int y, int x0,
     int ret, size, dlopt, txl, xp_ind, xp_naz;
     char text[80], znakp;
     char znk, znp, znf, sukces, *znak, hash = '*';
-    char *buffer, opis_danej[80], nznak, *taknie = "<t/n>? ";
+    char opis_danej[80], nznak, *taknie = "<t/n>? ";
     char f_nazwy[40], *f_ind = NULL, *fk_nazwy = NULL, *fmon;
     int xmax, xp, i, k, x_konc, zn, znw, lopt, iopt;
     int iobl, dltn = 0, dx_ind = 0, x, ind_size, dl_zakr;
@@ -1147,51 +1187,18 @@ WP:
     }
     while (znw != CR);
     if (*znak == nznak) return 0;
-    if (bez_potwierdzania == 1)
+    if (bez_potwierdzania == 1) znw = 't';
+    else znw = potwierdz_tn(y, xmax + 1, taknie, dltn,
+                            xmax + dltn > X_maxBlank ? X_maxBlank - xmax : dltn,
+                            attrtx);
+    if (znw == 'n')
     {
-        znw = 't';
-        goto TAK;
+        wpis = 1;
+        nznak = zn;
+        goto WP;
     }
-    if (xmax + dltn > X_maxBlank)
-    {
-        i = X_maxBlank - xmax;
-        taknie[i] = EOS;
-    }
-    k = term_save_image(y, xmax + 1, taknie, 0);
-    do
-    {
-        buffer = (char*)Malloc(dltn * k + 1);
-        if (buffer != NULL)
-        {
-            term_save_image(y, xmax + 1, buffer, dltn);
-            lwmall++;
-        }
-        term_type(y, xmax + 1, taknie, 0, attrtx);
-        i = m_wherex();
-        if (i < MXR_MAX) i--;
-        i--;
-        term_cur(y, i);
-        term_flush();
-        znw = czekaj_na_klawisz();
-        znw = znw & 0x00ff;
-        if (buffer != NULL)
-        {
-            term_restore_image(y, xmax + 1, buffer, dltn);
-            Free(buffer);
-            lwmall--;
-        }
-        if (znw == 'n')
-        {
-            wpis = 1;
-            nznak = zn;
-            goto WP;
-        }
-        if (znw == 't')
-        TAK:
-            *znak = zn;
-        if (znw == Esc) return -x_konc;
-    }
-    while (znw != 't');
+    if (znw == Esc) return -x_konc;
+    *znak = zn;
     return x_konc;
 }
 
@@ -1806,54 +1813,22 @@ WPIS:
             x_konc = m_wherex();
         }
     }
-    if (bez_potwierdzania == 1)
+    if (bez_potwierdzania == 1) zn = 't';
+    else zn = potwierdz_tn(y, x_konc, taknie, dltn,
+                           x_konc + dltn >= X_maxBlank ? X_maxBlank - x_konc : dltn,
+                           attrtx);
+    if (zn == 'n')
     {
-        zn = 't';
-        goto TAK;
+        wpisano_dana = 0;
+        goto WPIS;
     }
-    if (x_konc + dltn >= X_maxBlank)
+    if (zn == 't')
     {
-        i = X_maxBlank - x_konc;
-        taknie[i] = EOS;
-    }
-    k = term_save_image(y, x_konc, taknie, 0);
-    do
-    {
-        buffer = (char*)Malloc(dltn * k + 1);
-        if (buffer != NULL)
+        for (i = 0; i < L_kol; i++)
         {
-            term_save_image(y, x_konc, buffer, dltn);
-            lwmall++;
-        }
-        term_type(y, x_konc, taknie, 0, attrtx);
-        i = m_wherex();
-        if (i < MXR_MAX) i--;
-        i--;
-        term_cur(y, i);
-        term_flush();
-        zn = czekaj_na_klawisz();
-        zn = zn & 0x00ff;
-        if (buffer != NULL)
-        {
-            term_restore_image(y, x_konc, buffer, dltn);
-            Free(buffer);
-            lwmall--;
-        }
-        if (zn == 'n')
-        {
-            wpisano_dana = 0;
-            goto WPIS;
-        }
-        if (zn == 't')
-        {
-        TAK:
-            for (i = 0; i < L_kol; i++)
-            {
-                wart = (float*)((tabl + (ind_max + 1) * dim * i) + index * dim);
-                *wart = wartn[i];
-            }
+            wart = (float*)((tabl + (ind_max + 1) * dim * i) + index * dim);
+            *wart = wartn[i];
         }
     }
-    while (zn != Esc && zn != 't');
     return x_konc;
 }
