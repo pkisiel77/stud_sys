@@ -393,9 +393,15 @@ int mqtt_blankiet(int nr_rekordu, int ob_pocz, int ob_konc,
                             cfg.broker, cfg.port, cfg.topic, cfg.node_id);
                 mqtt_komunikat_status();
             } else {
+#ifdef _MQTT_
                 term_printf(MY_MAX, X_L0, ATTR_A,
                             L_MQTT_ERR_MSG,
                             cfg.broker, cfg.port, cfg.err_count);
+#else
+                /* bez Paho mqtt_polacz() zawsze zwraca -1: licznik bledow
+                   nic tu nie mowi, mowimy wprost, czego brakuje */
+                term_printf(MY_MAX, X_L0, ATTR_A, "%s", L_MQTT_UNAVAILABLE_MSG);
+#endif
                 mqtt_komunikat_status();
             }
             /* Synchronizuj stan z agenda */

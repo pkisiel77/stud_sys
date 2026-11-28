@@ -198,6 +198,7 @@
 #define L_MQTT_PROMPT_INTERVAL    "Interval [s]"
 #define L_MQTT_OK_MSG             " Connected to %s:%d  (topic: %s/%d/...)"
 #define L_MQTT_ERR_MSG            " Connection error to %s:%d  (err: %d) <Ent>"
+#define L_MQTT_UNAVAILABLE_MSG    " MQTT unavailable in this build (make MQTT=1 / -DSTUDSYS_MQTT=ON) <Ent>"
 
 /* ===== Wewy (form engine: passwords, session start, common errors) ===== */
 /* Password / permission flow */
@@ -432,6 +433,7 @@
 #define L_MQTT_PROMPT_INTERVAL    "Interwal [s]"
 #define L_MQTT_OK_MSG             " Polaczono z %s:%d  (topic: %s/%d/...)"
 #define L_MQTT_ERR_MSG            " Blad polaczenia z %s:%d  (err: %d) <Ent>"
+#define L_MQTT_UNAVAILABLE_MSG    " MQTT niedostepne w tej kompilacji (make MQTT=1 / -DSTUDSYS_MQTT=ON) <Ent>"
 
 /* ===== Wewy (silnik blankietow: hasla, startup, najczestsze bledy) ===== */
 /* Hasla / uprawnienia */
