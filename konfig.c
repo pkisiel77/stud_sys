@@ -42,7 +42,7 @@ int set_services(void)
     int Nr_sys = 0;
     /* --------------- Podstawiamy dane uslugi z pliku sprawdz.c --------- */
     Menu[Nr_sys] = L_KONFIG_SRV_SPRAWDZ;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
@@ -61,7 +61,7 @@ int set_services(void)
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
     Menu[Nr_sys] = L_KONFIG_SRV_BUDZIK;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
@@ -80,7 +80,7 @@ int set_services(void)
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
     Menu[Nr_sys] = L_KONFIG_SRV_ADMIN;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
@@ -99,7 +99,7 @@ int set_services(void)
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
     Menu[Nr_sys] = L_KONFIG_SRV_MQTT;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
@@ -118,7 +118,7 @@ int set_services(void)
     Nr_sys++;
     if (Nr_sys >= L_SYS) goto ERR_SERV;
     Menu[Nr_sys] = L_KONFIG_SRV_SENSOR;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[Nr_sys] = S;
@@ -143,7 +143,7 @@ int set_services(void)
     }
     /* --------------------------------------------------------------- */
     Menu[L_SYS] = L_KONFIG_SRV_STAN;
-    S = (struct Service*)Malloc(sizeof(struct Service));
+    S = (struct Service*)malloc(sizeof(struct Service));
     if (S == NULL) goto ERR_MEM;
     memset(S, 0, sizeof(struct Service));
     Serv[L_SYS] = S;

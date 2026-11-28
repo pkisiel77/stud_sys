@@ -397,7 +397,6 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
             return NULL;
         }
         R->d_oryg[nr_rekordu - R->ob_pocz] = d_or;
-        lwmall++;
         {
             int copy_size = R->rozmiar_ob;
             struct agenda* Arek = (struct agenda*)(*d_rek);
@@ -1286,7 +1285,6 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
         if (zn != 0) R->tytul[30] = zn;
         return -1;
     }
-    lwmall++;
     l_danych = R->max_l_danych_blank;
     Ok = (struct okno*)Malloc(l_danych * sizeof(struct okno));
     if (Ok == NULL)
@@ -1303,7 +1301,6 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
         if (zn != 0) R->tytul[30] = zn;
         return -1;
     }
-    lwmall++;
     Akt_Kolor = kolor;
     ok = Ok;
     for (i = 0; i < l_danych; i++, ok++)

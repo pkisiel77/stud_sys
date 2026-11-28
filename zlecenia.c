@@ -190,7 +190,6 @@ int pokaz_listy_zlecen(struct agenda* Anew, int kod_uslugi, char* tytul)
     if (Anew != NULL)
     {
         Free(Anew);
-        lwmall--;
         Anew = NULL;
     }
     /* ------- zebranie adresow uslug budzika w agendzie do pokazania listy -- */

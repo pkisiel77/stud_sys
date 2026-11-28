@@ -17,6 +17,6 @@ extern unsigned int at_wpis;     /* pole wpisu / podswietlenie */
 extern unsigned int attr_time;   /* zegar */
 extern unsigned int attr_title;  /* tytul okna */
 
-/* Licznik alokacji rekordow agendy (raport pamieci); blank/wewy.c */
+/* Licznik blokow z Malloc/Free (raport pamieci po sesji raportow); blank/wewy.c */
 extern int lwmall, lwmallp;
 #endif

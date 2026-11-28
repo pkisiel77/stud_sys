@@ -169,7 +169,8 @@ static int open_sys(void)
         int rozmiar, zl = 0;
         AgendaMax = 0;
         rozmiar = Serv[zl]->str_size;
-        A = (struct agenda*)Malloc(rozmiar);
+        /* zlecenie systemowe SysA[0] zyje do konca programu: malloc bez licznika lwmall */
+        A = (struct agenda*)malloc(rozmiar);
         A->S = Serv[zl];
         A->data = (A + 1);
         A->mode = 'p';
@@ -178,7 +179,7 @@ static int open_sys(void)
         A->prior = 200;
         A->prior_plus = 0;
         { const char* sn = (A->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
-          A->name = (char*)Malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
+          A->name = (char*)malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
         A->state = 0;
         A->delay = 0;
         A->last_time = sek_akt;

@@ -59,7 +59,6 @@ int potwierdz_tn(int y, int x, const char* taknie, int dltn, int dl,
         if (buffer != NULL)
         {
             term_save_image(y, x, buffer, dltn);
-            lwmall++;
         }
         term_type(y, x, tekst, 0, attrtx);
         i = m_wherex();
@@ -72,7 +71,6 @@ int potwierdz_tn(int y, int x, const char* taknie, int dltn, int dl,
         {
             term_restore_image(y, x, buffer, dltn);
             Free(buffer);
-            lwmall--;
         }
     }
     while (zn != Esc && zn != 't' && zn != 'n');
@@ -311,7 +309,7 @@ char* wpisz_format(char* format, char* monit)
 {
     int len;
     char* buf;
-    if (format != NULL) { Free(format); lwmall--; }
+    if (format != NULL) Free(format);
     len = strlen(monit) + 1;
     buf = (char*)Malloc(len);
     if (buf == NULL)
@@ -321,7 +319,6 @@ char* wpisz_format(char* format, char* monit)
         return NULL;
     }
     memcpy(buf, monit, len);
-    lwmall++;
     return buf;
 }
 
@@ -599,7 +596,6 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
         czekaj_na_klawisz();
         return -1;
     }
-    lwmall++;
     attr = attr & (~TERM_FLUSH);
     attr_o = attr_o & (~TERM_FLUSH);
     tx_size += 2;
@@ -614,14 +610,11 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
             for (k = 0; k < n; k++)
             {
                 Free(buf[k]);
-                lwmall--;
             }
             Free(buf);
-            lwmall--;
             czekaj_na_klawisz();
             return -1;
         }
-        lwmall++;
         term_save_image(y, Xp, buf[n], tx_size);
     }
     Okno(Yp, Xp, Ym, Xm, attr);
@@ -884,10 +877,8 @@ int okno_help(int Yp, int Xp, int Xm, unsigned int attr, unsigned int attr_o,
         n = y - Yp;
         term_restore_image(y, Xp, buf[n], tx_size);
         Free(buf[n]);
-        lwmall--;
     }
     Free(buf);
-    lwmall--;
     blok_anim->ym = -1;
     return (k_inv);
 }
@@ -1693,7 +1684,6 @@ WPIS:
                     {
                         Free(*format);
                         *format = NULL;
-                        lwmall--;
                         HELP = 0;
                     }
                     return -x_konc;
@@ -1749,7 +1739,6 @@ WPIS:
                     buffer = (char*)Malloc(i * k + 1);
                     if (buffer != NULL)
                     {
-                        lwmall++;
                         term_save_image(y, xa, buffer, i);
                         term_type(y, xa, " ", 1,ATTR_A);
                         term_type(y, xa + 1, text, 0,ATTR_A);
@@ -1759,7 +1748,6 @@ WPIS:
                     {
                         term_restore_image(y, xa, buffer, i);
                         Free(buffer);
-                        lwmall--;
                     }
                     wartn[nrkol] = *wart;
                     goto WPS;
@@ -1793,7 +1781,7 @@ WPIS:
         if (iffree == 1)
         {
             Free(*format);
-            *format = NULL, lwmall--;
+            *format = NULL;
         }
         return 0; /*x_konc;*/
     }

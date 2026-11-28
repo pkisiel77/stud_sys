@@ -49,7 +49,7 @@ void scheduler_init(void)
     for (i = 0; i < L_REP_MAX; i++)
     {
         report_act[i] = 0;
-        RepDataPtr[i] = (void*)Malloc(AG_SIZE * sizeof(void*)); /* lwmall++; */
+        RepDataPtr[i] = (void*)malloc(AG_SIZE * sizeof(void*));
         for (k = 0; k < AG_SIZE; k++)
         {
             RepDataPtr[i][k] = NULL;
@@ -156,7 +156,6 @@ int insert_to_agenda(struct agenda* A)
             return -1;
         }
         ag_size = sizeof(struct agenda);
-        lwmall++;
         if (A->mode == 'p') A->number_of_calls = -1;
         else { if (A->number_of_calls <= 0) A->number_of_calls = 1; }
         if (A->mode == 't') A->number_of_calls = 1;
@@ -169,7 +168,7 @@ int insert_to_agenda(struct agenda* A)
             przepisz((char*)An->data, (char*)A->data, size - ag_size);
         }
         { const char* sn = (An->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
-          An->name = (char*)Malloc(snlen); if(An->name) memcpy(An->name, sn ? sn : "", snlen); }
+          An->name = (char*)malloc(snlen); if(An->name) memcpy(An->name, sn ? sn : "", snlen); }
         SysA[poz] = An;
     }
     if (poz > AgendaMax) { AgendaMax = poz; }
@@ -205,7 +204,6 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
     size = Serv[service_no]->str_size; /* +sizeof(struct agenda);  to jest juz w str_size */
     if (Serv[service_no]->main_modul == NULL) return NULL;
     A = (struct agenda*)Malloc(size);
-    lwmall++;
     if (A == NULL)
     {
         x = m_wherex();
@@ -227,7 +225,7 @@ struct agenda* service_default(int (*decyzje)(int decyzja, int kod_decyzji, int 
         for (i = 0; i < str_size - ag_size; i++) { *((char*)A->data + i) = 0; }
     }
     { const char* sn = (A->S)->name; int snlen = sn ? (int)strlen(sn)+1 : 1;
-      A->name = (char*)Malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
+      A->name = (char*)malloc(snlen); if(A->name) memcpy(A->name, sn ? sn : "", snlen); }
     A->state = 0;
     A->mode = 'n';
     A->number_of_calls = 1;
@@ -256,10 +254,9 @@ void free_agenda_mem(struct agenda* A)
     if (A->name != NULL)
     {
         const char* service_name = (A->S != NULL) ? A->S->name : NULL;
-        if (A->name != service_name) Free(A->name);
+        if (A->name != service_name) free(A->name);
     }
     Free(A);
-    lwmall--;
 }
 
 void cancel_serv(struct agenda* A, int i)
