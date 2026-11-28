@@ -178,6 +178,18 @@ static long rozmiar_pliku(const char *path, char *buf, long max)
     return n;
 }
 
+/* Zwalnia wpisy agendy po poprzednim tescie (scheduler_init() przydziela
+   bufory raportow, wiec wolamy go tylko raz, w main). */
+static void wyczysc_agende(void)
+{
+    int i;
+    for (i = 1; i <= AgendaMax && i < AG_SIZE; i++) {
+        free_agenda_mem(SysA[i]);
+        SysA[i] = NULL;
+    }
+    AgendaMax = 0;
+}
+
 static void test_plik_odczyt_i_zapis(void)
 {
     FILE *fp;
@@ -186,7 +198,7 @@ static void test_plik_odczyt_i_zapis(void)
     long n_przed, n_po;
     struct budzik *B;
 
-    scheduler_init();
+    wyczysc_agende();
     fp = fopen(budz_sciezka(), "wb");
     CHECK(fp != NULL);
     if (fp == NULL) return;
@@ -215,7 +227,7 @@ static void test_plik_bledny(void)
     FILE *fp;
     int count = -1;
 
-    scheduler_init();
+    wyczysc_agende();
     fp = fopen(budz_sciezka(), "wb");
     CHECK(fp != NULL);
     if (fp == NULL) return;
@@ -235,7 +247,7 @@ static void test_plik_domyslne_okresy(void)
     int count = 1;
     struct budzik *B;
 
-    scheduler_init();
+    wyczysc_agende();
     fp = fopen(budz_sciezka(), "wb");
     CHECK(fp != NULL);
     if (fp == NULL) return;
@@ -251,6 +263,7 @@ int main(void)
 {
     test_ustaw_home();
     set_services();
+    scheduler_init();
 
     test_format_pozostalo();
     test_pozostalo_teraz();
@@ -263,6 +276,7 @@ int main(void)
     test_plik_bledny();
     test_plik_domyslne_okresy();
 
+    wyczysc_agende();
     remove(budz_sciezka());
     rmdir(test_home);
     return test_wynik("budzik");
