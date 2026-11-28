@@ -109,6 +109,7 @@ if(BUILD_TESTING)
         $<TARGET_OBJECTS:studsys_common>
         $<TARGET_OBJECTS:studsys_test_core>
     )
+    target_include_directories(test_scheduler PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
     target_link_libraries(test_scheduler PRIVATE studsys_build_options)
     add_test(NAME scheduler COMMAND test_scheduler)
 
@@ -119,4 +120,52 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_terminal PRIVATE studsys_build_options)
     add_test(NAME terminal COMMAND test_terminal)
+
+    # Test modulu, ktory wlacza testowany plik .c (dostep do funkcji static):
+    # linkowany ze wszystkimi modulami oprocz tego pliku.
+    function(studsys_module_test name test_src module_src)
+        set(sources ${STUDSYS_COMMON_SOURCES})
+        list(REMOVE_ITEM sources ${module_src})
+        add_executable(${name} ${test_src} ${sources} $<TARGET_OBJECTS:studsys_test_core>)
+        target_include_directories(${name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+        target_link_libraries(${name} PRIVATE studsys_build_options)
+        add_test(NAME ${name} COMMAND ${name})
+    endfunction()
+    studsys_module_test(test_budz tests/test_budz.c budz.c)
+    studsys_module_test(test_mqtt tests/test_mqtt.c mqtt_pub.c)
+
+    add_executable(test_wewy
+        tests/test_wewy.c
+        $<TARGET_OBJECTS:studsys_common>
+        $<TARGET_OBJECTS:studsys_test_core>
+    )
+    target_include_directories(test_wewy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+    target_link_libraries(test_wewy PRIVATE studsys_build_options)
+    add_test(NAME test_wewy COMMAND test_wewy)
+
+    # Smoke test UI: program w pseudoterminalu, ekran przez pyte (Python).
+    # STUDSYS_UI_TESTS=AUTO - gdy jest Python z pyte; ON - wymagany (CI).
+    set(STUDSYS_UI_TESTS "AUTO" CACHE STRING "UI smoke test (pty + pyte): AUTO, ON or OFF")
+    set_property(CACHE STUDSYS_UI_TESTS PROPERTY STRINGS AUTO ON OFF)
+    if(NOT STUDSYS_UI_TESTS STREQUAL "OFF")
+        find_package(Python3 COMPONENTS Interpreter)
+        set(studsys_pyte_ok FALSE)
+        if(Python3_Interpreter_FOUND)
+            execute_process(COMMAND ${Python3_EXECUTABLE} -c "import pyte"
+                            RESULT_VARIABLE studsys_pyte_rc OUTPUT_QUIET ERROR_QUIET)
+            if(studsys_pyte_rc EQUAL 0)
+                set(studsys_pyte_ok TRUE)
+            endif()
+        endif()
+        if(studsys_pyte_ok)
+            add_test(NAME ui_smoke
+                     COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/ui_smoke.py"
+                             $<TARGET_FILE:stud_sys> ${STUDSYS_LANG_NORMALIZED})
+            set_tests_properties(ui_smoke PROPERTIES TIMEOUT 120)
+        elseif(STUDSYS_UI_TESTS STREQUAL "ON")
+            message(FATAL_ERROR "STUDSYS_UI_TESTS=ON requires Python 3 with pyte (pip install pyte)")
+        else()
+            message(STATUS "UI smoke test skipped: Python 3 with pyte not found")
+        endif()
+    endif()
 endif()

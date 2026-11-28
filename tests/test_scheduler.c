@@ -4,20 +4,7 @@
 #include "scheduler.h"
 #include "zlecenia.h"
 
-#include <stdio.h>
-#include <string.h>
-
-
-static int failures = 0;
-
-#define CHECK(condition)                                                        \
-    do {                                                                        \
-        if (!(condition)) {                                                     \
-            fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__,           \
-                    #condition);                                                \
-            failures++;                                                        \
-        }                                                                       \
-    } while (0)
+#include "test_util.h"
 
 static void reset_scheduler(void)
 {
@@ -275,10 +262,5 @@ int main(void)
     test_save_without_new_record_does_not_exit_report();
     test_record_lookup_past_last_returns_last_record();
 
-    if (failures != 0) {
-        fprintf(stderr, "%d scheduler test(s) failed\n", failures);
-        return 1;
-    }
-    puts("scheduler tests: OK");
-    return 0;
+    return test_wynik("scheduler");
 }
