@@ -45,4 +45,8 @@ void open_konsole_mouse(int fd_in);
 #include "wewybl.h"
 #include "wewy1.h"
 #undef buttons
+
+/* Wspolne dla plikow silnika (wewy_dane.c): sprawdza, czy blankiet ma
+   miejsce na kolejna dana; przy bledzie komunikat z <Ent> i -1. */
+int sprawdz_nr_danej(void);
 #endif

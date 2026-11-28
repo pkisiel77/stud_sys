@@ -276,9 +276,8 @@ char* wpisz_format(char* format, char* monit)
     buf = (char*)Malloc(len);
     if (buf == NULL)
     {
-        komunikat(5, 1, ATTR_A, " Brak pamieci dla formatu danej %d: <Ent>", nr_danej);
+        komunikat_ent(5, 1, ATTR_A, " Brak pamieci dla formatu danej %d: <Ent>", nr_danej);
         nr_danej--;
-        czekaj_na_klawisz();
         return NULL;
     }
     memcpy(buf, monit, len);
@@ -1338,8 +1337,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
             /* fprintf(mystderr,"\naform=%s k=%d zn=%c",form,k,*zn); */
             if (*zn == EOS)
             {
-                komunikat(MY_MAX, X_L0,ATTR_A, " Blad formatu %s w grupie (zn=%c). <Ent>", form, *zn);
-                czekaj_na_klawisz();
+                komunikat_ent(MY_MAX, X_L0,ATTR_A, " Blad formatu %s w grupie (zn=%c). <Ent>", form, *zn);
                 break;
             }
             if (k == 4)
@@ -1351,10 +1349,9 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                     /* fprintf(mystderr,"\n form=zn%d=%c %s (nrz=%d, help=%d)",k,*zn,form, nrz,help[nrz]); */
                     if (nrz >= LHELP || help[nrz] == NULL)
                     {
-                        komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie - zn=%c k=%d. <Ent>",
-                                  form, *zn, k);
+                        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie - zn=%c k=%d. <Ent>",
+                                      form, *zn, k);
                         *zn = EOS;
-                        czekaj_na_klawisz();
                         break;
                     }
                     else
@@ -1366,9 +1363,8 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 }
                 else
                 {
-                    komunikat(5, 1,ATTR_A, " Brak liczby danych dla spec. %s w grupie. <Ent>", form);
+                    komunikat_ent(5, 1,ATTR_A, " Brak liczby danych dla spec. %s w grupie. <Ent>", form);
                     /* fprintf(mystderr,"\n zly form=%s",form); */
-                    czekaj_na_klawisz();
                     break;
                 }
             }
@@ -1425,20 +1421,17 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 }
                 if (*zn == EOS)
                 {
-                    komunikat(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
-                    czekaj_na_klawisz();
+                    komunikat_ent(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
                     break;
                 }
                 if (k == 4)
                 {
-                    komunikat(5, 1,ATTR_A, " Brak liczby stringow w menu dla spec. %s w grupie. <Ent>", form);
-                    czekaj_na_klawisz();
+                    komunikat_ent(5, 1,ATTR_A, " Brak liczby stringow w menu dla spec. %s w grupie. <Ent>", form);
                     break;
                 }
                 if (typ != 's' && typ != 'S')
                 {
-                    komunikat(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
-                    czekaj_na_klawisz();
+                    komunikat_ent(5, 1,ATTR_A, " Blad formatu %s w grupie. <Ent>", form);
                     break;
                 }
                 typ = 'S';
@@ -1450,8 +1443,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
                 nrzm++;
                 if (nrzm == LHELP)
                 {
-                    komunikat(5, 1,ATTR_A, " Za duzo danych w grupie. <Ent>");
-                    czekaj_na_klawisz();
+                    komunikat_ent(5, 1,ATTR_A, " Za duzo danych w grupie. <Ent>");
                     break;
                 }
                 if (Skok <= 0)
@@ -1632,8 +1624,7 @@ int disp_help(int y, int x, unsigned int attrtx, unsigned int attr,
             }
             break;
         default:
-            komunikat(5, 1,ATTR_A, " Blad formatu %s w disp_help(). <Ent>", format);
-            czekaj_na_klawisz();
+            komunikat_ent(5, 1,ATTR_A, " Blad formatu %s w disp_help(). <Ent>", format);
             break;
         }
         i = strlen(text);

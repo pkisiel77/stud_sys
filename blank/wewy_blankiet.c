@@ -19,16 +19,14 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
     unsigned int text_a, attr_h, attr_d;
     if (nr_blank < 0 || BL[nr_blank] == NULL || Ok == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Blankiet %d nie otwarty. <Ent>", nr_blank);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Blankiet %d nie otwarty. <Ent>", nr_blank);
         return -1;
     }
     liczba_danych = BL[nr_blank]->liczba_danych;
     l_danych = liczba_danych;
     if (l_danych == 0)
     {
-        komunikat(5, 1,ATTR_A, " Brak danych blankietu %d: <Ent>", nr_blank);
-        czekaj_na_klawisz();
+        komunikat_ent(5, 1,ATTR_A, " Brak danych blankietu %d: <Ent>", nr_blank);
         return -1 /*zamknij_blankiet()*/;
     }
     /*  nr_danej=0; */
@@ -122,9 +120,8 @@ int rap_blank(char* tytul, signed char* kod_raportu, int* nr_rekordu)
         if (SLEDZIC == 1)
         {
             term_flush();
-            komunikat(MY_MAX, X_L0,ATTR_A, " no=%d ld=%d typ=%c x=%d y=%d Ymax=%d/%d X0=%d ok->x=%d ok->y=%d <Ent> ",
-                      no, l_danych, ok->typ, x, y, Y_maxBlank, MY_MAX, X_L0, ok->xo, ok->yo);
-            czekaj_na_klawisz();
+            komunikat_ent(MY_MAX, X_L0,ATTR_A, " no=%d ld=%d typ=%c x=%d y=%d Ymax=%d/%d X0=%d ok->x=%d ok->y=%d <Ent> ",
+                          no, l_danych, ok->typ, x, y, Y_maxBlank, MY_MAX, X_L0, ok->xo, ok->yo);
         }
         setcursor(nocursor);
         do
@@ -392,10 +389,9 @@ char* dane_oryginalne(int nr_rekordu, char* tytul, char** d_rek,
                 zn = tytul[30];
                 tytul[30] = 0;
             }
-            komunikat(MY_MAX, 1,ATTR_A, "%s. Brak miejsca na dane. Bedzie bierny  !! <Ent> ",
-                      tytul);
+            komunikat_ent(MY_MAX, 1,ATTR_A, "%s. Brak miejsca na dane. Bedzie bierny  !! <Ent> ",
+                          tytul);
             if (zn != 0) tytul[30] = zn;
-            czekaj_na_klawisz();
             *rozmiar = 0;
             *zmiany = NULL;
             return NULL;
@@ -538,9 +534,8 @@ D:
     case 2: nr_danej = BL[nr_blank]->nr_danej;
         return Dane;
     default:
-        komunikat(MY_MAX, 1,ATTR_A, " Czy_Blankiet_otwarty=%d ?? <Ent> ",
-                  Czy_Blankiet_otwarty);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, 1,ATTR_A, " Czy_Blankiet_otwarty=%d ?? <Ent> ",
+                      Czy_Blankiet_otwarty);
         return NULL; /* break; */
     }
     BL[nr_blank]->y_scroll = -1;
@@ -560,9 +555,8 @@ D:
     }
     if (ret < 0)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak danych w blankiecie %d: nr_danej=%d nr_ob=%d . <Ent> ",
-                  nr_blank, nr_danej, *nr_ob);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak danych w blankiecie %d: nr_danej=%d nr_ob=%d . <Ent> ",
+                      nr_blank, nr_danej, *nr_ob);
         return (char*)-1;
     }
     Czy_Blankiet_otwarty = 2;
@@ -1226,8 +1220,7 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
     }
     if (i == LRAP_BL)
     {
-        komunikat(MY_MAX, X_L0, ATTR_A, "Nie zdefiniowany raport %d. <ENT> ", kod_raportu);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0, ATTR_A, "Nie zdefiniowany raport %d. <ENT> ", kod_raportu);
         return -1;
     }
     R = RAP[i];
@@ -1275,9 +1268,8 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
     nr_blank++;
     if (nr_blank == LBLANK)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Przekroczony limit blankietow (%d). <Ent>",LBLANK);
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Przekroczony limit blankietow (%d). <Ent>",LBLANK);
         nr_blank--;
-        czekaj_na_klawisz();
         return -2;
     }
     BL[nr_blank] = (struct blankiet*)Malloc(sizeof(struct blankiet));
@@ -1289,10 +1281,9 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
             zn = R->tytul[30];
             R->tytul[30] = 0;
         }
-        komunikat(MY_MAX, X_L0,ATTR_A, " %s. Brak pamieci dla opisu blankietu %d. <Ent>", R->tytul, nr_blank);
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " %s. Brak pamieci dla opisu blankietu %d. <Ent>", R->tytul, nr_blank);
         nr_blank--;
         if (zn != 0) R->tytul[30] = zn;
-        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;
@@ -1306,11 +1297,10 @@ int otworz_blankiet(signed char kolor, signed char ramka, int yp,
             zn = R->tytul[30];
             R->tytul[30] = 0;
         }
-        komunikat(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci dla blankietu %d: <Ent>",
-                  R->tytul, nr_blank);
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, "%s. Brak pamieci dla blankietu %d: <Ent>",
+                      R->tytul, nr_blank);
         nr_blank--;
         if (zn != 0) R->tytul[30] = zn;
-        czekaj_na_klawisz();
         return -1;
     }
     lwmall++;

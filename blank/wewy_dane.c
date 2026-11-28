@@ -6,6 +6,23 @@
 
 /* ========================= Tu zaczyna sie plik wewy3.c =========== */
 void dane_helpu(char* hformat, char* help[], va_list* ap);
+
+int sprawdz_nr_danej(void)
+{
+    if (Ok == NULL)
+    {
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
+                      nr_danej);
+        return -1;
+    }
+    if (nr_danej >= liczba_danych)
+    {
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
+                      nr_danej, liczba_danych);
+        return -1;
+    }
+    return 0;
+}
 /* ========================================================== */
 int okno_menu_rekordow(char* Menu[], int w_max, int opcja0,
                        unsigned int attr, unsigned int attr_o,
@@ -62,20 +79,7 @@ int tabl_znak(int y, int x, char* monit, int ind_min, int ind_max,
               char* objasn[], int liczba_obj, int ochrona)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
@@ -132,9 +136,8 @@ int dana_double(int y, int x, char* monit, double* w_min, double* w_max,
     if (Ok == NULL) return -1;
     if (nr_danej >= liczba_danych)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
+                      nr_danej, liczba_danych);
         return -1;
     }
     ok = Ok + nr_danej;
@@ -477,20 +480,7 @@ int v_tabl_grup(int y, int x, char* monit, int ind_min,
                 int skok, signed char raport, char* hformat, va_list* ap)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
@@ -572,8 +562,7 @@ void dane_helpu(char* hformat, char* help[], va_list* ap)
             }
             if (*zn == EOS)
             {
-                komunikat(MY_MAX, X_L0,ATTR_A, " Blad formatu %s w grupie (zn=%c, k=%d). <Ent>", form, *zn, k);
-                czekaj_na_klawisz();
+                komunikat_ent(MY_MAX, X_L0,ATTR_A, " Blad formatu %s w grupie (zn=%c, k=%d). <Ent>", form, *zn, k);
                 break;
             }
             if (k == 4)
@@ -589,9 +578,8 @@ void dane_helpu(char* hformat, char* help[], va_list* ap)
                         char* _va_peek_nxt = va_arg(*ap, char*); /* nastepny arg */
                         if (lz >= LHELP || _va_peek_nxt == NULL)
                         {
-                            komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie (zn=%c k=%d). <Ent>",
-                                      form, *zn, k);
-                            czekaj_na_klawisz();
+                            komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie (zn=%c k=%d). <Ent>",
+                                          form, *zn, k);
                             break;
                         }
                         help[lz] = _va_peek_nxt;
@@ -602,10 +590,9 @@ void dane_helpu(char* hformat, char* help[], va_list* ap)
                 }
                 else
                 {
-                    komunikat(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie - zn=%c k=%d. <Ent>",
-                              form, *zn, k);
+                    komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak liczby danych dla spec. %s w grupie - zn=%c k=%d. <Ent>",
+                                  form, *zn, k);
                     /*fprintf(mystderr,"\n zle dane_form=%s",zn); */
-                    czekaj_na_klawisz();
                     break;
                 }
             }
@@ -643,22 +630,19 @@ void dane_helpu(char* hformat, char* help[], va_list* ap)
                 }
                 if (*zn == EOS)
                 {
-                    komunikat(MY_MAX, X_L0,ATTR_A,
-                              " Brak klamry ] lub liczby stringow w formacie %s grupy (k=%d). <Ent>", form, k);
-                    czekaj_na_klawisz();
+                    komunikat_ent(MY_MAX, X_L0,ATTR_A,
+                                  " Brak klamry ] lub liczby stringow w formacie %s grupy (k=%d). <Ent>", form, k);
                     break;
                 }
                 if (typ != 's' && typ != 'S')
                 {
-                    komunikat(MY_MAX, X_L0,ATTR_A, " Blad (s) formatu %s w grupie. <Ent>", form);
-                    czekaj_na_klawisz();
+                    komunikat_ent(MY_MAX, X_L0,ATTR_A, " Blad (s) formatu %s w grupie. <Ent>", form);
                     break;
                 }
                 lzm++;
                 if (lzm == LHELP)
                 {
-                    komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w grupie. <Ent>");
-                    czekaj_na_klawisz();
+                    komunikat_ent(MY_MAX, X_L0,ATTR_A, " Za duzo danych w grupie. <Ent>");
                     break;
                 }
                 help[lzm] = va_arg(*ap, char*);
@@ -714,20 +698,7 @@ int tabl_int(int y, int x, char* monit, int ind_min,
              int ochrona, signed char raport)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
@@ -810,20 +781,7 @@ int dana_int(int y, int x, char* monit, int* w_min, int* w_max,
              int* wart, int size, int ochrona, signed char raport)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->decyzja = -1;
@@ -875,20 +833,7 @@ int dana_text(int y, int x, char* monit, char* string, int size,
               char** help, int l_opcji, int ochrona)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = wpisz_format(ok->format, monit);
@@ -962,20 +907,7 @@ int wpis_danej_text_menu(int y, int x, char* monit, char* string, int size,
                          long int skok, void* R, char* hformat, va_list* ap)
 {
     struct okno* ok;
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->Rep_help = R;
@@ -1022,27 +954,13 @@ int dana_koment(int yo, int xo, char* format, ...)
     text = (char*)Malloc(l * sizeof(char));
     if (text == NULL)
     {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak pamieci na komentarz: %s. <Ent> ",
-                  bufor);
-        czekaj_na_klawisz();
+        komunikat_ent(MY_MAX, X_L0,ATTR_A, " Brak pamieci na komentarz: %s. <Ent> ",
+                      bufor);
         return -1;
     }
     lwmall++;
     przepisz(text, bufor, l);
-    if (Ok == NULL)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Brak adresu dla danej %d blankietu. <Ent> ",
-                  nr_danej);
-        czekaj_na_klawisz();
-        return -1;
-    }
-    if (nr_danej >= liczba_danych)
-    {
-        komunikat(MY_MAX, X_L0,ATTR_A, " Za duzo danych w blankiecie: nr_danej=%d l_danych=%d. <Ent> ",
-                  nr_danej, liczba_danych);
-        czekaj_na_klawisz();
-        return -1;
-    }
+    if (sprawdz_nr_danej() < 0) return -1;
     ok = Ok + nr_danej;
     nr_danej++;
     ok->format = text;
